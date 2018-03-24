@@ -1,0 +1,199 @@
+# mySimple.world - basic world file example
+# Authors: Ragesh Kumar R
+# $Id$
+
+
+# time to pause (in GUI mode) or quit (in headless mode (-g)) the simulation
+quit_time 600 # 36 seconds of simulated time
+
+# start the simulation in pause
+paused 1
+
+# spatial resolution of the underlying occupancy grid. Default is 0.02m.
+resolution 0.02
+
+# set the multiple of real time that Stage should try to achieve. Default is 1. 
+# set to 0 to go as fast as possible.
+speedup 1
+
+# configure the GUI window
+window
+(
+  size [ 635.000 666.000 ] # in pixels
+  scale 36.995   # pixels per meter
+  center [ -0.040  -0.274 ]
+  rotate [ 0  0 ]
+  			
+  show_data 1              # 1=on 0=off
+)
+
+define floorplan model
+(
+  # sombre, sensible, artistic
+  color "gray30"
+
+  # most maps will need a bounding box
+  boundary 1
+
+  gui_nose 0
+  gui_grid 0
+  gui_move 0
+  gui_outline 0
+  gripper_return 0
+  fiducial_return 0
+  ranger_return 1
+
+  obstacle_return 0
+)
+
+# load an environment bitmap
+floorplan
+( 
+  name "cave"
+  size [16.000 16.000 1.800]
+  pose [0 0 0 0]
+  bitmap "bitmaps/cave.png"
+)
+
+
+# my robot
+
+
+
+define bigbob position
+(
+      size [1.25 1 1]
+
+      origin [0.125 0 0 0]
+      obstacle_return 1 
+      gui_nose 1                  	# Draw a nose on the robot so we can see which way it points
+      obstacle_return 1           	# Can hit things.
+      ranger_return 1            	# reflects sonar beams
+      blob_return 1               	# Seen by blobfinders  
+      fiducial_return 1           	# Seen as "1" fiducial finders
+
+      # the shape of Bigbob
+
+      block
+      (
+            points 6
+            point[5] [0 0]
+            point[4] [0 1]
+            point[3] [0.75 1]
+            point[2] [1 0.75]
+            point[1] [1 0.25]
+            point[0] [0.75 0]
+            z [0 1]
+      )
+
+      block
+      (
+            points 4
+            point[3] [1 0.75]
+            point[2] [1.25 0.75]
+            point[1] [1.25 0.625]
+            point[0] [1 0.625]
+            z [0 0.5]
+      )
+
+      block
+      (
+            points 4
+            point[3] [1 0.375]
+            point[2] [1.25 0.375]
+            point[1] [1.25 0.25]
+            point[0] [1 0.25]
+            z [0 0.5]
+      )
+
+      # positonal things
+      drive "diff"
+)
+
+
+define bigbobs_sonar_left sensor
+(
+    # define the size of each transducer [xsize ysize zsize] in meters
+    # size [0.01 0.05 0.01 ] 
+    # define the range bounds [min max]
+    range [0.3 2.0]
+    # define the angular field of view in degrees
+    fov 75
+    # define the color that ranges are drawn in the gui
+    color_rgba [ 0 1 0 1 ] 
+    samples 20
+)
+
+
+define bigbobs_sonar_right sensor
+(
+    # define the size of each transducer [xsize ysize zsize] in meters
+    # size [0.01 0.05 0.01 ] 
+    # define the range bounds [min max]
+    range [0.3 2.0]
+    # define the angular field of view in degrees
+    fov 75
+    # define the color that ranges are drawn in the gui
+    color_rgba [ 0 1 0 1 ] 
+    samples 20
+)
+
+define bigbobs_sonars_left_tooth ranger
+( 
+  # one line for each sonar [xpos ypos zpos heading]
+  size [0.01 0.05 0.01 ] 
+  bigbobs_sonar_left( pose [ 0.75 0.1875 0 30]) # fr left tooth
+  #bigbobs_sonar( pose [ 0.75 -0.1875 0 0]) # fr right tooth
+  #bigbobs_sonar( pose [ 0.25 0.5 0 30]) # left corner
+  #bigbobs_sonar( pose [ 0.25 -0.5 0 -30]) # right corner
+  #name "left_ranger"
+)
+
+
+define bigbobs_sonars_right_tooth ranger
+( 
+  # one line for each sonar [xpos ypos zpos heading]
+  size [0.01 0.05 0.01 ] 
+  #bigbobs_sonar( pose [ 0.75 0.1875 0 0]) # fr left tooth
+  bigbobs_sonar_right( pose [ 0.75 -0.1875 0 -30]) # fr right tooth
+  #bigbobs_sonar( pose [ 0.25 0.5 0 30]) # left corner
+  #bigbobs_sonar( pose [ 0.25 -0.5 0 -30]) # right corner
+  #name "right_ranger"
+)
+
+
+
+bigbob
+(
+    name "bob1"
+    pose [ -6.946 -6.947 0 60.000 ] 
+    # report error-free position in world coordinates
+    ctrl "myWander"
+    bigbobs_sonars_left_tooth()
+    bigbobs_sonars_right_tooth()
+    #sicklaser( pose [ 0 0 0 0 ] ) 
+    #sicklaser( pose [ 0 0 0 -80 ] ) 
+    localization "gps"
+    localization_origin [ 0 0 0 0 ]
+
+    #trail_length 400
+
+)
+
+bigbob
+(
+    name "bob2"
+    pose [ -4.946 -6.947 0 30.000 ] 
+    # report error-free position in world coordinates
+    ctrl "myWander"
+    bigbobs_sonars_left_tooth()
+    bigbobs_sonars_right_tooth()
+    #sicklaser( pose [ 0 0 0 0 ] ) 
+    #sicklaser( pose [ 0 0 0 -80 ] ) 
+    localization "gps"
+    localization_origin [ 0 0 0 0 ]
+
+    #trail_length 400
+
+)
+

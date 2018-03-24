@@ -1,0 +1,11 @@
+syntax: glob
+*/build/*
+*/bin/*
+*/gen_lib/*
+*/ctrl_lib/*
+*/doc_doxygen/*
+*/cmake-build-debug/*
+*/CMakeFiles/*
+*.cmake
+*/Makefile
+
