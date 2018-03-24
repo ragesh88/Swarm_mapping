@@ -54,6 +54,14 @@ namespace myRobot{
     public:
 
         // Stage simulator variables
+        /// Access the position model of the Stage library
+        Stg::ModelPosition *position;
+        /// Access the laser sensor model of the Stage library
+        Stg::ModelRanger *laser;
+        /// Obstacle avoidance variable
+        int avoidCount, randCount;
+
+        Stg::Pose previous_pose;
 
 
         // constructor
@@ -82,6 +90,11 @@ namespace myRobot{
                              current_velocity.z * current_velocity.z);
             turn_speed = current_velocity.a;
 
+        }
+
+
+        robot(){
+            /// Default constructor with no arguments
         }
 
         // get functions

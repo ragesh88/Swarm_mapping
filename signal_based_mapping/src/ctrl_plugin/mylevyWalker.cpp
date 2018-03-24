@@ -1,12 +1,14 @@
-/*
- MyRandomWalker.cc
+/**
+ mylevywalker.cpp
 
- This is a source code for a random walk plugin for the stage simulator.
- The plugin enables the robot to perform random walk in a bounded domain.
+ This is a source code for a Levy walk plugin for the stage simulator.
+ The plugin enables the robot to perform Levy walk in a bounded domain.
  The robot can have only one laser sensor.
-*/
+**/
 
 #include <Stage-4.3/stage.hh>
+#include "robot/robot.h"
+
 using namespace Stg;
 
 // random walk step size
@@ -22,21 +24,10 @@ static const bool debug = true;
 static const double stopDist = 0.3;
 static const int avoidDuration = 10;
 
-// Robot class
 
-class Robot {
 
-  public:
-
-  ModelPosition *position;
-  ModelRanger *laser;
-  Pose previous_pose;
-
-  int avoidCount, randCount;
-};
-
-int LaserUpdate(Model *mod, Robot *robot);
-int PositionUpdate(Model *mod, Robot *robot);
+int LaserUpdate(Model *mod, myRobot::robot *robot);
+int PositionUpdate(Model *mod, myRobot::robot *robot);
 double generateGaussianNoise(double variance);
 
 
@@ -52,7 +43,7 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
       args->cmdline.c_str() );
 */
 
-  Robot *robot = new Robot();
+  myRobot::robot *robot = new myRobot::robot();
   printf("\n*******Ragesh Random walk controller******");
   robot->avoidCount = 0;
   robot->randCount = 0;
@@ -103,7 +94,7 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
 
 
 // inspect the ranger data and decide what to do
-int LaserUpdate(Model *, Robot *robot)
+int LaserUpdate(Model *, myRobot::robot *robot)
 {
   // get the data
   const std::vector<meters_t> &scan = robot->laser->GetSensors()[0].ranges;
@@ -257,7 +248,7 @@ double generateGaussianNoise(double variance)
   return sqrt(variance * rand1) * cos(rand2);
 }
 
-int PositionUpdate(Model *, Robot *robot)
+int PositionUpdate(Model *, myRobot::robot *robot)
 {
   Pose pre_pose = robot->previous_pose;
   printf("Pre Pose: [%.2f %.2f %.2f %.2f]\n", \
