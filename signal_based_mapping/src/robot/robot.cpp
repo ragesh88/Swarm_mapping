@@ -8,12 +8,12 @@
  *
  */
 
-#include "robot/robot.h"
+#include "robot.h"
 
 using namespace myRobot;
 
 
-bool robot::generate_levy_dist_time(){
+bool robot::generate_levy_dist(){
     /// Generate the length from the distribution
     //uniform random number generator
     std::random_device rd;
@@ -45,7 +45,6 @@ bool robot::generate_levy_dist_time(){
     }
 
     levy_dis = levy_min * pow((1-u),-1/levy_alpha); // levy flight distance
-    set_levy_total_time(levy_dis/speed); // time of flight
     return SUCCESS;
 }
 
