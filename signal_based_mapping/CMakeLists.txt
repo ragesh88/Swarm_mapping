@@ -4,6 +4,9 @@ project(stage_ctrl_plugin)
 # setting the c++ standard 
 set (CMAKE_CXX_STANDARD 14)
 
+# Setting to render documentation
+set(DOC OFF)
+
 # set the plugin install directory 
 set(PROJECT_PLUGIN_DIR "${CMAKE_SOURCE_DIR}/ctrl_lib")
 
@@ -15,7 +18,7 @@ set(GENERATED_LIB "${CMAKE_SOURCE_DIR}/gen_lib")
 set(PROJECT_BINARY_DIR "${CMAKE_SOURCE_DIR}/bin")
 
 # add the stage library 
-link_directories(${HOME}/stg/lib)
+link_directories(~/stg/lib)
 
 # add the generated libraries
 link_directories(GENERATED_LIB)

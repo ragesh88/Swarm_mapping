@@ -8,7 +8,7 @@
  *
  */
 
-#include "robot.h"
+#include "robot/robot.h"
 
 using namespace myRobot;
 
