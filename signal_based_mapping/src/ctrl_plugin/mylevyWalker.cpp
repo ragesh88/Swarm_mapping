@@ -191,7 +191,7 @@ int LaserUpdate(Model *, myRobot::robot *robot) {
                 printf("\n Desired direction %f",(desired_direction/(M_PI))*180);
                 printf("\n Current direction %f",(current.a/(M_PI))*180);
                 printf("\n Current pose %f, %f, %f",current.x, current.y, (current.a/(M_PI))*180);
-                printf("\n Current sim time %" PRId64 ,simTime);
+                std::cout<<"\n Current sim time(s) is : "<<simTime/1000000.0;
             }
             if(verbose_new){
                 printf("\n angle difference 1 %f \n", (desired_direction-current.a)/(M_PI)*180);
