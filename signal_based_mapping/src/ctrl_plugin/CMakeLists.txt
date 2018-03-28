@@ -8,7 +8,7 @@ SET( PLUGINS
 # create a library module for each plugin and link libstage to each
 
 foreach( PLUGIN ${PLUGINS} )
-  ADD_LIBRARY( ${PLUGIN} MODULE ${PLUGIN}.cpp ../../include/robot/robot.h)
+  ADD_LIBRARY( ${PLUGIN} MODULE ${PLUGIN}.cpp ../robot/robot.cpp)
 endforeach( PLUGIN )
 				
 #ADD_LIBRARY( fasr2 MODULE fasr2.cc astar/findpath.cpp )
@@ -21,7 +21,7 @@ set_source_files_properties( ${PLUGINS} PROPERTIES
 )
 
 foreach( PLUGIN ${PLUGINS} )
-  TARGET_LINK_LIBRARIES( ${PLUGIN} stage ${OPENGL_LIBRARIES} robot )
+  TARGET_LINK_LIBRARIES( ${PLUGIN} stage ${OPENGL_LIBRARIES} )
 endforeach( PLUGIN )
 
 # delete the "lib" prefix from the plugin libraries

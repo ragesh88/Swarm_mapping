@@ -21,11 +21,14 @@ set(PROJECT_BINARY_DIR "${CMAKE_SOURCE_DIR}/bin")
 link_directories(~/stg/lib)
 
 # add the generated libraries
-link_directories(GENERATED_LIB)
+#link_directories(GENERATED_LIB)
 
 
 # include the header files directory
 include_directories(${CMAKE_SOURCE_DIR}/include)
+
+#include the stage library header files
+include_directories(~/stg/include)
 
 set(MY_HEADERS "${CMAKE_SOURCE_DIR}/include")
 
