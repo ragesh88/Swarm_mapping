@@ -23,6 +23,18 @@ namespace myRobot{
     /// failed flag
     const bool FAILED = false;
 
+    enum LEVY_MODE{
+        /**
+         * The various modes for levy motion
+         */
+        /// Cruise mode
+        CRUISE,
+        /// Rotation mode
+        ROTATION,
+        /// Start mode
+        START
+    };
+
 
     class robot {
         /// name of the robot
@@ -53,6 +65,8 @@ namespace myRobot{
         double levy_dir_time = 0.0;
         /// the start time for the levy flight
         double levy_start_time = 0.0;
+        /// The time for the robot should perform a levy cruise
+        Stg::usec_t levy_cruise_time=0;
 
     public:
 
@@ -63,11 +77,14 @@ namespace myRobot{
         Stg::ModelRanger *laser;
         /// Obstacle avoidance variable
         int avoidCount, randCount;
-
         Stg::Pose previous_pose;
-
         /// The pointer to the world object
         Stg::World *world;
+        /// The modes for levy flight
+        LEVY_MODE mode=START;
+        /// The levy direction for the flight
+        Stg::radians_t desired_levy_direction=0;
+
 
 
         // constructor
@@ -105,71 +122,76 @@ namespace myRobot{
 
         // get functions
 
-        std::string get_robot_name(){
+        std::string get_robot_name() const {
             /// Returns the name of the robot
             return robot_name;
         }
 
-        Stg::Pose get_current_pose(){
+        Stg::Pose get_current_pose() const {
             /// Returns the current pose as Stg::Pose object
             return current_pose;
         }
 
-        Stg::Pose get_past_pose(){
+        Stg::Pose get_past_pose() const {
             /// Returns the past pose as Stg::Pose object
             return past_pose;
         }
 
-        Stg::Velocity get_current_velocity(){
+        Stg::Velocity get_current_velocity() const {
             /// Returns the current velocity as Stg::Velocity object
             return current_velocity;
         }
 
-        Stg::Velocity get_past_velocity(){
+        Stg::Velocity get_past_velocity() const {
             /// Returns past velocity as Stg::Velocity object
             return past_velocity;
         }
 
-        Stg::msec_t get_past_pose_time(){
+        Stg::msec_t get_past_pose_time() const {
             /// Returns the past pose time as Stg::msec_t
             return past_pose_time;
         }
 
-        double get_levy_alpha(){
+        double get_levy_alpha() const {
             /// Returns the exponent of the levy flight
             return levy_alpha;
         }
 
-        Stg::meters_t get_levy_min(){
+        Stg::meters_t get_levy_min() const {
             /// Return the minimum levy distance
             return levy_min;
         }
 
-        Stg::meters_t get_levy_dis(){
+        Stg::meters_t get_levy_dis() const {
             /// Returns the levy distance
             return levy_dis;
         }
 
-        double get_levy_total_time(){
+        double get_levy_total_time() const {
             /// Return total levy translation time
             return levy_total_time;
         }
 
-        double get_levy_dir_time(){
+        double get_levy_dir_time() const {
             /// Return total levy rotation time
             return levy_dir_time;
         }
 
-        double get_levy_start_time(){
+        double get_levy_start_time() const {
             /// Return start time of the levy flight
             return levy_start_time;
         }
 
-        double get_current_linear_speed(){
+        double get_current_linear_speed() const {
             /// Return the 2 - norm of the linear velocity
             return std::sqrt(current_velocity.x * current_velocity.x + \
                              current_velocity.y * current_velocity.y + \
                              current_velocity.z * current_velocity.z);
+        }
+
+        double get_levy_cruise_time() const {
+            /// Returns the time for levy translation
+            return levy_cruise_time;
         }
 
         // set functions
@@ -305,9 +327,9 @@ namespace myRobot{
         void set_levy_total_time(double time){
             /// Set total levy time
             /**
-             * \param time : total levy flight time
+             * \param time : current simulation time
              */
-            levy_total_time = time;
+            levy_total_time = time + levy_cruise_time;
         }
 
         void set_levy_start_time(double time){
@@ -316,6 +338,25 @@ namespace myRobot{
              * \param time : the start time of levy flight
              */
             levy_start_time = time;
+        }
+
+        bool set_levy_cruise_time(double speed) {
+            /// Compute the levy flight time based on the given speed
+            /**
+             * \param speed : the translation speed of the robot
+             */
+
+            try {
+                if(speed == 0){
+                    throw "\nspeed should be non zero\n";
+                }
+            }
+            catch (const char* a){
+                std::cout<<a;
+                return FAILED;
+            }
+            levy_cruise_time = levy_dis/speed;
+            return SUCCESS;
         }
 
 

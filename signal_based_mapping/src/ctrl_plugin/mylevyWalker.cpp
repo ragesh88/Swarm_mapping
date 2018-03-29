@@ -22,7 +22,8 @@ static const bool verbose_new = true;
 static const bool debug = false;
 static const double stopDist = 0.3;
 static const int avoidDuration = 10;
-static const double tol = 3;
+static const double time_tol = 0.1; // time tolerance
+static const double rot_tol = 1; // angle tolerance
 
 
 int LaserUpdate(Model *mod, myRobot::robot *robot);
@@ -120,9 +121,9 @@ int LaserUpdate(Model *, myRobot::robot *robot) {
 
         if ((i > (sample_count / 3)) && (i < (sample_count - (sample_count / 3)))
             && scan[i] < minFrontDistance) {
-            if (verbose)
+            if (verbose || verbose_new)
                 puts("  obstruction!");
-            robot->set_levy_total_time(0);
+            robot->mode=myRobot::LEVY_MODE::START;
             obstruction = true;
         }
 
@@ -145,8 +146,8 @@ int LaserUpdate(Model *, myRobot::robot *robot) {
     }
 
     if (obstruction || stop || (robot->avoidCount > 0)) {
-        robot->set_levy_total_time(0);
-        if (verbose)
+        robot->mode=myRobot::LEVY_MODE::START;
+        if (verbose || verbose_new)
             printf("Avoid %d\n", robot->avoidCount);
 
         robot->position->SetXSpeed(stop ? 0.0 : avoidSpeed);
@@ -178,31 +179,32 @@ int LaserUpdate(Model *, myRobot::robot *robot) {
 
         // Levy walk behaviour code
         // motion generation
-        static radians_t desired_direction=0;
-        if(robot->get_levy_total_time() == 0) {
+        if(robot->mode==myRobot::LEVY_MODE::START) {
             if(verbose_new)
-                puts("\nrotation mode\n");
-            desired_direction = robot->generate_random_direction();
-            assert(robot->generate_levy_dist());
-            Stg::usec_t trans_time = robot->get_levy_dis()/cruisesSpeed;
+                puts("\n Rotation mode\n");
+            robot->mode=myRobot::LEVY_MODE::ROTATION;
+            robot->generate_random_direction(); // generate random direction for levy flight
+            assert(robot->generate_levy_dist()); // generate levy distance
+            assert(robot->set_levy_cruise_time(cruisesSpeed)); // compute the time required to cover the distance
             Pose current = robot->position->GetPose();
-            Stg::usec_t simTime = robot->world->SimTimeNow();
             if(verbose_new){
-                printf("\n Desired direction %f",(desired_direction/(M_PI))*180);
+                printf("\n Desired direction %f",(robot->desired_levy_direction/(M_PI))*180);
                 printf("\n Current direction %f",(current.a/(M_PI))*180);
                 printf("\n Current pose %f, %f, %f",current.x, current.y, (current.a/(M_PI))*180);
-                std::cout<<"\n Current sim time(s) is : "<<simTime/1000000.0;
+                std::cout<<"\n Current sim time(s) is : "<<robot->world->SimTimeNow()/1000000.0;
             }
             if(verbose_new){
-                printf("\n angle difference 1 %f \n", (desired_direction-current.a)/(M_PI)*180);
-                printf("\n angle difference 2 %f \n", (std::fabs(2*M_PI - desired_direction) + current.a)/(M_PI)*180);
-                printf("\n angle difference 3 %f \n", (std::fabs(2*M_PI - current.a) + desired_direction)/(M_PI)*180);
+                printf("\n angle difference 1 %f \n", std::fabs(robot->desired_levy_direction-current.a)/(M_PI)*180);
+                printf("\n angle difference 2 %f \n", (M_PI - std::fabs(robot->desired_levy_direction) + \
+                M_PI - std::fabs(current.a))/(M_PI)*180);
+                //printf("\n angle difference 3 %f \n", (std::fabs(2*M_PI - current.a) + robot->desired_levy_direction)/(M_PI)*180);
             }
             // find the smallest angle to rotate
-            if(std::fabs(desired_direction-current.a) < std::fabs(2*M_PI - desired_direction) + current.a || \
-            std::fabs(desired_direction-current.a) < std::fabs(2*M_PI - current.a) + desired_direction) {
+            if(std::fabs(robot->desired_levy_direction-current.a) <= M_PI - std::fabs(robot->desired_levy_direction) + \
+                M_PI - std::fabs(current.a) ) {
+
                 robot->position->SetXSpeed(0);
-                if (desired_direction > current.a){
+                if (robot->desired_levy_direction > current.a){
                     robot->position->SetTurnSpeed(+turnSpeed);
                     if(verbose_new){
                         printf("\n angle difference 1  turn + direction \n");
@@ -213,11 +215,9 @@ int LaserUpdate(Model *, myRobot::robot *robot) {
                         printf("\n angle difference 1  turn - direction \n");
                     }
                 }
-                Stg::usec_t rot_time = std::fabs(desired_direction-current.a)/turnSpeed;
-                robot->set_levy_total_time(simTime+trans_time+rot_time);
             } else{
                 robot->position->SetXSpeed(0);
-                if (std::fabs(2*M_PI - desired_direction) + current.a < std::fabs(2*M_PI - current.a) + desired_direction){
+                if (robot->desired_levy_direction > current.a){
                     robot->position->SetTurnSpeed(-turnSpeed);
                     if(verbose_new){
                         printf("\n angle difference 2  turn - direction \n");
@@ -228,24 +228,47 @@ int LaserUpdate(Model *, myRobot::robot *robot) {
                         printf("\n angle difference 3  turn + direction \n");
                     }
                 }
-                robot->set_levy_total_time(simTime+trans_time);
             }
         } else{
             if(verbose_new){
                 Pose p = robot->position->GetPose();
-                printf("\n Current pose before cruise %f, %f, %f\n",p.x, p.y, (p.a/(M_PI))*180);
+                printf("\n Current pose : %f, %f, %f\n",p.x, p.y, (p.a/(M_PI))*180);
             }
-            if(std::fabs(desired_direction-robot->position->GetPose().a)/(M_PI)*180 < tol) {
-                if(verbose_new)
-                    puts("\nCruise mode\n");
+            if(std::fabs(robot->desired_levy_direction-robot->position->GetPose().a)/(M_PI)*180 < rot_tol) {
+
+                if (robot->mode!=myRobot::LEVY_MODE::CRUISE){
+                    robot->set_levy_total_time(robot->world->SimTimeNow()/1000000.0);
+                    robot->mode=myRobot::LEVY_MODE::CRUISE;
+                    if(verbose_new)
+                        puts("\n Cruise mode initiated\n");
+                }
+
+            }
+            if (robot->mode==myRobot::LEVY_MODE::CRUISE){
                 robot->position->SetTurnSpeed(0);
                 robot->position->SetXSpeed(cruisesSpeed);
-            }
-            if(std::fabs(robot->world->SimTimeNow() - robot->get_levy_total_time()) < tol){
-                robot->set_levy_total_time(0);
-            }
-        }
+                if(verbose_new)
+                    puts("\n Cruise mode\n");
+                // display the time difference between current simulation time and while cruising
+                if (verbose_new){
+                    std::cout<<"\n The difference between sim time and levy time :"\
+                <<std::fabs(robot->world->SimTimeNow()/1000000.0 - robot->get_levy_total_time());
+                }
 
+                // Check if the time for levy flight is over
+                if(std::fabs(robot->world->SimTimeNow()/1000000.0 - robot->get_levy_total_time()) < time_tol){
+                    if(verbose_new){
+                        puts("\n Levy flight restarted\n");
+                    }
+                    robot->set_levy_total_time(0);
+                    // Changing the mode of the robot to start mode
+                    robot->mode=myRobot::LEVY_MODE::START;
+                }
+            }
+
+
+
+        }
 
     }
 

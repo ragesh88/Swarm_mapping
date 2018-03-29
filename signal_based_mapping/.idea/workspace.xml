@@ -2,9 +2,9 @@
 <project version="4">
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true" buildAllGenerated="true">
     <generated>
+      <config projectName="stage_ctrl_plugin" targetName="robot" />
       <config projectName="stage_ctrl_plugin" targetName="mySampleTest" />
       <config projectName="stage_ctrl_plugin" targetName="mylevyWalker" />
-      <config projectName="stage_ctrl_plugin" targetName="robot" />
     </generated>
   </component>
   <component name="CMakeSettings" AUTO_RELOAD="true">
@@ -14,11 +14,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8ffdee99-406e-4af1-9969-a672001194bc" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/include/robot/robot.h" afterPath="$PROJECT_DIR$/include/robot/robot.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ctrl_plugin/mylevyWalker.cpp" afterPath="$PROJECT_DIR$/src/ctrl_plugin/mylevyWalker.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/robot/robot.cpp" afterPath="$PROJECT_DIR$/src/robot/robot.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/mySampleTest.cpp" afterPath="$PROJECT_DIR$/test/mySampleTest.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/worlds/myLevy.world" afterPath="$PROJECT_DIR$/worlds/myLevy.world" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <ignored path="$PROJECT_DIR$/src/ctrl_plugin/CMakeFiles/" />
@@ -31,7 +30,42 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
+    <leaf>
+      <file leaf-file-name="robot.cpp" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/robot/robot.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="258">
+              <caret line="51" column="14" lean-forward="false" selection-start-line="51" selection-start-column="5" selection-end-line="51" selection-end-column="14" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="mylevyWalker.cpp" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/ctrl_plugin/mylevyWalker.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="548">
+              <caret line="294" column="0" lean-forward="true" selection-start-line="294" selection-start-column="0" selection-end-line="294" selection-end-column="0" />
+              <folding>
+                <element signature="e#214#243#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="robot.h" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/include/robot/robot.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1194">
+              <caret line="370" column="6" lean-forward="false" selection-start-line="370" selection-start-column="6" selection-end-line="370" selection-end-column="6" />
+              <folding>
+                <element signature="e#296#325#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
@@ -39,6 +73,8 @@
       <find>c_vel</find>
       <find>float</find>
       <find>Robot</find>
+      <find>desired_direction</find>
+      <find>trans_time</find>
     </findStrings>
     <replaceStrings>
       <replace>set</replace>
@@ -46,6 +82,8 @@
       <replace>i_vel</replace>
       <replace>double</replace>
       <replace>myRobot::robot</replace>
+      <replace>desired_levy_direction</replace>
+      <replace>robot-&gt;desired_levy_direction</replace>
     </replaceStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -56,10 +94,10 @@
         <option value="$PROJECT_DIR$/src/ctrl_plugin/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/test/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/src/robot/CMakeLists.txt" />
-        <option value="$PROJECT_DIR$/src/robot/robot.cpp" />
-        <option value="$PROJECT_DIR$/src/ctrl_plugin/mylevyWalker.cpp" />
         <option value="$PROJECT_DIR$/test/mySampleTest.cpp" />
+        <option value="$PROJECT_DIR$/src/robot/robot.cpp" />
         <option value="$PROJECT_DIR$/include/robot/robot.h" />
+        <option value="$PROJECT_DIR$/src/ctrl_plugin/mylevyWalker.cpp" />
       </list>
     </option>
   </component>
@@ -97,6 +135,28 @@
             <path>
               <item name="stage_ctrl_plugin" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
               <item name="signal_based_mapping" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="stage_ctrl_plugin" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
+              <item name="signal_based_mapping" type="462c0819:PsiDirectoryNode" />
+              <item name="include" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="stage_ctrl_plugin" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
+              <item name="signal_based_mapping" type="462c0819:PsiDirectoryNode" />
+              <item name="include" type="462c0819:PsiDirectoryNode" />
+              <item name="robot" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="stage_ctrl_plugin" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
+              <item name="signal_based_mapping" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="stage_ctrl_plugin" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
+              <item name="signal_based_mapping" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="ctrl_plugin" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -166,25 +226,26 @@
       <workItem from="1521935148474" duration="11283000" />
       <workItem from="1521955972572" duration="199000" />
       <workItem from="1522034422004" duration="13000" />
+      <workItem from="1522271636694" duration="14410000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="53900000" />
+    <option name="totallyTimeSpent" value="68310000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="2040" y="206" width="1857" height="1212" extended-state="6" />
+    <frame x="1985" y="-4" width="1855" height="1204" extended-state="6" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22048518" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3306011" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -496,28 +557,28 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/robot/robot.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="15" column="30" lean-forward="false" selection-start-line="15" selection-start-column="30" selection-end-line="15" selection-end-column="30" />
+        <state relative-caret-position="258">
+          <caret line="51" column="14" lean-forward="false" selection-start-line="51" selection-start-column="5" selection-end-line="51" selection-end-column="14" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ctrl_plugin/mylevyWalker.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2970">
-          <caret line="165" column="42" lean-forward="false" selection-start-line="165" selection-start-column="42" selection-end-line="165" selection-end-column="42" />
-          <folding>
-            <element signature="e#214#243#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/include/robot/robot.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="492">
-          <caret line="44" column="48" lean-forward="false" selection-start-line="44" selection-start-column="48" selection-end-line="44" selection-end-column="48" />
+        <state relative-caret-position="1194">
+          <caret line="370" column="6" lean-forward="false" selection-start-line="370" selection-start-column="6" selection-end-line="370" selection-end-column="6" />
           <folding>
             <element signature="e#296#325#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ctrl_plugin/mylevyWalker.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="548">
+          <caret line="294" column="0" lean-forward="true" selection-start-line="294" selection-start-column="0" selection-end-line="294" selection-end-column="0" />
+          <folding>
+            <element signature="e#214#243#0" expanded="true" />
           </folding>
         </state>
       </provider>

@@ -50,15 +50,21 @@ bool robot::generate_levy_dist(){
 
 
 Stg::radians_t robot::generate_random_direction(Stg::radians_t min, Stg::radians_t max){
-    /// Generates a random angle between min and max
+    /// Generates a random angle between min and max and stores in
+    /// desired_levy_direction
     /**
      * \param min : The minimum angle in radians
      * \param max : The maximum angle in radians
+     *
+     * The default values :
+     * min : -M_PI
+     * max : M_PI
      */
     //uniform random number generator
     std::random_device rd;
     std::default_random_engine generator(rd());
     std::uniform_real_distribution<double> distribution(min, max);
     // generate a uniform random number between min and max
-    double u = distribution(generator);
+    desired_levy_direction = distribution(generator);
+    return desired_levy_direction;
 }
