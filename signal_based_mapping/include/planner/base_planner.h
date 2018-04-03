@@ -2,8 +2,11 @@
 // Created by Ragesh on 4/2/18.
 //
 
+
 #ifndef STAGE_CTRL_PLUGIN_BASE_PLANNER_H
 #define STAGE_CTRL_PLUGIN_BASE_PLANNER_H
+
+#include <>
 
 /**
  * The planner is an abstract class for all planner for the robot.
@@ -21,6 +24,7 @@ namespace myPlanner{
          */
         double planTime=0;
         double planStartTime=0;
+
 
     public:
 
