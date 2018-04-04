@@ -2,4 +2,4 @@
 
 add_subdirectory(ctrl_plugin)
 add_subdirectory(robot)
-
+add_subdirectory(planner)

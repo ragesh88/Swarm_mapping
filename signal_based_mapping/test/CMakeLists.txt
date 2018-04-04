@@ -2,13 +2,14 @@
 # listing the tests required for compilation
 SET( TESTS
         mySampleTest
+        myPlannerTest
 )
 
 
 # create a library module for each plugin and link libstage to each
 
 foreach( TEST ${TESTS} )
-  ADD_EXECUTABLE( ${TEST} ${TEST}.cpp ../../include/robot/robot.h ../src/robot/robot.cpp)
+  ADD_EXECUTABLE( ${TEST} ${TEST}.cpp ../src/robot/robot.cpp ../src/planner/base_planner.cpp)
 endforeach( TEST )
 
 
