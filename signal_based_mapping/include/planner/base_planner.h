@@ -26,6 +26,7 @@ namespace myPlanner{
          *
          * \param START : the via point with no velocity
          * \param ROTATION_Z : the via point with only rotational velocity along z direction
+         * \param TRANSLATION : the via point with translational velocity
          * \param TRANSLATION_X : the via point with only translational velocity along the x direction wrt to robot
          * \param TRANSLATION_Y : the via point with only translational velocity along the y direction wrt to robot
          * \param ALL : the via point with all the velocities
@@ -33,6 +34,7 @@ namespace myPlanner{
 
         START,
         ROTATION_Z,
+        TRANSLATION,
         TRANSLATION_X,
         TRANSLATION_Y,
         ALL
@@ -64,13 +66,16 @@ namespace myPlanner{
          * \param planTime : the time for which motion has to be planned
          * \param planStartTime : the start time of the planner
          * \param startPose : the pose of the robot at the start of planning
-         * \param startVelocity : the velocity of the robot at the start of the planning
+         * \param robotTwist : the velocity of the robot for planning
          * \param path : the planned path
          */
         double planTime=0;
         double planStartTime=0;
         Stg::Pose startPose=Stg::Pose(0.0, 0.0, 0.0, 0.0);
-        Stg::Velocity startVelocity = Stg::Velocity(0.0, 0.0, 0.0, 0.0);
+        Stg::Velocity robotTwist = Stg::Velocity(0.0, 0.0, 0.0, 0.0);
+
+    protected:
+
         Path path;
 
     public:
@@ -88,7 +93,7 @@ namespace myPlanner{
                 planTime{pTime},
                 planStartTime{pSTime},
                 startPose(P.x, P.y, P.z, P.a),
-                startVelocity(V.x, V.y, V.z, V.a){
+                robotTwist(V.x, V.y, V.z, V.a){
             /**
              * constructor with parameters
              * \param pTime : the time for which motion has to be planned
@@ -113,7 +118,11 @@ namespace myPlanner{
         }
 
          const Stg::Velocity* get_velocity() const{
-            return &startVelocity;
+            return &robotTwist;
+        }
+
+        Path* get_path(){
+            return &path;
         }
 
         // set functions
@@ -133,16 +142,16 @@ namespace myPlanner{
             startPose.a=P.a;
         }
 
-        void set_startVelocity(const Stg::Velocity &V){
-            startVelocity.x=V.x;
-            startVelocity.y=V.y;
-            startVelocity.z=V.z;
-            startVelocity.a=V.a;
+        void set_robotTwist(const Stg::Velocity &V){
+            robotTwist.x=V.x;
+            robotTwist.y=V.y;
+            robotTwist.z=V.z;
+            robotTwist.a=V.a;
         }
 
         // other functions
         ///The function generates path for a base planner
-        Path* generate_path();
+        void generate_path();
 
 
     };
@@ -153,10 +162,20 @@ namespace myPlanner{
          * \brief The class the implements the path generation based on
          * a Levy Walk motion. The class inherits from the base planner class
          *
+         * The class requires the following extra attributes.
+         *
+         * \param min_ang : the minimum angle for the Levy walk
+         * \param max_ang : the maximum angle for the Levy walk
+         * \param alpha : alpha value for the levy walk
+         * \param levy_min : minimum distance for the levy walk in meters
+         *
          */
 
-        Stg::radians_t min=-M_PI;
-        Stg::radians_t max=M_PI;
+        Stg::radians_t min_ang=-M_PI;
+        Stg::radians_t max_ang=M_PI;
+        double alpha=1.5;
+        Stg::meters_t levy_min = Stg::meters_t{1};
+
 
     public:
 
@@ -166,19 +185,29 @@ namespace myPlanner{
 
         }
 
-        levyWalk_planner(double pSTime, Stg::Pose P, Stg::Velocity V):
-                base_planner(0, pSTime, P, v){
+        levyWalk_planner(double pSTime, Stg::Pose P, Stg::Velocity V, Stg::radians_t min=-M_PI, Stg::radians_t max=M_PI,
+                         double a=1.5, Stg::meters_t l_min=1.0):
+                base_planner(0, pSTime, P, V),
+                min_ang{min},
+                max_ang{max},
+                alpha{a},
+                levy_min{l_min}{
             /**
              * \brief The constructor with parameters
              * In Levy walk the time for the walk is generated from
-             * a probability distribution
+             * a probability distribution.
+             *
              */
 
         }
 
         // other functions
 
-        Path* generate_path();
+        Stg::meters_t generate_levy_dist();
+
+        Stg::radians_t generate_random_direction();
+
+        void generate_path();
     };
 }
 

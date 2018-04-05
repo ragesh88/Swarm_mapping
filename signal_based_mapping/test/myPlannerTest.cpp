@@ -16,7 +16,8 @@ using namespace myPlanner;
 
 int main(){
     base_planner planner(10, 0, Stg::Pose(0,0,0,0),Stg::Velocity(.3, 0, 0, 0.2));
-    Path* path = planner.generate_path();
+    planner.generate_path();
+    Path* path = planner.get_path();
     while(!path->empty()){
         std::cout<<"\n The control laws are \n";
         std::cout<<"\n x : "<<path->front().vel_control.x;
