@@ -3,10 +3,10 @@
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true" buildAllGenerated="true">
     <generated>
       <config projectName="stage_ctrl_plugin" targetName="mySampleTest" />
-      <config projectName="stage_ctrl_plugin" targetName="mylevyWalker" />
+      <config projectName="stage_ctrl_plugin" targetName="robot" />
       <config projectName="stage_ctrl_plugin" targetName="myPlannerTest" />
       <config projectName="stage_ctrl_plugin" targetName="planners" />
-      <config projectName="stage_ctrl_plugin" targetName="robot" />
+      <config projectName="stage_ctrl_plugin" targetName="mylevyWalker" />
     </generated>
   </component>
   <component name="CMakeSettings" AUTO_RELOAD="true">
@@ -18,7 +18,9 @@
     <list default="true" id="8ffdee99-406e-4af1-9969-a672001194bc" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/include/planner/base_planner.h" afterPath="$PROJECT_DIR$/include/planner/base_planner.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/include/robot/robot.h" afterPath="$PROJECT_DIR$/include/robot/robot.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/planner/base_planner.cpp" afterPath="$PROJECT_DIR$/src/planner/base_planner.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/robot/robot.cpp" afterPath="$PROJECT_DIR$/src/robot/robot.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/myPlannerTest.cpp" afterPath="$PROJECT_DIR$/test/myPlannerTest.cpp" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
@@ -33,22 +35,14 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="robot.cpp" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/robot/robot.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="493">
-              <caret line="61" column="7" lean-forward="true" selection-start-line="61" selection-start-column="7" selection-end-line="61" selection-end-column="7" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="robot.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/include/robot/robot.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="817">
-              <caret line="367" column="0" lean-forward="true" selection-start-line="367" selection-start-column="0" selection-end-line="367" selection-end-column="0" />
-              <folding />
+            <state relative-caret-position="468">
+              <caret line="89" column="28" lean-forward="false" selection-start-line="89" selection-start-column="28" selection-end-line="89" selection-end-column="28" />
+              <folding>
+                <element signature="e#296#325#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -56,8 +50,8 @@
       <file leaf-file-name="base_planner.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/include/planner/base_planner.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-40">
-              <caret line="28" column="51" lean-forward="false" selection-start-line="28" selection-start-column="51" selection-end-line="28" selection-end-column="51" />
+            <state relative-caret-position="482">
+              <caret line="209" column="52" lean-forward="false" selection-start-line="209" selection-start-column="52" selection-end-line="209" selection-end-column="52" />
               <folding />
             </state>
           </provider>
@@ -66,18 +60,38 @@
       <file leaf-file-name="mylevyWalker.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/ctrl_plugin/mylevyWalker.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="72">
-              <caret line="185" column="24" lean-forward="false" selection-start-line="185" selection-start-column="19" selection-end-line="185" selection-end-column="44" />
+            <state relative-caret-position="504">
+              <caret line="239" column="83" lean-forward="false" selection-start-line="239" selection-start-column="54" selection-end-line="239" selection-end-column="83" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="base_planner.cpp" pinned="false" current-in-tab="true">
+      <file leaf-file-name="myPlannerTest.cpp" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/test/myPlannerTest.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="495">
+              <caret line="32" column="55" lean-forward="false" selection-start-line="32" selection-start-column="55" selection-end-line="32" selection-end-column="55" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="base_planner.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/planner/base_planner.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="621">
-              <caret line="158" column="5" lean-forward="true" selection-start-line="158" selection-start-column="5" selection-end-line="158" selection-end-column="5" />
+            <state relative-caret-position="225">
+              <caret line="100" column="90" lean-forward="false" selection-start-line="100" selection-start-column="90" selection-end-line="100" selection-end-column="90" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="robot.cpp" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/robot/robot.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="529">
+              <caret line="93" column="61" lean-forward="false" selection-start-line="93" selection-start-column="61" selection-end-line="93" selection-end-column="61" />
               <folding />
             </state>
           </provider>
@@ -115,17 +129,17 @@
         <option value="$PROJECT_DIR$/src/ctrl_plugin/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/src/robot/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/test/mySampleTest.cpp" />
-        <option value="$PROJECT_DIR$/src/robot/robot.cpp" />
-        <option value="$PROJECT_DIR$/include/robot/robot.h" />
         <option value="$PROJECT_DIR$/src/ctrl_plugin/mylevyWalker.cpp" />
         <option value="$PROJECT_DIR$/src/planner/base_planner.h" />
         <option value="$PROJECT_DIR$/test/myPlanner.cpp" />
         <option value="$PROJECT_DIR$/test/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/src/planner/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/src/CMakeLists.txt" />
-        <option value="$PROJECT_DIR$/test/myPlannerTest.cpp" />
+        <option value="$PROJECT_DIR$/include/robot/robot.h" />
         <option value="$PROJECT_DIR$/include/planner/base_planner.h" />
         <option value="$PROJECT_DIR$/src/planner/base_planner.cpp" />
+        <option value="$PROJECT_DIR$/test/myPlannerTest.cpp" />
+        <option value="$PROJECT_DIR$/src/robot/robot.cpp" />
       </list>
     </option>
   </component>
@@ -295,12 +309,13 @@
       <workItem from="1522271636694" duration="14410000" />
       <workItem from="1522638515449" duration="33000" />
       <workItem from="1522735683329" duration="22411000" />
-      <workItem from="1522896837397" duration="9503000" />
+      <workItem from="1522896837397" duration="9654000" />
+      <workItem from="1522956639433" duration="8516000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="100257000" />
+    <option name="totallyTimeSpent" value="108924000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="2040" y="206" width="1857" height="1212" extended-state="6" />
@@ -312,7 +327,7 @@
       <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3306011" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32969034" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32969034" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -382,7 +397,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="6660">
           <caret line="370" column="6" lean-forward="false" selection-start-line="370" selection-start-column="6" selection-end-line="370" selection-end-column="6" />
-          <folding />
+          <folding>
+            <element signature="e#296#325#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -406,7 +423,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="6660">
           <caret line="370" column="6" lean-forward="false" selection-start-line="370" selection-start-column="6" selection-end-line="370" selection-end-column="6" />
-          <folding />
+          <folding>
+            <element signature="e#296#325#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -422,7 +441,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#296#325#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -453,7 +474,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="5814">
           <caret line="323" column="31" lean-forward="false" selection-start-line="323" selection-start-column="31" selection-end-line="323" selection-end-column="31" />
-          <folding />
+          <folding>
+            <element signature="e#296#325#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -484,7 +507,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1728">
           <caret line="96" column="53" lean-forward="false" selection-start-line="96" selection-start-column="53" selection-end-line="96" selection-end-column="53" />
-          <folding />
+          <folding>
+            <element signature="e#296#325#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -515,7 +540,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#296#325#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -538,7 +565,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#296#325#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -561,7 +590,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="5400">
           <caret line="300" column="0" lean-forward="true" selection-start-line="300" selection-start-column="0" selection-end-line="300" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#296#325#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -584,7 +615,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="5922">
           <caret line="329" column="0" lean-forward="true" selection-start-line="329" selection-start-column="0" selection-end-line="329" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#296#325#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -599,7 +632,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#296#325#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -607,7 +642,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#296#325#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -615,7 +652,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#296#325#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -623,7 +662,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#296#325#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -679,52 +720,52 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/myPlannerTest.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="342">
-          <caret line="19" column="16" lean-forward="true" selection-start-line="19" selection-start-column="16" selection-end-line="19" selection-end-column="16" />
-          <folding>
-            <element signature="e#139#163#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/include/robot/robot.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="817">
-          <caret line="367" column="0" lean-forward="true" selection-start-line="367" selection-start-column="0" selection-end-line="367" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/robot/robot.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="493">
-          <caret line="61" column="7" lean-forward="true" selection-start-line="61" selection-start-column="7" selection-end-line="61" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ctrl_plugin/mylevyWalker.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="72">
-          <caret line="185" column="24" lean-forward="false" selection-start-line="185" selection-start-column="19" selection-end-line="185" selection-end-column="44" />
-          <folding />
+        <state relative-caret-position="468">
+          <caret line="89" column="28" lean-forward="false" selection-start-line="89" selection-start-column="28" selection-end-line="89" selection-end-column="28" />
+          <folding>
+            <element signature="e#296#325#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/include/planner/base_planner.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-40">
-          <caret line="28" column="51" lean-forward="false" selection-start-line="28" selection-start-column="51" selection-end-line="28" selection-end-column="51" />
+        <state relative-caret-position="482">
+          <caret line="209" column="52" lean-forward="false" selection-start-line="209" selection-start-column="52" selection-end-line="209" selection-end-column="52" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/myPlannerTest.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="495">
+          <caret line="32" column="55" lean-forward="false" selection-start-line="32" selection-start-column="55" selection-end-line="32" selection-end-column="55" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/planner/base_planner.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="621">
-          <caret line="158" column="5" lean-forward="true" selection-start-line="158" selection-start-column="5" selection-end-line="158" selection-end-column="5" />
+        <state relative-caret-position="225">
+          <caret line="100" column="90" lean-forward="false" selection-start-line="100" selection-start-column="90" selection-end-line="100" selection-end-column="90" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ctrl_plugin/mylevyWalker.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="504">
+          <caret line="239" column="83" lean-forward="false" selection-start-line="239" selection-start-column="54" selection-end-line="239" selection-end-column="83" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/robot/robot.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="529">
+          <caret line="93" column="61" lean-forward="false" selection-start-line="93" selection-start-column="61" selection-end-line="93" selection-end-column="61" />
           <folding />
         </state>
       </provider>

@@ -11,9 +11,9 @@
 #include "robot/robot.h"
 
 using namespace myRobot;
+using namespace myPlanner;
 
-
-bool robot::generate_levy_dist(){
+ bool robot::generate_levy_dist(){
     /// Generate the length from the distribution
     //uniform random number generator
     std::random_device rd;
@@ -49,7 +49,7 @@ bool robot::generate_levy_dist(){
 }
 
 
-Stg::radians_t robot::generate_random_direction(Stg::radians_t min, Stg::radians_t max){
+ Stg::radians_t robot::generate_random_direction(Stg::radians_t min, Stg::radians_t max){
     /// Generates a random angle between min and max and stores in
     /// desired_levy_direction
     /**
@@ -68,3 +68,33 @@ Stg::radians_t robot::generate_random_direction(Stg::radians_t min, Stg::radians
     desired_levy_direction = distribution(generator);
     return desired_levy_direction;
 }
+
+ void robot::move(){
+     /// The function moves the robot according to the planner object
+
+     // Tolerance to check the various angle and time conditions
+     const double rad_tol = M_PI/180;
+     const double time_tol = 0.001;
+     static MOTION_MODES currentMode=MOTION_MODES::START;
+
+     // check if the a path exist
+     if(!planner->get_path()->empty()){
+         // check if it is in Rotational mode
+         if(planner->get_path()->front().modes!=currentMode){
+             // instructing the robot in stage to move according to the control
+             position->SetVelocity(planner->get_path()->front().vel_control);
+             currentMode = planner->get_path()->front().modes;
+         }
+         if (planner->get_path()->front().computed_desPose){
+             // Move until the stage robot has reached the desired orientation up to a tolerance
+             if(std::fabs(planner->get_path()->front().des_pose.Distance(position->GetPose())) < rad_tol){
+                 planner->get_path()->pop();
+             }
+         } else{
+             // Move until the desired motion time is reached up to a tolerance
+             if(std::fabs(planner->get_path()->front().motion_end_time-world->SimTimeNow()/1000000.0)<time_tol){
+                 planner->get_path()->pop();
+             }
+         }
+     }
+ }

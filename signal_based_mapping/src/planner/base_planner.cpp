@@ -7,8 +7,10 @@
 using namespace myPlanner;
 
 
- void base_planner::generate_path(){
+ void base_planner::generate_path(double start_time){
     via_points point;
+
+     set_planStartTime(start_time);
 
     // first point in the path
     point.modes=MOTION_MODES::ROTATION_Z;
@@ -81,19 +83,22 @@ Stg::radians_t levyWalk_planner::generate_random_direction(){
 
 
 
- void levyWalk_planner::generate_path() {
+ void levyWalk_planner::generate_path(double start_time) {
     /**
      * The function generates a path for the robot to perform levy walk in an unbounded domain
      */
 
      via_points point;
 
+     set_planStartTime(start_time);
+
+
      // computing first point in the path
      point.modes=MOTION_MODES::ROTATION_Z;
-     point.des_pose = Stg::Pose(0.0, 0.0, 0.0, generate_random_direction());
      auto w = std::fabs(get_velocity()->a); // omega in magnitude
      const Stg::radians_t& des_dir=point.des_pose.a; // ref to the desired direction
      const Stg::radians_t& cur_dir=get_startPose()->a; // ref to the current direction
+     point.des_pose = Stg::Pose(get_startPose()->x, get_startPose()->y, get_startPose()->z, generate_random_direction());
 
      // find the smallest angle to rotate, to find the right \omega
      // case 1 : when both of them are ++ or --
@@ -138,6 +143,7 @@ Stg::radians_t levyWalk_planner::generate_random_direction(){
              point.motion_end_time=(std::fabs(-M_PI - cur_dir)+std::fabs(M_PI - des_dir))/std::fabs(w);
          }
      }
+     point.motion_end_time+=start_time;
      point.computed_desPose=true;
 
 
@@ -151,12 +157,12 @@ Stg::radians_t levyWalk_planner::generate_random_direction(){
      if(speed == 0){
          throw "The speed can not be zero";
      }
-     point.motion_end_time=generate_levy_dist()/speed;
+     point.motion_end_time+=generate_levy_dist()/speed;
      point.vel_control=Stg::Velocity(get_velocity()->x, get_velocity()->y, get_velocity()->z, 0);
      point.computed_desPose= false;
 
      path.push(point); // pushing the second point to the path
-     
+
 
 }
 

@@ -54,7 +54,7 @@ namespace myPlanner{
         double motion_end_time=0;
         Stg::Velocity vel_control{0.0, 0.0, 0.0, 0.0};
         Stg::Pose des_pose{0.0, 0.0, 0.0, 0.0};
-        bool computed_desPose = true;
+        bool computed_desPose = false;
     };
 
     /// a type defined type path for storing path
@@ -151,7 +151,7 @@ namespace myPlanner{
 
         // other functions
         ///The function generates path for a base planner
-        void generate_path();
+        virtual void generate_path(double start_time);
 
 
     };
@@ -207,7 +207,7 @@ namespace myPlanner{
 
         Stg::radians_t generate_random_direction();
 
-        void generate_path();
+        virtual void generate_path(double start_time);
     };
 }
 
