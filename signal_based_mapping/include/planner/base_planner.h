@@ -153,6 +153,14 @@ namespace myPlanner{
         ///The function generates path for a base planner
         virtual void generate_path(double start_time);
 
+        void delete_path() {
+            /// The function deletes the path stored in the variable
+            while(!path.empty()) path.pop();
+
+        }
+
+        virtual ~base_planner(){}
+
 
     };
 
@@ -208,6 +216,8 @@ namespace myPlanner{
         Stg::radians_t generate_random_direction();
 
         virtual void generate_path(double start_time);
+
+        virtual ~levyWalk_planner() {}
     };
 }
 

@@ -8,7 +8,7 @@ SET( PLUGINS
 # create a library module for each plugin and link libstage to each
 
 foreach( PLUGIN ${PLUGINS} )
-  ADD_LIBRARY( ${PLUGIN} MODULE ${PLUGIN}.cpp ../robot/robot.cpp)
+  ADD_LIBRARY( ${PLUGIN} MODULE ${PLUGIN}.cpp ../robot/robot.cpp ../planner/base_planner.cpp)
 endforeach( PLUGIN )
 				
 #ADD_LIBRARY( fasr2 MODULE fasr2.cc astar/findpath.cpp )
