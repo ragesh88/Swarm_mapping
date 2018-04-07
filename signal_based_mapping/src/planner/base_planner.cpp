@@ -94,8 +94,22 @@ Stg::radians_t levyWalk_planner::generate_random_direction(){
 
 
      // computing first point in the path
+     point.modes=MOTION_MODES::TRANSLATION_X;
+     auto speed = std::fabs(get_velocity()->x);
+     if(speed == 0){
+         throw "The speed can not be zero";
+     }
+     point.motion_end_time=generate_levy_dist()/speed + start_time;
+     point.vel_control=Stg::Velocity(get_velocity()->x, get_velocity()->y, get_velocity()->z, 0);
+     point.computed_desPose= false;
+
+     path.push(point); // pushing the first point to the path
+
+
+     // computing second point in the path
      point.modes=MOTION_MODES::ROTATION_Z;
      auto w = std::fabs(get_velocity()->a); // omega in magnitude
+     double rotate_time = 0;
      const Stg::radians_t& des_dir=point.des_pose.a; // ref to the desired direction
      const Stg::radians_t& cur_dir=get_startPose()->a; // ref to the current direction
      point.des_pose = Stg::Pose(get_startPose()->x, get_startPose()->y, get_startPose()->z, generate_random_direction());
@@ -104,7 +118,7 @@ Stg::radians_t levyWalk_planner::generate_random_direction(){
      // case 1 : when both of them are ++ or --
      if(des_dir * cur_dir >= 0){
          // time to complete the motion
-         point.motion_end_time=std::fabs(des_dir - cur_dir)/std::fabs(w);
+         rotate_time=std::fabs(des_dir - cur_dir)/std::fabs(w);
          if(des_dir > cur_dir){
              // rotate in anticlockwise direction(left turn)
              point.vel_control=Stg::Velocity(0.0, 0.0, 0.0, std::fabs(w));
@@ -120,12 +134,12 @@ Stg::radians_t levyWalk_planner::generate_random_direction(){
              // rotate in clockwise direction(right turn)
              point.vel_control=Stg::Velocity(0.0, 0.0, 0.0, -std::fabs(w));
              // time to complete the motion
-             point.motion_end_time=std::fabs(cur_dir - des_dir)/std::fabs(w);
+             rotate_time=std::fabs(cur_dir - des_dir)/std::fabs(w);
          } else {
              // rotate in anticlockwise direction(left turn)
              point.vel_control=Stg::Velocity(0.0, 0.0, 0.0, std::fabs(w));
              // time to complete the motion
-             point.motion_end_time=(std::fabs(M_PI - cur_dir)+std::fabs(-M_PI - des_dir))/std::fabs(w);
+             rotate_time=(std::fabs(M_PI - cur_dir)+std::fabs(-M_PI - des_dir))/std::fabs(w);
          }
      }
      // case 3 : when cur_dir is negative and des_dir is positive
@@ -135,33 +149,27 @@ Stg::radians_t levyWalk_planner::generate_random_direction(){
              // rotate in anticlockwise direction(left turn)
              point.vel_control=Stg::Velocity(0.0, 0.0, 0.0, std::fabs(w));
              // time to complete the motion
-             point.motion_end_time=std::fabs(cur_dir - des_dir)/std::fabs(w);
+             rotate_time=std::fabs(cur_dir - des_dir)/std::fabs(w);
          } else {
              // rotate in clockwise direction(right turn)
              point.vel_control=Stg::Velocity(0.0, 0.0, 0.0, -std::fabs(w));
              // time to complete the motion
-             point.motion_end_time=(std::fabs(-M_PI - cur_dir)+std::fabs(M_PI - des_dir))/std::fabs(w);
+             rotate_time=(std::fabs(-M_PI - cur_dir)+std::fabs(M_PI - des_dir))/std::fabs(w);
          }
      }
-     point.motion_end_time+=start_time;
+     point.motion_end_time+=rotate_time;
      point.computed_desPose=true;
 
 
-     path.push(point); // pushing the first point to the path
+     path.push(point); // pushing the second point to the path
 
-     // computing the second point in the path
-     point.modes=MOTION_MODES::TRANSLATION;
-     auto speed = std::sqrt(get_velocity()->x*get_velocity()->x +
-                            get_velocity()->y*get_velocity()->y +
-                            get_velocity()->z*get_velocity()->z);
-     if(speed == 0){
-         throw "The speed can not be zero";
-     }
+     // computing the third point in the path
+     point.modes=MOTION_MODES::TRANSLATION_X;
      point.motion_end_time+=generate_levy_dist()/speed;
      point.vel_control=Stg::Velocity(get_velocity()->x, get_velocity()->y, get_velocity()->z, 0);
      point.computed_desPose= false;
 
-     path.push(point); // pushing the second point to the path
+     path.push(point); // pushing the third point to the path
 
 
 }

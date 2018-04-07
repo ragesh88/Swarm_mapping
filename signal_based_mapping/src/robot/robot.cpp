@@ -175,7 +175,7 @@ using namespace myPlanner;
                          std::cout<<"\n The current angle(deg): "<<position->GetPose().a*(180/M_PI)<<std::endl;
                          std::cout<<"\n The desired angle(deg):"<<planner->get_path()->front().des_pose.a*(180/M_PI)<<std::endl;
                          break;
-                     case MOTION_MODES::TRANSLATION: printf("\nTranslation\n");
+                     case MOTION_MODES::TRANSLATION_X: printf("\nTRANSLATION_X\n");
                          planner->get_path()->front().vel_control.Print("");
                          break;
                      default: printf("\nUndefined mode\n");
@@ -190,7 +190,7 @@ using namespace myPlanner;
                      case MOTION_MODES::ROTATION_Z: position->SetXSpeed(0);
                          position->SetTurnSpeed(planner->get_path()->front().vel_control.a);
                          break;
-                     case MOTION_MODES::TRANSLATION: position->SetTurnSpeed(0);
+                     case MOTION_MODES::TRANSLATION_X: position->SetTurnSpeed(0);
                          position->SetXSpeed(planner->get_path()->front().vel_control.x);
                          break;
                      default: printf("\nUndefined mode\n");
@@ -215,7 +215,15 @@ using namespace myPlanner;
              if(verbose)
                  std::cout<<"\n path generated \n";
              planner->set_startPose(position->GetPose());
-             planner->generate_path(world->SimTimeNow()/1000000.0);
+             try {
+                 // try to generate a new path
+                 planner->generate_path(world->SimTimeNow()/1000000.0);
+             }
+             catch (const char *error){
+                 std::cerr<<error<<std::endl;
+             }
+
+
          }
 
      }

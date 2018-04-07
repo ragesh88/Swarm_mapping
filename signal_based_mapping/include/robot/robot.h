@@ -87,7 +87,7 @@ namespace myRobot{
         /// The levy direction for the flight
         Stg::radians_t desired_levy_direction=0;
         /// To display output
-        bool verbose= false;
+        bool verbose=true;
 
 
 
