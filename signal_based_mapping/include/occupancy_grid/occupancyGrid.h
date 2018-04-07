@@ -15,15 +15,21 @@
 #include <Stage-4.3/stage.hh>
 #include <opencv2/opencv.hpp>
 
-template <typename real_t, typename int_t>
-class occupancyGrid {
-    /**
-     * The occupancyGrid class stores the 2D occupancy map and
-     * has the methods to perform various operation on the grid map.
-     */
-public:
 
-};
+namespace myRobot{
+
+    template <typename real_t, typename int_t>
+    class occupancyGrid {
+        /**
+         * The occupancyGrid class stores the 2D occupancy map and
+         * has the methods to perform various operation on the grid map.
+         */
+    public:
+
+    };
+
+}
+
 
 
 

@@ -127,6 +127,13 @@ namespace myRobot{
             /// Default constructor with no arguments
         }
 
+        ~robot(){
+            /// Destructor of robot class
+
+            // Destroying the planner object
+            delete(planner);
+        }
+
         // get functions
 
         std::string get_robot_name() const {
