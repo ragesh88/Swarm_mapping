@@ -37,22 +37,24 @@ namespace myRobot{
 
 
     class robot {
+        /// robot id
+        uint robot_id;
         /// name of the robot
-        std::string robot_name = "Robot";
+        std::string robot_name{"Robot"};
         /// current pose of the robot
-        Stg::Pose current_pose = Stg::Pose(0, 0, 0, 0);
+        Stg::Pose current_pose{0, 0, 0, 0};
         /// current velocity of the robot
-        Stg::Velocity current_velocity = Stg::Velocity(0, 0, 0, 0);
+        Stg::Velocity current_velocity{0, 0, 0, 0};
         /// current linear speed
         double current_speed = 0.0;
         /// turn speed
         double turn_speed = 0.0;
         /// pose at previous time step of the robot
-        Stg::Pose past_pose = Stg::Pose(0, 0, 0, 0);
+        Stg::Pose past_pose{0, 0, 0, 0};
         /// velocity at previous time step of the robot
-        Stg::Velocity past_velocity = Stg::Velocity(0, 0, 0, 0);
+        Stg::Velocity past_velocity{0, 0, 0, 0};
         /// time when past pose was recorded
-        Stg::msec_t past_pose_time = Stg::msec_t(0);
+        Stg::msec_t past_pose_time{0};
         /// minimum distance for the levy walk in meters
         Stg::meters_t levy_min = Stg::meters_t{1};
         /// alpha value for the levy walk
@@ -68,24 +70,26 @@ namespace myRobot{
         /// The time for the robot should perform a levy cruise
         Stg::usec_t levy_cruise_time=0;
         /// The pointer to the planner
-        myPlanner::base_planner* planner;
+        myPlanner::base_planner* planner{NULL};
 
     public:
 
+        // Static variable to generate robot id
+        static int gen_id;
         // Stage simulator variables
         /// Access the position model of the Stage library
-        Stg::ModelPosition *position;
+        Stg::ModelPosition *position{NULL};
         /// Access the laser sensor model of the Stage library
-        Stg::ModelRanger *laser;
+        Stg::ModelRanger *laser{NULL};
         /// Obstacle avoidance variable
-        long int avoidCount, randCount;
+        long int avoidCount{0}, randCount{0};
         Stg::Pose previous_pose;
         /// The pointer to the world object
-        Stg::World *world;
+        Stg::World *world{NULL};
         /// The modes for levy walk
         LEVY_MODE mode=START;
         /// The levy direction for the flight
-        Stg::radians_t desired_levy_direction=0;
+        Stg::radians_t desired_levy_direction{0};
         /// To display output
         bool verbose=true;
 
@@ -115,6 +119,7 @@ namespace myRobot{
              * \param plan_gen : The pointer to the planner object
              */
 
+            robot_id = ++gen_id; // generate id for each robot
             current_speed = std::sqrt(current_velocity.x * current_velocity.x + \
                              current_velocity.y * current_velocity.y + \
                              current_velocity.z * current_velocity.z);
@@ -125,6 +130,7 @@ namespace myRobot{
 
         robot(){
             /// Default constructor with no arguments
+          robot_id = ++gen_id; // generate id for each robot
         }
 
         ~robot(){
@@ -135,6 +141,10 @@ namespace myRobot{
         }
 
         // get functions
+        int get_robot_id() const{
+          /// Returns the id of the robot
+          return robot_id;
+        }
 
         std::string get_robot_name() const {
             /// Returns the name of the robot
