@@ -77,6 +77,8 @@ namespace occupancy_grid{
          *
          * \param px : the start point x coordinate
          * \param py : the start point y coordinate
+         * \param dx : the increment along x axis
+         * \param dy : the increment along y axis
          * \param origin_x_ : the x coordinate of the map bottom left corner
          * \param origin_y_ : the y coordinate of the map bottom left corner
          * \param cell_size_x_ : the size of the cell along x
@@ -133,63 +135,70 @@ namespace occupancy_grid{
         return std::make_pair(i_, j_);
       }
 
-      // function to check if the objects are equal
+
       bool equal(ray_trace_iterator it) const {
+        /// function to check if the objects are equal
         return ((it.i_ == i_) && (it.j_ == j_) &&
             (it.tx_ == tx_) && (it.ty_ == ty_) &&
             (it.Tx_ == Tx_) && (it.Ty_ == Ty_) &&
             (it.dir_x == dir_x) && (it.dir_y == dir_y));
       }
 
-      // overload the == operator
-      friend bool operator== (const ray_trace_iterator& it1, const ray_trace_iterator& it2){
-        return ((it1.i_ == it2.i_) && (it1.j_ == it2.j_) &&
-            (it1.tx_ == it2.tx_) && (it1.ty_ == it2.ty_) &&
-            (it1.Tx_ == it2.Tx_) && (it1.Ty_ == it2.Ty_) &&
-            (it1.dir_x == it2.dir_x) && (it1.dir_y == it2.dir_y));
-      }
+      /// overload the == operator
+      friend bool operator== (const ray_trace_iterator& it1, const ray_trace_iterator& it2);
 
-      // TODO : Format from here
-      // TODO : move the lengthy function to .cpp file
+      void increment();
 
-      void increment() {
-        if (tx_ < ty_) {
-          i_ += dirx_;
-          ty_ = ty_ - tx_;
-          tx_ = Tx_;
-        } else {
-          j_ += diry_;
-          tx_ = tx_ - ty_;
-          ty_ = Ty_;
-        }
-      }
-
-      std::pair<real_t, real_t> real_position() const {
-
-        // whether the grid line we are going to hit is floor() or ceil()
-        // depends on the direction ray is moving
-        int_t floor_or_ceil_x = (dirx_ > 0) ? 1 : 0;
-        int_t floor_or_ceil_y = (diry_ > 0) ? 1 : 0;
-
-        real_t ex = (dx_ == 0) ? ex_ // error is same as starting point
-                               : tx_ * fabs(dx_);
-        real_t ey = (dy_ == 0) ? ey_
-                               : ty_ * fabs(dy_);
-
-        real_t px = (i_ + floor_or_ceil_x) * cell_size_x - ex * dir_x;
-        real_t py = (j_ + floor_or_ceil_y) * cell_size_y - ey * dir_y;
-
-        // shift coordinates
-        px = px + origin_x;
-        py = py + origin_y;
-
-        return std::make_pair(px, py);
-      }
+      std::pair<real_t, real_t> real_position() const;
 
 
 
 
     };
+
+friend bool operator== (const ray_trace_iterator& it1, const ray_trace_iterator& it2){
+  return ((it1.i_ == it2.i_) && (it1.j_ == it2.j_) &&
+      (it1.tx_ == it2.tx_) && (it1.ty_ == it2.ty_) &&
+      (it1.Tx_ == it2.Tx_) && (it1.Ty_ == it2.Ty_) &&
+      (it1.dir_x == it2.dir_x) && (it1.dir_y == it2.dir_y));
+}
+
+template <typename real_t, typename int_t>
+void ray_trace_iterator::increment() {
+  if (tx_ < ty_) {
+    i_ += dir_x;
+    ty_ = ty_ - tx_;
+    tx_ = Tx_;
+  } else {
+    j_ += dir_y;
+    tx_ = tx_ - ty_;
+    ty_ = Ty_;
+  }
+}
+
+
+template <typename real_t, typename int_t>
+std::pair<real_t, real_t> ray_trace_iterator::real_position() const {
+
+  // whether the grid line we are going to hit is floor() or ceil()
+  // depends on the direction ray is moving
+  int_t floor_or_ceil_x = (dirx_ > 0) ? 1 : 0;
+  int_t floor_or_ceil_y = (diry_ > 0) ? 1 : 0;
+
+  real_t ex = (dx_ == 0) ? ex_ // error is same as starting point
+                         : tx_ * fabs(dx_);
+  real_t ey = (dy_ == 0) ? ey_
+                         : ty_ * fabs(dy_);
+
+  real_t px = (i_ + floor_or_ceil_x) * cell_size_x - ex * dir_x;
+  real_t py = (j_ + floor_or_ceil_y) * cell_size_y - ey * dir_y;
+
+  // shift coordinates
+  px = px + origin_x;
+  py = py + origin_y;
+
+  return std::make_pair(px, py);
+}
 
 
 

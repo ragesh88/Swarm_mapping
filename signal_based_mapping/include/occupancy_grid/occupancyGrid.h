@@ -3,7 +3,7 @@
 //
 
 /**
- * This is the header file which defines the prototypes for the necessary classes and
+ * This is the header file defines the prototypes for the necessary classes and
  * functions used to store and operate over a 2D occupancy grid map.
  * Every object of the robot class maintains an object of the occupancy grid class
  * in order to perform 2D occupancy grid mapping.
@@ -14,6 +14,19 @@
 
 #include <Stage-4.3/stage.hh>
 #include <opencv2/opencv.hpp>
+
+// C libraries
+#include <cassert>
+
+// C++ libraries
+#include <algorithm>
+#include <iostream>
+#include <stdexcept>
+
+// Third party libraries
+#include <boost/math/constants/constants.hpp>
+
+#include "ray_trace_iterator.h" // for ray trace operations
 
 
 namespace occupancy_grid{
@@ -35,8 +48,11 @@ namespace occupancy_grid{
       cv::Mat og_{100,100, CV_8U, cv::Scalar(FREE)};
       /// a counter variable
       int counter{0};
+      /// Value when the map cell is occupied
       static const uint8_t OCCUPIED{255};
+      /// Value when the map cell is free
       static const uint8_t FREE{0};
+      /// Value when the map cell status is unknown
       static const uint8_t UNKNOWN{127};
 
       // Constructors
@@ -110,7 +126,7 @@ namespace occupancy_grid{
                                        cv::Vec<int_t, 2>& nearest_neighbor);
 
       real_t ray_trace(real_t px, real_t py, real_t p_theta, real_t max_range, cv::Vec<real_t, 2>& final_pos,
-                       bool reflectance);
+                       const bool& reflectance);
 
       cv::Point2i xy2rc(const cv::Vec<real_t, 2>& xy) const{
         /// the function converts the \f$(x,y)\f$ coordinates to corresponding
