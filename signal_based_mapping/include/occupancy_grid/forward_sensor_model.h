@@ -22,6 +22,13 @@ namespace b_rand = boost::random;
 
 namespace occupancy_grid{
 
+  // Defining the constants required for the sensor model
+  /// The maximum Laser sensor range. This value should match the one defined
+  /// for range sensor in world file used for stage simulation
+  const double LASER_MAX_RANGE = 2.0;
+  /// The Noise variance of the laser along the radial axis
+  const double NOISE_VARIANCE = 0.05;
+
   template <typename real_t>
   class Gen_observation2D {
     /**

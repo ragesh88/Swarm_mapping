@@ -16,8 +16,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8ffdee99-406e-4af1-9969-a672001194bc" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/include/occupancy_grid/occupancyGrid.h" afterPath="$PROJECT_DIR$/include/occupancy_grid/occupancyGrid.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/include/occupancy_grid/ray_trace_iterator.h" afterPath="$PROJECT_DIR$/include/occupancy_grid/ray_trace_iterator.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/include/occupancy_grid/forward_sensor_model.h" afterPath="$PROJECT_DIR$/include/occupancy_grid/forward_sensor_model.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/occupancy_grid/forward_sensor_model.cpp" afterPath="$PROJECT_DIR$/src/occupancy_grid/forward_sensor_model.cpp" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <ignored path="$PROJECT_DIR$/src/ctrl_plugin/CMakeFiles/" />
@@ -58,10 +58,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="occupancyGrid.cpp" pinned="false" current-in-tab="false">
+      <file leaf-file-name="occupancyGrid.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/occupancy_grid/occupancyGrid.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2250">
+            <state relative-caret-position="1008">
               <caret line="125" column="19" lean-forward="false" selection-start-line="125" selection-start-column="19" selection-end-line="125" selection-end-column="19" />
               <folding>
                 <element signature="e#211#244#0" expanded="true" />
@@ -74,20 +74,20 @@
       <file leaf-file-name="forward_sensor_model.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/include/occupancy_grid/forward_sensor_model.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="374">
-              <caret line="44" column="46" lean-forward="false" selection-start-line="44" selection-start-column="46" selection-end-line="44" selection-end-column="46" />
+            <state relative-caret-position="1242">
+              <caret line="69" column="49" lean-forward="true" selection-start-line="69" selection-start-column="49" selection-end-line="69" selection-end-column="49" />
               <folding>
-                <element signature="e#684#701#0" expanded="true" />
+                <element signature="e#1020#1037#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="forward_sensor_model.cpp" pinned="false" current-in-tab="true">
+      <file leaf-file-name="forward_sensor_model.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/occupancy_grid/forward_sensor_model.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="378">
-              <caret line="21" column="2" lean-forward="true" selection-start-line="21" selection-start-column="2" selection-end-line="21" selection-end-column="2" />
+            <state relative-caret-position="1566">
+              <caret line="87" column="9" lean-forward="false" selection-start-line="87" selection-start-column="9" selection-end-line="87" selection-end-column="9" />
               <folding>
                 <element signature="e#58#103#0" expanded="true" />
               </folding>
@@ -177,8 +177,8 @@
         <option value="$PROJECT_DIR$/include/occupancy_grid/ray_trace_iterator.h" />
         <option value="$PROJECT_DIR$/src/occupancy_grid/occupancyGrid.cpp" />
         <option value="$PROJECT_DIR$/include/occupancy_grid/occupancyGrid.h" />
-        <option value="$PROJECT_DIR$/src/occupancy_grid/forward_sensor_model.cpp" />
         <option value="$PROJECT_DIR$/include/occupancy_grid/forward_sensor_model.h" />
+        <option value="$PROJECT_DIR$/src/occupancy_grid/forward_sensor_model.cpp" />
       </list>
     </option>
   </component>
@@ -343,12 +343,12 @@
       <workItem from="1522896837397" duration="9654000" />
       <workItem from="1522956639433" duration="24119000" />
       <workItem from="1523072058762" duration="6007000" />
-      <workItem from="1523138461035" duration="33277000" />
+      <workItem from="1523138461035" duration="34960000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="163811000" />
+    <option name="totallyTimeSpent" value="165494000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="2040" y="206" width="1857" height="1212" extended-state="6" />
@@ -796,33 +796,33 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/occupancy_grid/occupancyGrid.cpp">
+    <entry file="file://$PROJECT_DIR$/src/occupancy_grid/forward_sensor_model.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2250">
-          <caret line="125" column="19" lean-forward="false" selection-start-line="125" selection-start-column="19" selection-end-line="125" selection-end-column="19" />
+        <state relative-caret-position="1566">
+          <caret line="87" column="9" lean-forward="false" selection-start-line="87" selection-start-column="9" selection-end-line="87" selection-end-column="9" />
           <folding>
-            <element signature="e#211#244#0" expanded="true" />
-            <element signature="e#2541#2574#0" expanded="true" />
+            <element signature="e#58#103#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/include/occupancy_grid/forward_sensor_model.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="44" column="46" lean-forward="false" selection-start-line="44" selection-start-column="46" selection-end-line="44" selection-end-column="46" />
+        <state relative-caret-position="1242">
+          <caret line="69" column="49" lean-forward="true" selection-start-line="69" selection-start-column="49" selection-end-line="69" selection-end-column="49" />
           <folding>
-            <element signature="e#684#701#0" expanded="true" />
+            <element signature="e#1020#1037#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/occupancy_grid/forward_sensor_model.cpp">
+    <entry file="file://$PROJECT_DIR$/src/occupancy_grid/occupancyGrid.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="378">
-          <caret line="21" column="2" lean-forward="true" selection-start-line="21" selection-start-column="2" selection-end-line="21" selection-end-column="2" />
+        <state relative-caret-position="1008">
+          <caret line="125" column="19" lean-forward="false" selection-start-line="125" selection-start-column="19" selection-end-line="125" selection-end-column="19" />
           <folding>
-            <element signature="e#58#103#0" expanded="true" />
+            <element signature="e#211#244#0" expanded="true" />
+            <element signature="e#2541#2574#0" expanded="true" />
           </folding>
         </state>
       </provider>
