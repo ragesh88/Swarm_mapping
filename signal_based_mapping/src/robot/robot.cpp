@@ -12,6 +12,7 @@
 
 using namespace myRobot;
 using namespace myPlanner;
+using namespace occupancy_grid;
 
  bool robot::generate_levy_dist(){
     /// Generate the length from the distribution
@@ -227,5 +228,18 @@ using namespace myPlanner;
          }
 
      }
+
+ }
+
+
+ void robot::build_map(const Stg::ModelRanger::Sensor& laser) {
+   /**
+    * The robot builds an occupancy map of the domain using the measurements
+    * from the laser range sensor data.
+    * \param laser : an object containing the laser range data
+    */
+
+   
+
 
  }

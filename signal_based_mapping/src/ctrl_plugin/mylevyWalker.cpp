@@ -8,7 +8,6 @@
 
 #include <Stage-4.3/stage.hh>
 #include "robot/robot.h"
-#include "planner/base_planner.h"
 
 using namespace Stg;
 

@@ -145,7 +145,14 @@ namespace occupancy_grid{
       }
 
       /// overload the == operator
-      friend bool operator== (const ray_trace_iterator& it1, const ray_trace_iterator& it2);
+//      friend bool operator== (const ray_trace_iterator<real_t, int_t>& it1,
+//                              const ray_trace_iterator<real_t, int_t>& it2);
+      friend bool operator== (const ray_trace_iterator<real_t, int_t>& it1, const ray_trace_iterator<real_t, int_t>& it2){
+        return ((it1.i_ == it2.i_) && (it1.j_ == it2.j_) &&
+            (it1.tx_ == it2.tx_) && (it1.ty_ == it2.ty_) &&
+            (it1.Tx_ == it2.Tx_) && (it1.Ty_ == it2.Ty_) &&
+            (it1.dir_x == it2.dir_x) && (it1.dir_y == it2.dir_y));
+      }
 
       void increment();
 
@@ -156,15 +163,10 @@ namespace occupancy_grid{
 
     };
 
-friend bool operator== (const ray_trace_iterator& it1, const ray_trace_iterator& it2){
-  return ((it1.i_ == it2.i_) && (it1.j_ == it2.j_) &&
-      (it1.tx_ == it2.tx_) && (it1.ty_ == it2.ty_) &&
-      (it1.Tx_ == it2.Tx_) && (it1.Ty_ == it2.Ty_) &&
-      (it1.dir_x == it2.dir_x) && (it1.dir_y == it2.dir_y));
-}
+
 
 template <typename real_t, typename int_t>
-void ray_trace_iterator::increment() {
+void ray_trace_iterator<real_t, int_t>::increment() {
   if (tx_ < ty_) {
     i_ += dir_x;
     ty_ = ty_ - tx_;
@@ -178,12 +180,12 @@ void ray_trace_iterator::increment() {
 
 
 template <typename real_t, typename int_t>
-std::pair<real_t, real_t> ray_trace_iterator::real_position() const {
+std::pair<real_t, real_t> ray_trace_iterator<real_t, int_t>::real_position() const {
 
   // whether the grid line we are going to hit is floor() or ceil()
   // depends on the direction ray is moving
-  int_t floor_or_ceil_x = (dirx_ > 0) ? 1 : 0;
-  int_t floor_or_ceil_y = (diry_ > 0) ? 1 : 0;
+  int_t floor_or_ceil_x = (dir_x > 0) ? 1 : 0;
+  int_t floor_or_ceil_y = (dir_y > 0) ? 1 : 0;
 
   real_t ex = (dx_ == 0) ? ex_ // error is same as starting point
                          : tx_ * fabs(dx_);

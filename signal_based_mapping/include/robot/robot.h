@@ -14,7 +14,12 @@
 
 // stage header file added for some functions
 #include <Stage-4.3/stage.hh>
+
+// local header files
 #include "planner/base_planner.h"
+#include "occupancy_grid/occupancyGrid.h"
+#include "occupancy_grid/forward_sensor_model.h"
+#include "occupancy_grid/ray_trace_iterator.h"
 
 namespace myRobot{
 
@@ -92,20 +97,31 @@ namespace myRobot{
         Stg::radians_t desired_levy_direction{0};
         /// To display output
         bool verbose=true;
+        /// The pointer to occupancy grid map
+        occupancy_grid::Prob_occupancyGrid2D<double, int>* occ_grid_map;
+
 
 
 
         // constructor
 
-        robot(std::string name, Stg::Pose i_pose, Stg::Velocity i_vel, Stg::meters_t l_min, double l_alpha,
-              double l_start_time, myPlanner::base_planner* plan_gen)
-             : robot_name{name},
+        robot(std::string name,
+              Stg::Pose i_pose,
+              Stg::Velocity i_vel,
+              Stg::meters_t l_min,
+              double l_alpha,
+              double l_start_time,
+              myPlanner::base_planner* plan_gen=NULL,
+              occupancy_grid::Prob_occupancyGrid2D<double, int>* map=NULL):
+              // invoking attribute constructors
+              robot_name{name},
                current_pose{i_pose.x, i_pose.y, i_pose.z, i_pose.a},
                current_velocity{i_vel.x, i_vel.y, i_vel.x, i_vel.a},
                levy_min{l_min},
                levy_alpha{l_alpha},
                levy_start_time{l_start_time},
-                planner{plan_gen}{
+                planner{plan_gen},
+                occ_grid_map{map}{
 
             /// The constructor of the class
 
@@ -406,6 +422,8 @@ namespace myRobot{
         Stg::radians_t generate_random_direction(Stg::radians_t min = -M_PI, Stg::radians_t max = M_PI);
 
         void move();
+
+        void build_map(const Stg::ModelRanger::Sensor& laser);
 
 
 

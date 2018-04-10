@@ -17,7 +17,6 @@
 
 // Defining new namespaces for brevity
 namespace b_const = boost::math::constants;
-namespace b_rand = boost::random;
 
 
 namespace occupancy_grid{
