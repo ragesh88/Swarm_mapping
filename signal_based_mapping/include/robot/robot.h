@@ -6,7 +6,7 @@
  a robot in the stage simulator.
 
   */
-//
+// TODO : Cleaning up of the code is required. Remove unnecessary attributes and methods
 
 
 #ifndef STAGE_CTRL_PLUGIN_ROBOT_H
@@ -97,7 +97,7 @@ namespace myRobot{
         /// To display output
         bool verbose=true;
         /// The pointer to occupancy grid map
-        occupancy_grid::Prob_occupancyGrid2D<double, int>* occ_grid_map{NULL};
+        occupancy_grid::occupancyGrid2D<double, int>* occ_grid_map{NULL};
 
 
 
@@ -111,7 +111,7 @@ namespace myRobot{
               double l_alpha,
               double l_start_time,
               myPlanner::base_planner* plan_gen=NULL,
-              occupancy_grid::Prob_occupancyGrid2D<double, int>* map=NULL):
+              occupancy_grid::occupancyGrid2D<double, int>* map=NULL):
               // invoking attribute constructors
               robot_name{name},
                current_pose{i_pose.x, i_pose.y, i_pose.z, i_pose.a},

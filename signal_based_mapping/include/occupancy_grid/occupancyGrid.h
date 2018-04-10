@@ -28,6 +28,9 @@
 
 #include "ray_trace_iterator.h" // for ray trace operations
 
+// TODO : Need to clean up the code. I think it is better to make Prob_occupancyGrid2D inherit from
+// TODO : the class occupancyGrid2D. By this manner the robot class can have a pointer to occupancyGrid2D object
+// TODO : and use virtual function to invoke the appropriate method of the class.
 
 namespace occupancy_grid{
 
