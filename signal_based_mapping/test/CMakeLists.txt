@@ -9,8 +9,12 @@ SET( TESTS
 # create a library module for each plugin and link libstage to each
 
 foreach( TEST ${TESTS} )
-  ADD_EXECUTABLE( ${TEST} ${TEST}.cpp ../src/robot/robot.cpp ../src/planner/base_planner.cpp)
+  ADD_EXECUTABLE( ${TEST} ${TEST}.cpp ../src/robot/robot.cpp ../src/planner/base_planner.cpp
+          #../src/occupancy_grid/forward_sensor_model.cpp ../src/occupancy_grid/occupancyGrid.cpp)
+          ../src/occupancy_grid/forward_sensor_model.cpp)
+
 endforeach( TEST )
+
 
 
 set_source_files_properties( ${TESTS} PROPERTIES
@@ -18,7 +22,7 @@ set_source_files_properties( ${TESTS} PROPERTIES
 )
 
 foreach( TEST ${TESTS} )
-  TARGET_LINK_LIBRARIES( ${TEST} stage )
+  TARGET_LINK_LIBRARIES( ${TEST} stage ${OpenCV_USED_LIBS} ${Boost_LIBRARIES} )
 endforeach( TEST )
 
 

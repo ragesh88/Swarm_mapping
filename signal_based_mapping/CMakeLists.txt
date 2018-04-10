@@ -23,6 +23,16 @@ link_directories(~/stg/lib)
 # add the generated libraries
 #link_directories(GENERATED_LIB)
 
+# Find the Open CV package
+find_package( OpenCV REQUIRED core imgproc)
+
+# The OpenCV packages used here
+SET(OpenCV_USED_LIBS opencv_core opencv_imgproc)
+
+# Find the Boost package
+find_package( Boost COMPONENTS date_time filesystem system program_options REQUIRED)
+
+
 
 # include the header files directory
 include_directories(${CMAKE_SOURCE_DIR}/include)

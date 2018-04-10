@@ -12,39 +12,14 @@
 
 int main() {
 
-    std::string name{"robot"};
-    Stg::Pose i_pose{0, 0, 0, 0};
-    Stg::Velocity i_vel{1, 1, 0, 0};
-    const double TOL = 0.0001;
-    double l_min{1.0};
-    double l_alpha{1.5};
-    double l_start_time{0};
-    myRobot::robot ro{name, i_pose, i_vel, l_min, l_alpha, l_start_time};
-    // Robot name test
-    assert(ro.get_robot_name() == name);
-    std::cout<<"\nRobot name test passed";
-    // Levy dist generation test
-    ro.generate_levy_dist();
-    std::cout<<"\n levy distance generated : "<<ro.get_levy_dis()<<std::endl;
-    std::cout<<"\nSpeed = dist / time test passed";
-    // Alpha value zero test
-    ro.set_levy_alpha(0);
-    assert(!ro.generate_levy_dist());
-    std::cout<<"\nAlpha value zero test passed\n";
-    // Zero speed test
-    ro.set_current_velocity(0, 0, 0, 2);
-    ro.set_levy_alpha(l_alpha);
-    assert(!ro.generate_levy_dist());
-    std::cout<<"\nSpeed zero test passed\n";
-    // Random angle test
-    assert(ro.generate_random_direction() < 2*3.14);
-    std::cout<<"\nangle less than PI test passed\n";
-    assert(ro.generate_random_direction() > 0);
-    std::cout<<"\nangle greater than -PI test passed\n";
-    assert(ro.generate_random_direction(0, M_PI/2) < 3.14/2.0);
-    std::cout<<"\nangle less than PI/2 test passed\n";
-    assert(ro.generate_random_direction(0, M_PI/2) > 0);
-    std::cout<<"\nangle greater than 0 test passed\n";
+    myRobot::robot robot;
+    std::cout<<"robot id :"<<robot.get_robot_id()<<std::endl;
+    occupancy_grid::Prob_occupancyGrid2D<double,int> map;
+    cv::Vec2d final_pos;
+    bool reflect;
+    //occupancy_grid::ray_trace_iterator<double, int> it{0,0,2,2,2,2,2,2};
+    map.ray_trace(0,0,1.5,2,final_pos,reflect);
+
 
 
 }

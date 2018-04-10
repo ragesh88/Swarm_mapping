@@ -2,6 +2,10 @@
 // Created by Ragesh on 4/8/18.
 //
 
+// This file is not required as the template class method definition needs to written within the
+// header file in order for the compiler to generate the class during compilation.
+// For this reason the method definitions for the classes in this .cpp file is rewritten in to the
+// file SOURCE_DIR/include/occupancy_grid/occupancyGrid.h
 
 #include "occupancy_grid/occupancyGrid.h"
 

@@ -9,7 +9,7 @@ SET( PLUGINS
 
 foreach( PLUGIN ${PLUGINS} )
   ADD_LIBRARY( ${PLUGIN} MODULE ${PLUGIN}.cpp ../robot/robot.cpp ../planner/base_planner.cpp
-          ../occupancy_grid/forward_sensor_model.cpp ../occupancy_grid/occupancyGrid.cpp)
+          ../occupancy_grid/forward_sensor_model.cpp)
 endforeach( PLUGIN )
 				
 #ADD_LIBRARY( fasr2 MODULE fasr2.cc astar/findpath.cpp )
@@ -23,15 +23,6 @@ set_source_files_properties( ${PLUGINS} PROPERTIES
   COMPILE_FLAGS "${FLTK_CFLAGS}" 
 )
 
-
-# Find the Open CV package
-find_package( OpenCV REQUIRED core imgproc)
-
-# The OpenCV packages used here
-SET(OpenCV_USED_LIBS opencv_core opencv_imgproc)
-
-# Find the Boost package
-find_package( Boost COMPONENTS date_time filesystem system program_options REQUIRED)
 
 foreach( PLUGIN ${PLUGINS} )
   TARGET_LINK_LIBRARIES( ${PLUGIN} stage ${OPENGL_LIBRARIES} ${OpenCV_USED_LIBS} ${Boost_LIBRARIES})

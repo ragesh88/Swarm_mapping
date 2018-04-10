@@ -14,6 +14,9 @@ using namespace myRobot;
 using namespace myPlanner;
 using namespace occupancy_grid;
 
+// Define the static variable
+int robot::gen_id=0;
+
  bool robot::generate_levy_dist(){
     /// Generate the length from the distribution
     //uniform random number generator
@@ -239,7 +242,7 @@ using namespace occupancy_grid;
     * \param laser : an object containing the laser range data
     */
 
-   
+
 
 
  }
