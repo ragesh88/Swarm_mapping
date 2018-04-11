@@ -107,6 +107,7 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
 
 // inspect the ranger data and decide what to do
 int8_t newLaserUpdate(Model *, myRobot::robot *robot) {
+    robot->build_map();
     robot->move();
     return 0;
 }

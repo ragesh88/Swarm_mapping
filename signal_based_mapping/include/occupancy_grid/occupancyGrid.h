@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
+#include <map>
 
 // Third party libraries
 #include <boost/math/constants/constants.hpp>
@@ -33,6 +34,9 @@
 // TODO : and use virtual function to invoke the appropriate method of the class.
 
 namespace occupancy_grid{
+
+      template <typename int_t>
+      class vec_comp_class;
 
     template <typename real_t, typename int_t>
     class occupancyGrid2D {
@@ -133,6 +137,11 @@ namespace occupancy_grid{
       real_t ray_trace(real_t px, real_t py, real_t p_theta, real_t max_range, cv::Vec<real_t, 2> &final_pos,
                         bool &reflectance);
 
+      void ray_trace_all(real_t px, real_t py,real_t p_theta, real_t max_range,
+                         std::map<cv::Vec<int_t, 2>, real_t,vec_comp_class<int_t>>& all_pos_range);
+
+
+
       cv::Point2i xy2rc(const cv::Vec<real_t, 2> &xy) const {
         /// the function converts the \f$(x,y)\f$ coordinates to corresponding
         /// row and col coordinates of the grid map
@@ -142,6 +151,8 @@ namespace occupancy_grid{
       }
 
     };
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Definitions for the members of the class occupancyGrid2D
 
@@ -213,6 +224,8 @@ real_t occupancyGrid2D<real_t, int_t>::nearest_neighbor_distance(cv::Vec<real_t,
 
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename real_t, typename int_t>
 real_t occupancyGrid2D<real_t, int_t>::ray_trace(real_t px,
                                                  real_t py,
@@ -261,6 +274,79 @@ real_t occupancyGrid2D<real_t, int_t>::ray_trace(real_t px,
   return max_range;
 
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+template <typename real_t, typename int_t>
+void occupancyGrid2D<real_t, int_t>::ray_trace_all(real_t px,real_t py, real_t p_theta, real_t max_range,
+                                                   std::map<cv::Vec<int_t, 2>, real_t,vec_comp_class<int_t>>& all_pos_range)
+
+  /// The function return the grid coordinates of all the grids that the ray pass through.
+{
+  real_t dx = std::cos(p_theta);
+  real_t dy = std::sin(p_theta);
+
+
+  ray_trace_iterator<real_t, int_t> ray_trace_it(px, py, dx, dy, min_pt(0), min_pt(1), cell_size(0), cell_size(1));
+
+  real_t dir_mag = std::sqrt(dx*dx + dy*dy);
+  real_t n = std::floor(max_range * std::fabs(dx) / (dir_mag * cell_size(0))) +
+      std::floor(max_range * std::fabs(dy) / (dir_mag * cell_size(1)));
+
+  int max_size_x = og_.size[0];
+  int max_size_y = og_.size[1];
+
+  // iterate using the ray trace iterate object
+  for (; n > 0 ; n--, ray_trace_it++) {
+
+    // grid the coordinates (i,j) as std::pair
+    int i = ray_trace_it->first;
+    int j = ray_trace_it->second;
+
+    const std::pair<real_t, real_t>& pos_pair = ray_trace_it.real_position();
+    auto range = std::sqrt((pos_pair.first-px)*(pos_pair.first-px) +
+                 (pos_pair.second-py)*(pos_pair.second-py));
+
+    // uncomment the line below to debug
+    printf("\n (%d, %d), (%f, %f) \n", i, j, pos_pair.first, pos_pair.second);
+
+
+    // check if the coordinates are in bounds and is occupied
+    if(i < 0 || j < 0 || i >= max_size_x || j >= max_size_y || range >= max_range){
+
+      break;
+
+    }
+    // inserting the elements
+    all_pos_range.insert(std::pair<cv::Vec<int_t, 2>, real_t>(cv::Vec<int_t,2>{i,j},range));
+
+
+    }
+
+  }
+
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename int_t>
+class vec_comp_class{
+ public:
+  bool operator()(const cv::Vec<int_t, 2>& t1, const cv::Vec<int_t, 2>& t2){
+    // An operator to compare the cv::Vec<int_t, 2> objects
+    if(t1[0] < t2[0]){
+      return true;
+    } else {
+      if (t1[0] == t1[0]){
+        return (t1[1] < t2[1]);
+      }
+      return false;
+    }
+
+  }
+};
 
 
 

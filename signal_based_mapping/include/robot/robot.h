@@ -15,6 +15,9 @@
 // stage header file added for some functions
 #include <Stage-4.3/stage.hh>
 
+// C++ library header files
+
+
 // local header files
 #include "planner/base_planner.h"
 #include "occupancy_grid/occupancyGrid.h"
@@ -424,7 +427,7 @@ namespace myRobot{
 
         void move();
 
-        void build_map(const Stg::ModelRanger::Sensor& laser);
+        void build_map();
 
 
 

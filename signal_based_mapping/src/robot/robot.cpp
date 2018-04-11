@@ -235,12 +235,39 @@ int robot::gen_id=0;
  }
 
 
- void robot::build_map(const Stg::ModelRanger::Sensor& laser) {
+ void robot::build_map() {
    /**
     * The robot builds an occupancy map of the domain using the measurements
     * from the laser range sensor data.
-    * \param laser : an object containing the laser range data
     */
+    const bool verbose_local = true;
+    const auto &laserSensor = laser->GetSensors()[0];
+    //std::cout<<"\n Hello";
+    //std::cout<<"\n angle noise : "<<laserSensor.angle_noise;
+    //std::cout<<"\n range noise : "<<laserSensor.range_noise;
+    //std::cout<<"\n range noise const : "<<laserSensor.range_noise_const;
+    //laserSensor.pose.Print("Sensor pose ");
+    if(verbose_local){
+      for (int i = 0; i < laserSensor.sample_count; i++){
+        printf("bearing %d is %f \n", i, laserSensor.bearings[i]*(180/M_PI));
+        printf("ranges %d is %f \n", i, laserSensor.ranges[i]);
+      }
+
+    }
+    const Stg::Pose base_pose = position->GetPose();
+
+    const int ray_incre = 4; // interval in choosing the laser rays
+    // Iterate through each ray in the interval ray_incre
+    for(int i=0; i<laserSensor.sample_count; i+=ray_incre){
+
+        // Get the grid cell coordinate for which the ray passed through
+        std::map<cv::Vec<int, 2>, double, occupancy_grid::vec_comp_class<int>> passed_grids;
+        occ_grid_map->ray_trace_all(laserSensor.pose.x + base_pose.x, laserSensor.pose.y + base_pose.y,
+                                    laserSensor.bearings[i] + base_pose.a, laserSensor.ranges[i],
+                                    passed_grids);
+
+    }
+
 
 
 
