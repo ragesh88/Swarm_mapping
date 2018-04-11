@@ -322,7 +322,7 @@ void occupancyGrid2D<real_t, int_t>::ray_trace_all(real_t px,real_t py, real_t p
     all_pos_range.insert(std::pair<cv::Vec<int_t, 2>, real_t>(cv::Vec<int_t,2>{i,j},range));
 
 
-    }
+    
 
   }
 
