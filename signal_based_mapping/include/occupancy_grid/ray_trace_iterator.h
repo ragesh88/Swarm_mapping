@@ -108,7 +108,7 @@ namespace occupancy_grid{
 
         // distance to the nearest grid line
         ex_ = std::fabs((i_ + floor_or_ceil_x) * cell_size_x_ - px);
-        ey_ = std::fabs((i_ + floor_or_ceil_y) * cell_size_y_ - py);
+        ey_ = std::fabs((j_ + floor_or_ceil_y) * cell_size_y_ - py);
 
         // (max) time to collision from one grid line to another
         Tx_ = (dx == 0) ? std::numeric_limits<real_t>::infinity(): cell_size_x_ / std::fabs(dx);

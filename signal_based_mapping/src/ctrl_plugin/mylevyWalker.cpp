@@ -21,11 +21,15 @@ static const double minFrontDistance = 1.0;
 static const bool verbose = true;
 static const bool verbose_new = true;
 static const bool debug = false;
+// a vector containing the robot object pointers
+static std::vector<myRobot::robot*> robots_pointer;
 
 
 int8_t newLaserUpdate(Model *mod, myRobot::robot *robot);
 
 int PositionUpdate(Model *mod, myRobot::robot *robot);
+
+int8_t newFiducialUpdate(Model *, myRobot::robot* robot);
 
 double generateGaussianNoise(double variance);
 
@@ -43,6 +47,9 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
   */
 
     myRobot::robot *robot = new myRobot::robot();
+    // Storing the pointer of the dynamically allocated object in a vector
+    // This is done that other robots can access the robot data to mimic communication.
+    robots_pointer.push_back(robot);
     printf("\n*******Ragesh Levy walk controller******");
     robot->set_current_velocity(cruisesSpeed, 0, turnSpeed);
     robot->world = mod->GetWorld();
@@ -73,8 +80,8 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
     const double min_y = -8; // in meters
     const double cell_size_x = 0.02; // in meters
     const double cell_size_y = 0.02; // in meters
-    const int n_cell_x = 500; // no of cells along x
-    const int n_cell_y = 500; // no of cells along y
+    const int n_cell_x = 800; // no of cells along x
+    const int n_cell_y = 800; // no of cells along y
 
     // Setting up the map object
     occupancy_grid::occupancyGrid2D<double,int>* occ_grid = new occupancy_grid::occupancyGrid2D<double,int>(min_x, min_y,
@@ -100,6 +107,7 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
         laser = dynamic_cast<ModelRanger *>(robot->position->GetChild(name));
 
 
+
         if (laser && laser->GetSensors()[0].sample_count > 8) {
 
             printf("yes.");
@@ -118,6 +126,23 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
     robot->laser = laser;
     robot->laser->AddCallback(Model::CB_UPDATE, model_callback_t(newLaserUpdate), robot);
     robot->laser->Subscribe(); // starts the ranger updates
+
+    // Looking for fiducial sensors in the model.
+    // This required for sharing map among robots using consensus
+    printf(" \n looking for a suitable fiducial sensor for \"%s ... \"", robot->position->Token());
+    ModelFiducial* fiducial_sensor=NULL;
+    fiducial_sensor = dynamic_cast<ModelFiducial*>(robot->position->GetChild("fiducial:0"));
+    if (fiducial_sensor==NULL){
+      printf("\n Failed to find a fiducial sensor. Exit");
+      exit(2);
+
+    }
+
+    robot->fiducial_sensor = fiducial_sensor;
+    robot->fiducial_sensor->AddCallback(Model::CB_UPDATE, model_callback_t(newFiducialUpdate), robot);
+    robot->fiducial_sensor->Subscribe(); // starts the fiducial sensor update
+
+
     return 0;
 }
 
@@ -127,12 +152,25 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
 int8_t newLaserUpdate(Model *, myRobot::robot *robot) {
     robot->build_map();
     robot->move();
-    if(robot->world->SimTimeNow()/1000000 == 7198){
+    if(robot->world->SimTimeNow()/1000000 == 7198 || robot->world->Paused()){
+      printf("\n Paused");
       printf("\n Writing the map");
-      robot->write_map();
+      //robot->write_map();
     }
 
+
     return 0;
+}
+
+// inspect the fiducial id of the observed robot and decide what to do
+int8_t newFiducialUpdate(Model *, myRobot::robot* robot) {
+
+  const auto& fiducial = robot->fiducial_sensor->GetFiducials()[0];
+  std::cout<<"\nThe data of the fiducial sensor of "<<robot->get_robot_name();
+  std::cout<<"\nThe field of view of the fiducial sensor is : "<<robot->fiducial_sensor->fov<<std::endl;
+  std::cout<<"\nThe heading of the fiducial sensor is"<<robot->fiducial_sensor->heading<<std::endl;
+  printf("\n The %s sees the robot with fiducial id %d\n",robot->get_robot_name().c_str(), fiducial.id);
+  return 0;
 }
 
 
@@ -157,14 +195,15 @@ double generateGaussianNoise(double variance) {
 }
 
 int PositionUpdate(Model *, myRobot::robot *robot) {
-    Pose pre_pose = robot->previous_pose;
-    printf("Pre Pose: [%.2f %.2f %.2f %.2f]\n", \
-  pre_pose.x, pre_pose.y, pre_pose.z, pre_pose.a);
-    Pose pose = robot->position->GetPose();
 
-    printf("Pose: [%.2f %.2f %.2f %.2f]\n", pose.x, pose.y, pose.z, pose.a);
-    robot->previous_pose.x = pose.x;
-    robot->previous_pose.y = pose.y;
-    robot->previous_pose.a = pose.a;
+    //Pose pre_pose = robot->previous_pose;
+    //printf("Pre Pose: [%.2f %.2f %.2f %.2f]\n", \
+    //pre_pose.x, pre_pose.y, pre_pose.z, pre_pose.a);
+//    Pose pose = robot->position->GetPose();
+//
+//    printf("Pose: [%.2f %.2f %.2f %.2f]\n", pose.x, pose.y, pose.z, pose.a);
+//    robot->previous_pose.x = pose.x;
+//    robot->previous_pose.y = pose.y;
+//    robot->previous_pose.a = pose.a;
     return 0; // run again
 }

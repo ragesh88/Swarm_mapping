@@ -157,11 +157,11 @@ Stg::radians_t levyWalk_planner::generate_random_direction(){
              rotate_time=(std::fabs(-M_PI - cur_dir)+std::fabs(M_PI - des_dir))/std::fabs(w);
          }
      }
-     point.motion_end_time+=rotate_time;
+     //point.motion_end_time+=rotate_time; //TODO : uncomment this after debugging
      point.computed_desPose=true;
 
 
-     path.push(point); // pushing the second point to the path
+     //path.push(point); // pushing the second point to the path //TODO : uncomment this after debugging
 
      // computing the third point in the path
      point.modes=MOTION_MODES::TRANSLATION_X;

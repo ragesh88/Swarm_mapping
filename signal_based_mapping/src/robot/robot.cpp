@@ -345,7 +345,7 @@ void probability_map_given_measurement_pose(const LaserSensor& sensor,
         occ_grid_map->ray_trace_all(laserSensor.pose.x + base_pose.x, laserSensor.pose.y + base_pose.y,
                                     laserSensor.bearings[i] + base_pose.a, laserSensor.ranges[i],
                                     passed_grids_ranges);
-      if(verbose_local){
+      if(verbose){
         for (auto it = passed_grids_ranges.begin(); it!=passed_grids_ranges.end(); ++it){
           if (i==0){ // for debugging
             printf("\n (%d,%d) is at a distance of %f from the first point", it->second[0], it->second[1], it->first);
@@ -357,8 +357,13 @@ void probability_map_given_measurement_pose(const LaserSensor& sensor,
       std::list<std::pair<cv::Vec<int,2>,double>> occ_probability;
       probability_map_given_measurement_pose(laserSensor, i, passed_grids_ranges, occ_probability);
       // update the map using the probability value scaled between 0 - 255
+      if(verbose_local){
+        if(!occ_probability.size())
+        std::cout<<"The size of probability measurements : "<<occ_probability.size()<<std::endl;
+        std::cout<<"The size of passed grid ranges : "<<passed_grids_ranges.size()<<std::endl;
+      }
       for (auto it = occ_probability.begin(); it != occ_probability.end(); ++it){
-        //double v = static_cast<double>(occ_grid_map->get(it->first[0], it->first[1]))/occ_grid_map->FREE;
+        //double v = static_cast<double>(occ_grid_map->get(it->first[0], it->first[1]))/occ_grid_map->OCCUPIED;
         occ_grid_map->set(it->first[0], it->first[1], static_cast<uint8_t>(occ_grid_map->OCCUPIED*(it->second)));
         if(i == 10){
           //printf("\n the probability of ray %d : %d", i, static_cast<uint8_t>(occ_grid_map->OCCUPIED*(it->second)));
@@ -371,11 +376,6 @@ void probability_map_given_measurement_pose(const LaserSensor& sensor,
     }
 
 
-
-
-
-
-
  }
 
 
@@ -384,8 +384,10 @@ void robot::write_map()
  *
  */
 {
+  std::string filename{"_Map.png"};
+  filename = robot_name + filename;
   try {
-    cv::imwrite("Map.png", occ_grid_map->og_);
+    cv::imwrite(filename.c_str(), occ_grid_map->og_);
   }catch (std::runtime_error& ex) {
     fprintf(stderr, "Exception converting image to PNG format: %s\n", ex.what());
 

@@ -86,9 +86,11 @@ namespace myRobot{
         static int gen_id;
         // Stage simulator variables
         /// Access the position model of the Stage library
-        Stg::ModelPosition *position{NULL};
+        Stg::ModelPosition* position{NULL};
         /// Access the laser sensor model of the Stage library
-        Stg::ModelRanger *laser{NULL};
+        Stg::ModelRanger* laser{NULL};
+        /// Access the fiducial sensor model using the Stage library
+        Stg::ModelFiducial* fiducial_sensor{NULL};
         /// Obstacle avoidance variable
         long int avoidCount{0}, randCount{0};
         Stg::Pose previous_pose;
@@ -99,7 +101,7 @@ namespace myRobot{
         /// The levy direction for the flight
         Stg::radians_t desired_levy_direction{0};
         /// To display output
-        bool verbose=true;
+        bool verbose=false;
         /// The pointer to occupancy grid map
         occupancy_grid::occupancyGrid2D<double, int>* occ_grid_map{NULL};
 
@@ -144,6 +146,7 @@ namespace myRobot{
                              current_velocity.y * current_velocity.y + \
                              current_velocity.z * current_velocity.z);
             turn_speed = current_velocity.a;
+            robot_name = robot_name + std::to_string(robot_id);
 
         }
 
@@ -151,6 +154,7 @@ namespace myRobot{
         robot(){
             /// Default constructor with no arguments
           robot_id = ++gen_id; // generate id for each robot
+          robot_name = robot_name + std::to_string(robot_id);
         }
 
         ~robot(){
