@@ -21,7 +21,8 @@
 // local header files
 #include "planner/base_planner.h"
 #include "occupancy_grid/occupancyGrid.h"
-#include "occupancy_grid/forward_sensor_model.h"
+//#include "occupancy_grid/forward_sensor_model.h"
+//#include "occupancy_grid/inverse_sensor_model.h"
 
 namespace myRobot{
 
@@ -157,6 +158,7 @@ namespace myRobot{
 
             // Destroying the planner object
             delete(planner);
+            delete(occ_grid_map);
         }
 
         // get functions

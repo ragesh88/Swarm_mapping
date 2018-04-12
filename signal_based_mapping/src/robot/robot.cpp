@@ -234,37 +234,135 @@ int robot::gen_id=0;
 
  }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+double reflectance_model( double grid_range,  Stg::meters_t range, double max_range,  double noise_sd)
+/**
+ * The function computes probability of occupancy of the grid cell corresponding to grid_range when the
+ * ray was reflected.
+ * @param grid_range
+ * @param range
+ * @param max_range
+ * @param noise_sd
+ * @return
+ */
+{
+  const double start_prob = 0.05;
+  const double end_prob = 0.5;
+  const double max_prob = 0.7;
+  const double init_slope = (end_prob - start_prob)/max_range;
+  if(grid_range <= range-2*noise_sd - 0.02){
+    return (init_slope * grid_range + start_prob);
+  } else{
+    return (max_prob);
+  }
+}
+
+double non_reflectance_model( double grid_range,  double max_range,  double noise_sd)
+/**
+ * The function computes probability of occupancy of the grid cell corresponding to the grid_range when the
+ * ray wasn't reflected
+ * @param grid_range
+ * @param max_range
+ * @param noise_sd
+ * @return
+ */
+{
+  const double start_prob = 0.05;
+  const double end_prob = 0.5;
+  const double init_slope = (end_prob - start_prob)/(max_range-2*noise_sd);
+  if(grid_range <= max_range-2*noise_sd){
+    return (init_slope * grid_range + start_prob);
+  } else{
+    return (end_prob);
+  }
+
+}
+typedef Stg::ModelRanger::Sensor LaserSensor;
+
+void probability_map_given_measurement_pose(const LaserSensor& sensor,
+                                            const int& ray_index,
+                                            std::map<double,cv::Vec<int,2>>& passed_grids_ranges,
+                                            std::list<std::pair<cv::Vec<int,2>,double>>& probability)
+/**
+ * The function computes the probability of the map cells whose coordinates are given as values in the map
+ * object passed_grids_ranges.
+ * @param sensor
+ * @param ray_index
+ * @param passed_grids_ranges
+ * @param probability
+ */
+{
+
+  // find if reflectance occurred with the ray.
+  // reflectance occurred if the range of the ray less than
+  // max range - 2*sqrt(range_noise_const)
+  bool reflectance = false;
+  const double noise_variance = std::sqrt(sensor.range_noise_const);
+  if (sensor.ranges[ray_index] < (sensor.range.max - 2 * std::sqrt(noise_variance))) {
+    reflectance = true;
+  }
+
+  if (reflectance) {
+    for (auto it = passed_grids_ranges.begin(); it != passed_grids_ranges.end(); it++) {
+      double prob = reflectance_model(it->first, sensor.ranges[ray_index], sensor.range.max, noise_variance);
+      probability.push_back(std::pair<cv::Vec<int, 2>, double>(it->second, prob));
+
+    }
+  } else {
+    for (auto it = passed_grids_ranges.begin(); it != passed_grids_ranges.end(); it++) {
+      double prob = non_reflectance_model(it->first, sensor.range.max, noise_variance);
+      probability.push_back(std::pair<cv::Vec<int, 2>, double>(it->second, prob));
+    }
+
+  }
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
  void robot::build_map() {
    /**
     * The robot builds an occupancy map of the domain using the measurements
     * from the laser range sensor data.
     */
-    const bool verbose_local = true;
+    const bool verbose_local = false;
     const auto &laserSensor = laser->GetSensors()[0];
     //std::cout<<"\n Hello";
     //std::cout<<"\n angle noise : "<<laserSensor.angle_noise;
     //std::cout<<"\n range noise : "<<laserSensor.range_noise;
     //std::cout<<"\n range noise const : "<<laserSensor.range_noise_const;
     //laserSensor.pose.Print("Sensor pose ");
-    if(verbose_local){
-      for (int i = 0; i < laserSensor.sample_count; i++){
-        printf("bearing %d is %f \n", i, laserSensor.bearings[i]*(180/M_PI));
-        printf("ranges %d is %f \n", i, laserSensor.ranges[i]);
-      }
 
-    }
     const Stg::Pose base_pose = position->GetPose();
 
-    const int ray_incre = 4; // interval in choosing the laser rays
+    const int ray_incre = 5; // interval in choosing the laser rays
     // Iterate through each ray in the interval ray_incre
     for(int i=0; i<laserSensor.sample_count; i+=ray_incre){
 
         // Get the grid cell coordinate for which the ray passed through
-        std::map<cv::Vec<int, 2>, double, occupancy_grid::vec_comp_class<int>> passed_grids;
+        std::map<double,cv::Vec<int, 2>> passed_grids_ranges;
         occ_grid_map->ray_trace_all(laserSensor.pose.x + base_pose.x, laserSensor.pose.y + base_pose.y,
                                     laserSensor.bearings[i] + base_pose.a, laserSensor.ranges[i],
-                                    passed_grids);
+                                    passed_grids_ranges);
+      if(verbose_local){
+        for (auto it = passed_grids_ranges.begin(); it!=passed_grids_ranges.end(); ++it){
+          if (i==0){ // for debugging
+            printf("\n (%d,%d) is at a distance of %f from the first point", it->second[0], it->second[1], it->first);
+          }
+        }
+      }
+
+      // compute the probability of occupancy for each grid cell using inverse sensor model for the ray
+      std::list<std::pair<cv::Vec<int,2>,double>> occ_probability;
+      probability_map_given_measurement_pose(laserSensor, i, passed_grids_ranges, occ_probability);
+      // update the map using the probability value scaled between 0 - 255
+      for (auto it = occ_probability.begin(); it != occ_probability.end(); ++it){
+        double v = static_cast<double>(occ_grid_map->get(it->first[0], it->first[1]))/occ_grid_map->FREE;
+        occ_grid_map->set(it->first[0], it->first[1], static_cast<uint8_t>(occ_grid_map->FREE*it->second*v));
+      }
+
+
 
     }
 

@@ -23,6 +23,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <map>
+#include <set>
 
 // Third party libraries
 #include <boost/math/constants/constants.hpp>
@@ -54,7 +55,7 @@ namespace occupancy_grid{
       /// the matrix to store the occupancy values
       cv::Mat og_{100, 100, CV_8U, cv::Scalar(FREE)};
       /// a counter variable
-      int counter{0};
+      //int counter{0};
       /// Value when the map cell is occupied
       static const uint8_t OCCUPIED{255};
       /// Value when the map cell is free
@@ -68,10 +69,9 @@ namespace occupancy_grid{
         ///Default constructor
       }
 
-      occupancyGrid2D(real_t min_x, real_t min_y, real_t cell_size_x, real_t cell_size_y, uint n_cells_x, uint n_cell_y)
+      occupancyGrid2D(real_t min_x, real_t min_y, real_t cell_size_x, real_t cell_size_y, int n_cells_x, int n_cell_y)
           :
-          min_pt{min_x, min_y}, cell_size{cell_size_x, cell_size_y}, og_{n_cells_x, n_cell_y, CV_8U, cv::Scalar(FREE)},
-          counter(0) {
+          min_pt{min_x, min_y}, cell_size{cell_size_x, cell_size_y}, og_{n_cells_x, n_cell_y, CV_8U, cv::Scalar(UNKNOWN)}{
         /**
          * The constructor for the occupancyGrid2D class.
          *
@@ -138,7 +138,7 @@ namespace occupancy_grid{
                         bool &reflectance);
 
       void ray_trace_all(real_t px, real_t py,real_t p_theta, real_t max_range,
-                         std::map<cv::Vec<int_t, 2>, real_t,vec_comp_class<int_t>>& all_pos_range);
+                         std::map<real_t,cv::Vec<int_t, 2>>& all_range_pos);
 
 
 
@@ -280,7 +280,7 @@ real_t occupancyGrid2D<real_t, int_t>::ray_trace(real_t px,
 
 template <typename real_t, typename int_t>
 void occupancyGrid2D<real_t, int_t>::ray_trace_all(real_t px,real_t py, real_t p_theta, real_t max_range,
-                                                   std::map<cv::Vec<int_t, 2>, real_t,vec_comp_class<int_t>>& all_pos_range)
+                                                   std::map<real_t,cv::Vec<int_t, 2>>& all_range_pos)
 
   /// The function return the grid coordinates of all the grids that the ray pass through.
 {
@@ -289,6 +289,9 @@ void occupancyGrid2D<real_t, int_t>::ray_trace_all(real_t px,real_t py, real_t p
 
 
   ray_trace_iterator<real_t, int_t> ray_trace_it(px, py, dx, dy, min_pt(0), min_pt(1), cell_size(0), cell_size(1));
+
+  // to check if a grid coordinate is stored twice in the all_range_pos map object
+  std::set<cv::Vec<int_t, 2>, vec_comp_class<int_t>> grid_coordinate_check;
 
   real_t dir_mag = std::sqrt(dx*dx + dy*dy);
   real_t n = std::floor(max_range * std::fabs(dx) / (dir_mag * cell_size(0))) +
@@ -309,7 +312,7 @@ void occupancyGrid2D<real_t, int_t>::ray_trace_all(real_t px,real_t py, real_t p
                  (pos_pair.second-py)*(pos_pair.second-py));
 
     // uncomment the line below to debug
-    printf("\n (%d, %d), (%f, %f) \n", i, j, pos_pair.first, pos_pair.second);
+    //printf("\n (%d, %d), (%f, %f) \n", i, j, pos_pair.first, pos_pair.second);
 
 
     // check if the coordinates are in bounds and is occupied
@@ -318,11 +321,24 @@ void occupancyGrid2D<real_t, int_t>::ray_trace_all(real_t px,real_t py, real_t p
       break;
 
     }
-    // inserting the elements
-    all_pos_range.insert(std::pair<cv::Vec<int_t, 2>, real_t>(cv::Vec<int_t,2>{i,j},range));
+
+    // inserting the elements in to the map data structure
+    cv::Vec<int_t,2> grid_coord{i,j}; // value to the map object
+    if(!grid_coordinate_check.empty()){ // check if this is the first element to inserted
+      // inserted the element only if such a grid coordinate already exist in the map object.
+      // this is done by insert the grid coordinates to a set container and checking for duplication
+      if(grid_coordinate_check.find(grid_coord) == grid_coordinate_check.end()){
+        grid_coordinate_check.insert(--grid_coordinate_check.end(), grid_coord);
+        all_range_pos.insert(--all_range_pos.end(), std::pair<real_t, cv::Vec<int_t, 2>>(range,grid_coord));
+      }
+    } else{ // if this is the first element
+      grid_coordinate_check.insert(grid_coord);
+      all_range_pos.insert(std::pair<real_t, cv::Vec<int_t, 2>>(range,grid_coord));
+    }
 
 
-    
+
+
 
   }
 
@@ -336,6 +352,8 @@ class vec_comp_class{
  public:
   bool operator()(const cv::Vec<int_t, 2>& t1, const cv::Vec<int_t, 2>& t2){
     // An operator to compare the cv::Vec<int_t, 2> objects
+    if (t1[0] == t2[0] && t1[1]==t2[1])
+      return false;
     if(t1[0] < t2[0]){
       return true;
     } else {

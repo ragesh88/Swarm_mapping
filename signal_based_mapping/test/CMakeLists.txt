@@ -9,9 +9,9 @@ SET( TESTS
 # create a library module for each plugin and link libstage to each
 
 foreach( TEST ${TESTS} )
-  ADD_EXECUTABLE( ${TEST} ${TEST}.cpp ../src/robot/robot.cpp ../src/planner/base_planner.cpp
+  ADD_EXECUTABLE( ${TEST} ${TEST}.cpp ../src/robot/robot.cpp ../src/planner/base_planner.cpp)
           #../src/occupancy_grid/forward_sensor_model.cpp ../src/occupancy_grid/occupancyGrid.cpp)
-          ../src/occupancy_grid/forward_sensor_model.cpp)
+          #../src/occupancy_grid/inverse_sensor_model.cpp)
 
 endforeach( TEST )
 

@@ -62,11 +62,29 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
     // Setting up the planner
     myPlanner::levyWalk_planner* levyWalkPlanner = new myPlanner::levyWalk_planner(0, pose, Stg::Velocity(cruisesSpeed, 0, 0, turnSpeed));
 
-    if(verbose)
-        if (levyWalkPlanner == NULL)
-            printf("NO Planner generated");
+
+    if (levyWalkPlanner == NULL)
+      printf("NO Planner generated");
 
     robot->set_planner(levyWalkPlanner);
+
+    // The parameters for map object
+    const double min_x = -8; // in meters
+    const double min_y = -8; // in meters
+    const double cell_size_x = 0.02; // in meters
+    const double cell_size_y = 0.02; // in meters
+    const int n_cell_x = 500; // no of cells along x
+    const int n_cell_y = 500; // no of cells along y
+
+    // Setting up the map object
+    occupancy_grid::occupancyGrid2D<double,int>* occ_grid = new occupancy_grid::occupancyGrid2D<double,int>(min_x, min_y,
+                                                                                    cell_size_x, cell_size_y,
+                                                                                    n_cell_x, n_cell_y);
+    if(occ_grid==NULL)
+      printf("No map object created");
+
+    // Assigning the map object to robot
+    robot->occ_grid_map = occ_grid;
 
     // find a range finder
 

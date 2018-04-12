@@ -47,13 +47,13 @@ define SICK_noisy ranger
 	sensor
 	(				
 	  # factory settings for LMS200	
-	  range [ 0.0 3.0 ]
+	  range [ 0.0 2.0 ]
 	  pose [ 0 0 0.0 0 ]
 	  fov 180
 	  #samples 180
 	  samples 45 # still useful but much faster to compute
 	  color_rgba [0 0 1 0.15]
-	  noise [ 0.01 0.00 0.00 ] # in the order range_noise_const, range, angle_noise
+	  noise [ 0.00 0.00 0.00 ] # in the order range_noise_const, range, angle_noise
 	)
 )
 
