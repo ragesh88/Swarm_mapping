@@ -7,7 +7,8 @@ include "map.inc"
 include "mySick.inc"
 
 # time to pause (in GUI mode) or quit (in headless mode (-g)) the simulation
-quit_time 3600 # 36 seconds of simulated time
+#quit_time 3600 # 36 seconds of simulated time
+quit_time 7200 # 36 seconds of simulated time
 
 # start the simulation in pause
 paused 1
@@ -17,7 +18,7 @@ resolution 0.02
 
 # set the multiple of real time that Stage should try to achieve. Default is 1. 
 # set to 0 to go as fast as possible.
-speedup 1.000
+speedup 0.000
 
 # configure the GUI window
 window
@@ -51,7 +52,7 @@ define SICK_noisy ranger
 	  pose [ 0 0 0.0 0 ]
 	  fov 180
 	  #samples 180
-	  samples 45 # still useful but much faster to compute
+	  samples 90 # still useful but much faster to compute
 	  color_rgba [0 0 1 0.15]
 	  noise [ 0.00 0.00 0.00 ] # in the order range_noise_const, range, angle_noise
 	)

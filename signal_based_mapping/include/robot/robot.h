@@ -155,6 +155,7 @@ namespace myRobot{
 
         ~robot(){
             /// Destructor of robot class
+            //write_map();
 
             // Destroying the planner object
             delete(planner);
@@ -430,6 +431,8 @@ namespace myRobot{
         void move();
 
         void build_map();
+
+        void write_map();
 
 
 

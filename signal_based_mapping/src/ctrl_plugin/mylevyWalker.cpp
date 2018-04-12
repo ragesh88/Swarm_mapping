@@ -127,6 +127,11 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
 int8_t newLaserUpdate(Model *, myRobot::robot *robot) {
     robot->build_map();
     robot->move();
+    if(robot->world->SimTimeNow()/1000000 == 7198){
+      printf("\n Writing the map");
+      robot->write_map();
+    }
+
     return 0;
 }
 

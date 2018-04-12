@@ -246,9 +246,9 @@ double reflectance_model( double grid_range,  Stg::meters_t range, double max_ra
  * @return
  */
 {
-  const double start_prob = 0.05;
+  const double start_prob = 0.01;
   const double end_prob = 0.5;
-  const double max_prob = 0.7;
+  const double max_prob = 0.8;
   const double init_slope = (end_prob - start_prob)/max_range;
   if(grid_range <= range-2*noise_sd - 0.02){
     return (init_slope * grid_range + start_prob);
@@ -267,7 +267,7 @@ double non_reflectance_model( double grid_range,  double max_range,  double nois
  * @return
  */
 {
-  const double start_prob = 0.05;
+  const double start_prob = 0.01;
   const double end_prob = 0.5;
   const double init_slope = (end_prob - start_prob)/(max_range-2*noise_sd);
   if(grid_range <= max_range-2*noise_sd){
@@ -358,8 +358,12 @@ void probability_map_given_measurement_pose(const LaserSensor& sensor,
       probability_map_given_measurement_pose(laserSensor, i, passed_grids_ranges, occ_probability);
       // update the map using the probability value scaled between 0 - 255
       for (auto it = occ_probability.begin(); it != occ_probability.end(); ++it){
-        double v = static_cast<double>(occ_grid_map->get(it->first[0], it->first[1]))/occ_grid_map->FREE;
-        occ_grid_map->set(it->first[0], it->first[1], static_cast<uint8_t>(occ_grid_map->FREE*it->second*v));
+        //double v = static_cast<double>(occ_grid_map->get(it->first[0], it->first[1]))/occ_grid_map->FREE;
+        occ_grid_map->set(it->first[0], it->first[1], static_cast<uint8_t>(occ_grid_map->OCCUPIED*(it->second)));
+        if(i == 10){
+          //printf("\n the probability of ray %d : %d", i, static_cast<uint8_t>(occ_grid_map->OCCUPIED*(it->second)));
+        }
+
       }
 
 
@@ -370,4 +374,21 @@ void probability_map_given_measurement_pose(const LaserSensor& sensor,
 
 
 
+
+
  }
+
+
+void robot::write_map()
+/**
+ *
+ */
+{
+  try {
+    cv::imwrite("Map.png", occ_grid_map->og_);
+  }catch (std::runtime_error& ex) {
+    fprintf(stderr, "Exception converting image to PNG format: %s\n", ex.what());
+
+  }
+
+}
