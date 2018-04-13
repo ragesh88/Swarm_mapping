@@ -26,6 +26,7 @@
 
 namespace myRobot{
 
+
     /// success flag
     const bool SUCCESS = true;
     /// failed flag
@@ -45,6 +46,10 @@ namespace myRobot{
 
 
     class robot {
+        /// the robot should not exchange information if the
+        /// time between their consecutive encounter less than
+        /// this value(in seconds)
+        const double comm_delay=10;
         /// robot id
         uint robot_id;
         /// name of the robot
@@ -77,6 +82,8 @@ namespace myRobot{
         double levy_start_time = 0.0;
         /// The time for the robot should perform a levy cruise
         Stg::usec_t levy_cruise_time=0;
+        /// the robot store their time of encounter with others(seconds)
+        std::vector<double> last_communication;
         /// The pointer to the planner
         myPlanner::base_planner* planner{NULL};
 
@@ -437,6 +444,8 @@ namespace myRobot{
         void build_map();
 
         void write_map();
+
+        void merge_map(const std::vector<myRobot::robot*>& swarm);
 
 
 

@@ -22,7 +22,7 @@ static const bool verbose = true;
 static const bool verbose_new = true;
 static const bool debug = false;
 // a vector containing the robot object pointers
-static std::vector<myRobot::robot*> robots_pointer;
+std::vector<myRobot::robot*> robots_pointer{NULL};
 
 
 int8_t newLaserUpdate(Model *mod, myRobot::robot *robot);
@@ -49,7 +49,13 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
     myRobot::robot *robot = new myRobot::robot();
     // Storing the pointer of the dynamically allocated object in a vector
     // This is done that other robots can access the robot data to mimic communication.
-    robots_pointer.push_back(robot);
+    if(robot->get_robot_id() == 1){
+      robots_pointer[0] = robot;
+    } else {
+      robots_pointer.push_back(robot);
+    }
+
+
     printf("\n*******Ragesh Levy walk controller******");
     robot->set_current_velocity(cruisesSpeed, 0, turnSpeed);
     robot->world = mod->GetWorld();
@@ -152,10 +158,10 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
 int8_t newLaserUpdate(Model *, myRobot::robot *robot) {
     robot->build_map();
     robot->move();
-    if(robot->world->SimTimeNow()/1000000 == 7198 || robot->world->Paused()){
+    if(robot->world->Paused()){
       printf("\n Paused");
       printf("\n Writing the map");
-      //robot->write_map();
+      robot->write_map();
     }
 
 
@@ -165,11 +171,22 @@ int8_t newLaserUpdate(Model *, myRobot::robot *robot) {
 // inspect the fiducial id of the observed robot and decide what to do
 int8_t newFiducialUpdate(Model *, myRobot::robot* robot) {
 
-  const auto& fiducial = robot->fiducial_sensor->GetFiducials()[0];
-  std::cout<<"\nThe data of the fiducial sensor of "<<robot->get_robot_name();
-  std::cout<<"\nThe field of view of the fiducial sensor is : "<<robot->fiducial_sensor->fov<<std::endl;
-  std::cout<<"\nThe heading of the fiducial sensor is"<<robot->fiducial_sensor->heading<<std::endl;
-  printf("\n The %s sees the robot with fiducial id %d\n",robot->get_robot_name().c_str(), fiducial.id);
+  if (robot->verbose){ // displaying the output of fiducial sensor for debugging
+    const auto& fiducials = robot->fiducial_sensor->GetFiducials();
+    std::cout<<"\n The number of robots detected is : "<<fiducials.size()<<std::endl;
+    if(fiducials.size()){
+      std::cout<<"\nThe data of the fiducial sensor of "<<robot->get_robot_name();
+      std::cout<<"\nThe field of view of the fiducial sensor is : "<<robot->fiducial_sensor->fov<<std::endl;
+      std::cout<<"\nThe heading of the fiducial sensor is : "<<robot->fiducial_sensor->heading<<std::endl;
+      printf("\n The %s sees the robot with fiducial id %d\n",robot->get_robot_name().c_str(), fiducials[0].id);
+    }
+  }
+
+  // merge the map
+  robot->merge_map(robots_pointer);
+
+
+
   return 0;
 }
 

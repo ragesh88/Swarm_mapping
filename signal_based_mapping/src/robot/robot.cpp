@@ -14,8 +14,9 @@ using namespace myRobot;
 using namespace myPlanner;
 using namespace occupancy_grid;
 
-// Define the static variable
+// Define the static variables
 int robot::gen_id=0;
+
 
  bool robot::generate_levy_dist(){
     /// Generate the length from the distribution
@@ -363,8 +364,8 @@ void probability_map_given_measurement_pose(const LaserSensor& sensor,
         std::cout<<"The size of passed grid ranges : "<<passed_grids_ranges.size()<<std::endl;
       }
       for (auto it = occ_probability.begin(); it != occ_probability.end(); ++it){
-        //double v = static_cast<double>(occ_grid_map->get(it->first[0], it->first[1]))/occ_grid_map->OCCUPIED;
-        occ_grid_map->set(it->first[0], it->first[1], static_cast<uint8_t>(occ_grid_map->OCCUPIED*(it->second)));
+        double v = static_cast<double>(occ_grid_map->get(it->first[0], it->first[1]));
+        occ_grid_map->set(it->first[0], it->first[1], static_cast<uint8_t>(occ_grid_map->OCCUPIED*(0.5*(it->second))+0.5*v));
         if(i == 10){
           //printf("\n the probability of ray %d : %d", i, static_cast<uint8_t>(occ_grid_map->OCCUPIED*(it->second)));
         }
@@ -377,6 +378,63 @@ void probability_map_given_measurement_pose(const LaserSensor& sensor,
 
 
  }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void merger(cv::Mat& map1, const cv::Mat& map2)
+  /**
+   * The function combines map1 and map2 to store it in map1
+   * @param map1 : occupancy grid map of robot 1
+   * @param map2 : occupancy grid map of robot 2
+   */
+{
+  // power protocol
+//  cv::Mat tempMap1, tempMap2;
+//  map1.convertTo(tempMap1, CV_32F);
+//  map2.convertTo(tempMap2, CV_32F);
+//  cv::sqrt(tempMap1, map1);
+//  cv::sqrt(tempMap2, tempMap2);
+//  map1.mul(tempMap2);
+//  map1 +=map2;
+//  map1 = map1/2;
+  cv::addWeighted(map1,0.5, map2, 0.5, 0, map1);
+
+}
+
+
+void robot::merge_map(const std::vector<myRobot::robot*>& swarm)
+/**
+ * The function merge the map between robots
+ * @param swarm
+ */
+
+{
+  // Check if robot found any other robot on its fiducial sensor
+  if(fiducial_sensor->GetFiducials().size()>0){
+    const auto& fiducials = fiducial_sensor->GetFiducials(); // create a const reference to the sensor output vector
+    // iterate through each fiducial in fiducials for merging the map with the robot found in the fidicual sensor
+    for (auto fid : fiducials){
+      // encountering this robot for the first time
+      if(fid.id > last_communication.size()){
+        last_communication.resize(static_cast<uint>(fid.id),0.0);
+      }
+      // check if ample time has past since the map merger
+      if(last_communication[fid.id-1]+comm_delay < world->SimTimeNow()/1000000.0){
+        // access the data of the robot in the swarm with fiducial id obtained from robot's fiducial sensor
+        // and the merge map using the merger functions
+        merger(occ_grid_map->og_, swarm[fid.id-1]->occ_grid_map->og_);
+        last_communication[fid.id-1] = world->SimTimeNow()/1000000.0; // update the communication time
+      }
+
+
+    }
+  }
+}
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 void robot::write_map()
