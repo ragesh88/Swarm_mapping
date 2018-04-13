@@ -21,8 +21,10 @@ static const double minFrontDistance = 1.0;
 static const bool verbose = true;
 static const bool verbose_new = true;
 static const bool debug = false;
+static const bool record_maps=true;
 // a vector containing the robot object pointers
 std::vector<myRobot::robot*> robots_pointer{NULL};
+
 
 
 int8_t newLaserUpdate(Model *mod, myRobot::robot *robot);
@@ -158,10 +160,11 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
 int8_t newLaserUpdate(Model *, myRobot::robot *robot) {
     robot->build_map();
     robot->move();
-    if(robot->world->Paused()){
-      printf("\n Paused");
-      printf("\n Writing the map");
-      robot->write_map();
+    if(robot->world->Paused() || record_maps){
+      //printf("\n Paused");
+      //printf("\n Writing the map");
+      if(robot->get_robot_id() ==1 || robot->get_robot_id() == 3)
+        robot->write_map();
     }
 
 

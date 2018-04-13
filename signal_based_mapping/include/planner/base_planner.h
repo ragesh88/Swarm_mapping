@@ -182,7 +182,7 @@ namespace myPlanner{
         Stg::radians_t min_ang=-M_PI;
         Stg::radians_t max_ang=M_PI;
         double alpha=1.5;
-        Stg::meters_t levy_min = Stg::meters_t{1};
+        Stg::meters_t levy_min = Stg::meters_t{3.0};
 
 
     public:
@@ -194,7 +194,7 @@ namespace myPlanner{
         }
 
         levyWalk_planner(double pSTime, Stg::Pose P, Stg::Velocity V, Stg::radians_t min=-M_PI, Stg::radians_t max=M_PI,
-                         double a=1.5, Stg::meters_t l_min=1.0):
+                         double a=1.5, Stg::meters_t l_min=3.0):
                 base_planner(0, pSTime, P, V),
                 min_ang{min},
                 max_ang{max},

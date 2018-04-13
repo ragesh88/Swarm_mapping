@@ -442,10 +442,12 @@ void robot::write_map()
  *
  */
 {
-  std::string filename{"_Map.png"};
-  filename = robot_name + filename;
+  std::string count=std::to_string(image_count);
+  count = std::string(9 - count.length(), '0') + count;
+  std::string filename = img_path + robot_name  + "_" + count + img_type;
   try {
     cv::imwrite(filename.c_str(), occ_grid_map->og_);
+    image_count++;
   }catch (std::runtime_error& ex) {
     fprintf(stderr, "Exception converting image to PNG format: %s\n", ex.what());
 

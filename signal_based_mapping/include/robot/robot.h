@@ -50,6 +50,8 @@ namespace myRobot{
         /// time between their consecutive encounter less than
         /// this value(in seconds)
         const double comm_delay=10;
+        /// counter for counting the number of images
+        unsigned long image_count=0;
         /// robot id
         uint robot_id;
         /// name of the robot
@@ -112,6 +114,10 @@ namespace myRobot{
         /// The pointer to occupancy grid map
         occupancy_grid::occupancyGrid2D<double, int>* occ_grid_map{NULL};
 
+        // Image save variables
+        std::string img_path{"./robot"};
+        const std::string img_type{".png"};
+
 
 
 
@@ -154,6 +160,7 @@ namespace myRobot{
                              current_velocity.z * current_velocity.z);
             turn_speed = current_velocity.a;
             robot_name = robot_name + std::to_string(robot_id);
+            img_path = img_path + std::to_string(robot_id) + "/";
 
         }
 
@@ -162,6 +169,7 @@ namespace myRobot{
             /// Default constructor with no arguments
           robot_id = ++gen_id; // generate id for each robot
           robot_name = robot_name + std::to_string(robot_id);
+           img_path = img_path + std::to_string(robot_id) + "/";
         }
 
         ~robot(){
