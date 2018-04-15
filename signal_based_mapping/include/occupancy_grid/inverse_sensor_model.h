@@ -26,14 +26,13 @@ void log_odds_map_given_measurement_pose(const LaserSensor& sensor,
                                          std::map<double,cv::Vec<int,2>>& passed_grids_ranges,
                                          std::list<std::pair<cv::Vec<int,2>,double>>& log_odds);
 
-void probability_map_given_measurement_pose(const LaserSensor& sensor,
-                                            const int& ray_index,
+void probability_map_given_measurement_pose(const LaserSensor& sensor, const int& ray_index,
                                             std::map<double,cv::Vec<int,2>>& passed_grids_ranges,
                                             std::list<std::pair<cv::Vec<int,2>,double>>& probability);
 
-//double reflectance_model( double grid_range,  Stg::meters_t range, double max_range,  double noise_sd);
+double reflectance_model( double grid_range,  Stg::meters_t range, double max_range,  double noise_sd);
 
-//double non_reflectance_model( double grid_range,  double max_range,  double noise_sd);
+double non_reflectance_model( double grid_range,  double max_range,  double noise_sd);
 
 }
 

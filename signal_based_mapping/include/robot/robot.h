@@ -22,7 +22,7 @@
 #include "planner/base_planner.h"
 #include "occupancy_grid/occupancyGrid.h"
 //#include "occupancy_grid/forward_sensor_model.h"
-//#include "occupancy_grid/inverse_sensor_model.h"
+#include "occupancy_grid/inverse_sensor_model.h"
 
 namespace myRobot{
 

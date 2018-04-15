@@ -21,7 +21,7 @@ static const double minFrontDistance = 1.0;
 static const bool verbose = true;
 static const bool verbose_new = true;
 static const bool debug = false;
-static const bool record_maps=true;
+static const bool record_maps=false;
 // a vector containing the robot object pointers
 std::vector<myRobot::robot*> robots_pointer{NULL};
 

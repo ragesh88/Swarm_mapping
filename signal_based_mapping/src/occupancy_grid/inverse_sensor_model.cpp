@@ -9,10 +9,10 @@
 
 #include "occupancy_grid/inverse_sensor_model.h"
 
-using namespace occupancy_grid;
+//using namespace occupancy_grid;
 
 
-double reflectance_model( double grid_range,  Stg::meters_t range, double max_range,  double noise_sd)
+double occupancy_grid::reflectance_model( double grid_range,  Stg::meters_t range, double max_range,  double noise_sd)
 /**
  * The function computes probability of occupancy of the grid cell corresponding to grid_range when the
  * ray was reflected.
@@ -34,7 +34,7 @@ double reflectance_model( double grid_range,  Stg::meters_t range, double max_ra
   }
 }
 
-double non_reflectance_model( double grid_range,  double max_range,  double noise_sd)
+double occupancy_grid::non_reflectance_model( double grid_range,  double max_range,  double noise_sd)
 /**
  * The function computes probability of occupancy of the grid cell corresponding to the grid_range when the
  * ray wasn't reflected
@@ -55,7 +55,7 @@ double non_reflectance_model( double grid_range,  double max_range,  double nois
 
 }
 
-void log_odds_map_given_measurement_pose(const LaserSensor& sensor,
+void occupancy_grid::log_odds_map_given_measurement_pose(const occupancy_grid::LaserSensor& sensor,
                                          const int& ray_index,
                                          std::map<double,cv::Vec<int,2>>& passed_grids_ranges,
                                          std::list<std::pair<cv::Vec<int,2>,double>>& log_odds)
@@ -94,10 +94,9 @@ void log_odds_map_given_measurement_pose(const LaserSensor& sensor,
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  void probability_map_given_measurement_pose(const LaserSensor& sensor,
-                                           const int& ray_index,
-                                           std::map<double,cv::Vec<int,2>>& passed_grids_ranges,
-                                           std::list<std::pair<cv::Vec<int,2>,double>>& probability)
+  void occupancy_grid::probability_map_given_measurement_pose(const occupancy_grid::LaserSensor& sensor, const int& ray_index,
+                                              std::map<double,cv::Vec<int,2>>& passed_grids_ranges,
+                                              std::list<std::pair<cv::Vec<int,2>,double>>& probability)
   /**
    * The function computes the probability of the map cells whose coordinates are given as values in the map
    * object passed_grids_ranges.
