@@ -53,15 +53,17 @@ namespace occupancy_grid{
       /// the cell size of the grid in meters
       cv::Vec<real_t, 2> cell_size{static_cast<real_t>(0.2), static_cast<real_t>(0.2)};
       /// the matrix to store the occupancy values
-      cv::Mat og_{100, 100, CV_8U, cv::Scalar(FREE)};
+      cv::Mat og_{100, 100, CV_16S, cv::Scalar(FREE)};
       /// a counter variable
       //int counter{0};
-      /// Value when the map cell is occupied
-      static const uint8_t OCCUPIED{255};
-      /// Value when the map cell is free
-      static const uint8_t FREE{0};
-      /// Value when the map cell status is unknown
-      static const uint8_t UNKNOWN{127};
+      /// Value when the map cell is occupied for log odds
+      static const int OCCUPIED{INT16_MAX};
+      /// Value when the map cell is free for log odds
+      static const int FREE{INT16_MIN};
+      /// Value when the map cell status is unknown for log odds
+      static const int UNKNOWN{0};
+
+      //TODO Convert the map representation to log odd than probability
 
       // Constructors
 
@@ -71,7 +73,7 @@ namespace occupancy_grid{
 
       occupancyGrid2D(real_t min_x, real_t min_y, real_t cell_size_x, real_t cell_size_y, int n_cells_x, int n_cell_y)
           :
-          min_pt{min_x, min_y}, cell_size{cell_size_x, cell_size_y}, og_{n_cells_x, n_cell_y, CV_8U, cv::Scalar(UNKNOWN)}{
+          min_pt{min_x, min_y}, cell_size{cell_size_x, cell_size_y}, og_{n_cells_x, n_cell_y, CV_16S, cv::Scalar(UNKNOWN)}{
         /**
          * The constructor for the occupancyGrid2D class.
          *
@@ -89,33 +91,33 @@ namespace occupancy_grid{
 
       // get functions
 
-      uint8_t get(int k) const {
+      int get(int k) const {
         /// get the value at the \f$k^{the}\f$ location
         int row = k / og_.size[1];
         int col = k % og_.size[1];
-        return og_.at<uint8_t>(row, col);
+        return og_.at<int>(row, col);
       }
 
-      uint8_t get(int row, int col) const {
+      int get(int row, int col) const {
         /// get the value at \f$(row,col)\f$ location
-        return og_.at<uint8_t>(row, col);
+        return og_.at<int>(row, col);
       }
 
 
 
       // set functions
 
-      void set(int k, uint8_t value) {
+      void set(int k, int value) {
         /// set the value at the \f $k^{th}\f$ location
         int row = k / og_.size[1];
         int col = k % og_.size[1];
-        og_.at<uint8_t>(row, col) = value;
+        og_.at<int>(row, col) = value;
 
       }
 
-      void set(int row, int col, uint8_t value) {
+      void set(int row, int col, int value) {
         /// set the value at \f$(row,col)\f$ location
-        og_.at<uint8_t>(row, col) = value;
+        og_.at<int>(row, col) = value;
       }
 
 
@@ -128,7 +130,7 @@ namespace occupancy_grid{
 
       virtual bool is_occupied(int i, int j) {
         /// check if the grid cell in \f$(i,j)\f$ is occupied
-        return (og_.at<uint8_t>(i, j) != FREE);
+        return (og_.at<int>(i, j) != FREE);
       }
 
       real_t nearest_neighbor_distance(cv::Vec<real_t, 2> position, real_t max_range,
