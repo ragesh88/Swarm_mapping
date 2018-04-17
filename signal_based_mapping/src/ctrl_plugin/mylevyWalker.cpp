@@ -22,9 +22,8 @@ static const bool verbose = true;
 static const bool verbose_new = true;
 static const bool debug = false;
 static const bool record_maps=false;
-// a vector containing the robot object pointers
-std::vector<myRobot::robot*> robots_pointer{NULL};
-
+// Defining the static member vector containing the robot object pointers
+std::vector<myRobot::robot*>myRobot::robot::swarm{NULL};
 
 
 int8_t newLaserUpdate(Model *mod, myRobot::robot *robot);
@@ -52,9 +51,11 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
     // Storing the pointer of the dynamically allocated object in a vector
     // This is done that other robots can access the robot data to mimic communication.
     if(robot->get_robot_id() == 1){
-      robots_pointer[0] = robot;
+      //robots_pointer[0] = robot;
+      myRobot::robot::swarm[0] = robot;
     } else {
-      robots_pointer.push_back(robot);
+      //robots_pointer.push_back(robot);
+      myRobot::robot::swarm.push_back(robot);
     }
 
 
@@ -92,7 +93,7 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
     const int n_cell_y = 800; // no of cells along y
 
     // Setting up the map object
-    occupancy_grid::occupancyGrid2D<double,int>* occ_grid = new occupancy_grid::occupancyGrid2D<double,int>(min_x, min_y,
+    occupancy_grid::Prob_occupancyGrid2D<double,int>* occ_grid = new occupancy_grid::Prob_occupancyGrid2D<double,int>(min_x, min_y,
                                                                                     cell_size_x, cell_size_y,
                                                                                     n_cell_x, n_cell_y);
     if(occ_grid==NULL)
@@ -186,7 +187,8 @@ int8_t newFiducialUpdate(Model *, myRobot::robot* robot) {
   }
 
   // merge the map
-  robot->merge_map(robots_pointer);
+  //robot->merge_map(robots_pointer);
+  robot->merge_map();
 
 
 

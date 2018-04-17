@@ -25,7 +25,7 @@ double occupancy_grid::reflectance_model( double grid_range,  Stg::meters_t rang
 {
   const double start_prob = 0.05;
   const double end_prob = 0.5;
-  const double max_prob = 0.7;
+  const double max_prob = 0.8;
   const double init_slope = (end_prob - start_prob)/max_range;
   if(grid_range <= range-2*noise_sd - 0.02){
     return (init_slope * grid_range + start_prob);

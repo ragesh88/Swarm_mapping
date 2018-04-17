@@ -9,6 +9,7 @@
 
 #include "robot/robot.h"
 
+std::vector<myRobot::robot*>myRobot::robot::swarm;
 
 int main() {
 

@@ -53,15 +53,15 @@ namespace occupancy_grid{
       /// the cell size of the grid in meters
       cv::Vec<real_t, 2> cell_size{static_cast<real_t>(0.2), static_cast<real_t>(0.2)};
       /// the matrix to store the occupancy values
-      cv::Mat og_{100, 100, CV_16S, cv::Scalar(FREE)};
+      cv::Mat og_{100, 100, CV_8U, cv::Scalar(FREE)};
       /// a counter variable
       //int counter{0};
       /// Value when the map cell is occupied for log odds
-      static const int OCCUPIED{INT16_MAX};
+      static const int8_t OCCUPIED{255};
       /// Value when the map cell is free for log odds
-      static const int FREE{INT16_MIN};
+      static const int8_t FREE{0};
       /// Value when the map cell status is unknown for log odds
-      static const int UNKNOWN{0};
+      static const int8_t UNKNOWN{127};
 
       //TODO Convert the map representation to log odd than probability
 
@@ -73,7 +73,7 @@ namespace occupancy_grid{
 
       occupancyGrid2D(real_t min_x, real_t min_y, real_t cell_size_x, real_t cell_size_y, int n_cells_x, int n_cell_y)
           :
-          min_pt{min_x, min_y}, cell_size{cell_size_x, cell_size_y}, og_{n_cells_x, n_cell_y, CV_16S, cv::Scalar(UNKNOWN)}{
+          min_pt{min_x, min_y}, cell_size{cell_size_x, cell_size_y}, og_{n_cells_x, n_cell_y, CV_8U, cv::Scalar(UNKNOWN)}{
         /**
          * The constructor for the occupancyGrid2D class.
          *
@@ -91,33 +91,33 @@ namespace occupancy_grid{
 
       // get functions
 
-      int get(int k) const {
+      int8_t get(int k) const {
         /// get the value at the \f$k^{the}\f$ location
         int row = k / og_.size[1];
         int col = k % og_.size[1];
-        return og_.at<int>(row, col);
+        return og_.at<int8_t>(row, col);
       }
 
-      int get(int row, int col) const {
+      int8_t get(int row, int col) const {
         /// get the value at \f$(row,col)\f$ location
-        return og_.at<int>(row, col);
+        return og_.at<int8_t>(row, col);
       }
 
 
 
       // set functions
 
-      void set(int k, int value) {
+      void set(int k, int8_t value) {
         /// set the value at the \f $k^{th}\f$ location
         int row = k / og_.size[1];
         int col = k % og_.size[1];
-        og_.at<int>(row, col) = value;
+        og_.at<int8_t>(row, col) = value;
 
       }
 
-      void set(int row, int col, int value) {
+      void set(int row, int col, int8_t value) {
         /// set the value at \f$(row,col)\f$ location
-        og_.at<int>(row, col) = value;
+        og_.at<int8_t>(row, col) = value;
       }
 
 
@@ -370,16 +370,17 @@ class vec_comp_class{
 
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
-      ///// The prototype for class Prob_occupancyGrid2D ///////////////////////////////////////////////////////
-      //////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////// The prototype for class Prob_occupancyGrid2D ///////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
       template <typename real_t, typename int_t>
       class Prob_occupancyGrid2D {
         /**
          * The Prob_occupancyGrid class stores the 2D probabilistic occupancy map and
-         * has the methods to perform various operation on the grid map.
+         * has the methods to perform various operation on the grid map. The probability values
+         * are stored in the occupancy grid using a log odds format.
          *
          */
        public:
@@ -391,7 +392,7 @@ class vec_comp_class{
         /// the matrix to store the occupancy values
         cv::Mat og_{100,100, CV_16S, cv::Scalar(UNKNOWN)};
         /// a counter variable
-        int counter{0};
+        //int counter{0};
         /// Value when the map cell is occupied
         static const int OCCUPIED{INT16_MAX};
         /// Value when the map cell is free
@@ -405,11 +406,11 @@ class vec_comp_class{
           ///Default constructor
         }
 
-        Prob_occupancyGrid2D(real_t min_x, real_t min_y, real_t cell_size_x, real_t cell_size_y, uint n_cells_x, uint n_cell_y):
-            min_pt{min_x, min_y}, cell_size{cell_size_x, cell_size_y}, og_{n_cells_x, n_cell_y, CV_16S, cv::Scalar(UNKNOWN)},
-            counter(0){
+        Prob_occupancyGrid2D(real_t min_x, real_t min_y, real_t cell_size_x, real_t cell_size_y, int n_cells_x, int n_cell_y):
+            min_pt{min_x, min_y}, cell_size{cell_size_x, cell_size_y}, og_{n_cells_x, n_cell_y, CV_16S, cv::Scalar(UNKNOWN)}
+            {
           /**
-           * The constructor for the occupancyGrid2D class.
+           * The constructor for the Prob_occupancyGrid2D class.
            *
            * \param min_x : the minimum x coordinate of the actual map
            * \param min_y : the minimum y coordinate of the actual map
@@ -425,14 +426,14 @@ class vec_comp_class{
 
         // get functions
 
-        uint8_t get(int k) const{
+        int get(int k) const{
           /// get the value at the \f$k^{the}\f$ location
           int row = k/og_.size[1];
           int col = k%og_.size[1];
           return og_.at<int>(row, col);
         }
 
-        uint8_t get(int row, int col) const{
+        int get(int row, int col) const{
           /// get the value at \f$(row,col)\f$ location
           return og_.at<int>(row, col);
         }
@@ -474,6 +475,9 @@ class vec_comp_class{
         real_t ray_trace(real_t px, real_t py, real_t p_theta, real_t max_range, cv::Vec<real_t, 2>& final_pos,
                           bool& reflectance);
 
+        void ray_trace_all(real_t px, real_t py,real_t p_theta, real_t max_range,
+                           std::map<real_t,cv::Vec<int_t, 2>>& all_range_pos);
+
         cv::Point2i xy2rc(const cv::Vec<real_t, 2>& xy) const{
           /// the function converts the \f$(x,y)\f$ coordinates to corresponding
           /// row and col coordinates of the grid map
@@ -494,12 +498,21 @@ class vec_comp_class{
 template <typename real_t, typename int_t>
 real_t Prob_occupancyGrid2D<real_t, int_t>::nearest_neighbor_distance(cv::Vec<real_t, 2> position,
                                                                       real_t max_range,
-                                                                      cv::Vec<int_t, 2>& nearest_neighbor) {
+                                                                      cv::Vec<int_t, 2>& nearest_neighbor)
+/**
+ * The function computes and the nearest neighbor distance in the map. The function also the return
+ * nearest neighbor using the reference to the parameter nearest_neighbor
+ *
+ * @tparam real_t
+ * @tparam int_t
+ * @param position
+ * @param max_range
+ * @param nearest_neighbor
+ * @return
+ */
 
-  /**
-   * The function computes and the nearest neighbor distance in the map. The function also the return
-   * nearest neighbor using the reference to the parameter nearest_neighbor
-   */
+{
+
 
 
   // Converting the position in to cell coordinates
@@ -570,10 +583,24 @@ real_t Prob_occupancyGrid2D<real_t, int_t>::ray_trace(real_t px,
                                                       real_t p_theta,
                                                       real_t max_range,
                                                       cv::Vec<real_t, 2> &final_pos,
-                                                      bool& reflectance) {
-  /**
-   * The function returns the final position of the ray if it is hit by an obstacle.
-   */
+                                                      bool& reflectance)
+/**
+ * The function returns the final position of the ray if it is hit by an obstacle.
+ *
+ * @tparam real_t
+ * @tparam int_t
+ * @param px
+ * @param py
+ * @param p_theta
+ * @param max_range
+ * @param final_pos
+ * @param reflectance
+ * @return
+ */
+
+
+{
+
 
   real_t dx = std::cos(p_theta);
   real_t dy = std::sin(p_theta);
@@ -615,6 +642,81 @@ real_t Prob_occupancyGrid2D<real_t, int_t>::ray_trace(real_t px,
   return max_range;
 
 }
+
+template <typename real_t, typename int_t>
+void Prob_occupancyGrid2D<real_t, int_t>::ray_trace_all(real_t px,real_t py, real_t p_theta, real_t max_range,
+                                                   std::map<real_t,cv::Vec<int_t, 2>>& all_range_pos)
+
+/**
+ * The function return the grid coordinates of all the grids that the ray pass through.
+ *
+ * @tparam real_t
+ * @tparam int_t
+ * @param px
+ * @param py
+ * @param p_theta
+ * @param max_range
+ * @param all_range_pos
+ */
+
+{
+  real_t dx = std::cos(p_theta);
+  real_t dy = std::sin(p_theta);
+
+
+  ray_trace_iterator<real_t, int_t> ray_trace_it(px, py, dx, dy, min_pt(0), min_pt(1), cell_size(0), cell_size(1));
+
+  // to check if a grid coordinate is stored twice in the all_range_pos map object
+  std::set<cv::Vec<int_t, 2>, vec_comp_class<int_t>> grid_coordinate_check;
+
+  real_t dir_mag = std::sqrt(dx*dx + dy*dy);
+  real_t n = std::floor(max_range * std::fabs(dx) / (dir_mag * cell_size(0))) +
+      std::floor(max_range * std::fabs(dy) / (dir_mag * cell_size(1)));
+
+  int max_size_x = og_.size[0];
+  int max_size_y = og_.size[1];
+
+  // iterate using the ray trace iterate object
+  for (; n > 0 ; n--, ray_trace_it++) {
+
+    // grid the coordinates (i,j) as std::pair
+    int i = ray_trace_it->first;
+    int j = ray_trace_it->second;
+
+    const std::pair<real_t, real_t>& pos_pair = ray_trace_it.real_position();
+    auto range = std::sqrt((pos_pair.first-px)*(pos_pair.first-px) +
+        (pos_pair.second-py)*(pos_pair.second-py));
+
+    // uncomment the line below to debug
+    //printf("\n (%d, %d), (%f, %f) \n", i, j, pos_pair.first, pos_pair.second);
+
+
+    // check if the coordinates are in bounds and is occupied
+    if(i < 0 || j < 0 || i >= max_size_x || j >= max_size_y || range >= max_range){
+
+      break;
+
+    }
+
+    // inserting the elements in to the map data structure
+    cv::Vec<int_t,2> grid_coord{i,j}; // value to the map object
+    if(!grid_coordinate_check.empty()){ // check if this is the first element to inserted
+      // inserted the element only if such a grid coordinate already exist in the map object.
+      // this is done by insert the grid coordinates to a set container and checking for duplication
+      if(grid_coordinate_check.find(grid_coord) == grid_coordinate_check.end()){
+        grid_coordinate_check.insert(--grid_coordinate_check.end(), grid_coord);
+        all_range_pos.insert(--all_range_pos.end(), std::pair<real_t, cv::Vec<int_t, 2>>(range,grid_coord));
+      }
+    } else{ // if this is the first element
+      grid_coordinate_check.insert(grid_coord);
+      all_range_pos.insert(std::pair<real_t, cv::Vec<int_t, 2>>(range,grid_coord));
+    }
+
+  }
+
+
+}
+
 
 
 }

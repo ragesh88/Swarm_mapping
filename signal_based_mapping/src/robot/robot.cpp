@@ -242,7 +242,7 @@ int robot::gen_id=0;
     * The robot builds an occupancy map of the domain using the measurements
     * from the laser range sensor data.
     */
-    const bool verbose_local = false;
+    const bool verbose_local = false; // Turn on actions for debugging
     const auto &laserSensor = laser->GetSensors()[0];
     //std::cout<<"\n Hello";
     //std::cout<<"\n angle noise : "<<laserSensor.angle_noise;
@@ -270,17 +270,28 @@ int robot::gen_id=0;
       }
 
       // compute the probability of occupancy for each grid cell using inverse sensor model for the ray
-      std::list<std::pair<cv::Vec<int,2>,double>> occ_probability;
-      occupancy_grid::probability_map_given_measurement_pose(laserSensor, i, passed_grids_ranges, occ_probability);
+      //std::list<std::pair<cv::Vec<int,2>,double>> occ_probability;
+      //occupancy_grid::probability_map_given_measurement_pose(laserSensor, i, passed_grids_ranges, occ_probability);
+
+      // compute the log odds of the probability for better numerical accuracy
+      std::list<std::pair<cv::Vec<int,2>,double>> occ_logOdds;
+      occupancy_grid::log_odds_map_given_measurement_pose(laserSensor, i, passed_grids_ranges, occ_logOdds);
+
       // update the map using the probability value scaled between 0 - 255
       if(verbose_local){
-        if(!occ_probability.size())
-        std::cout<<"The size of probability measurements : "<<occ_probability.size()<<std::endl;
+        if(!occ_logOdds.size())
+        std::cout<<"The size of probability measurements : "<<occ_logOdds.size()<<std::endl;
         std::cout<<"The size of passed grid ranges : "<<passed_grids_ranges.size()<<std::endl;
       }
-      for (auto it = occ_probability.begin(); it != occ_probability.end(); ++it){
-        double v = static_cast<double>(occ_grid_map->get(it->first[0], it->first[1]));
-        occ_grid_map->set(it->first[0], it->first[1], static_cast<uint8_t>(occ_grid_map->OCCUPIED*(0.5*(it->second))+0.5*v));
+
+      for (auto it = occ_logOdds.begin(); it != occ_logOdds.end(); ++it){
+        // In the case of combining probability values for occupancyGrid2D objects
+        //double v = static_cast<double>(occ_grid_map->get(it->first[0], it->first[1]));
+        //occ_grid_map->set(it->first[0], it->first[1], static_cast<uint8_t>(occ_grid_map->OCCUPIED*(0.5*(it->second))+0.5*v));
+
+        // In the case of combining log odds values for Prob_occupancyGrid objects
+        const int& v = occ_grid_map->get(it->first[0], it->first[1]);
+        occ_grid_map->set(it->first[0], it->first[1], static_cast<int>(v + it->second));
         if(i == 10){
           //printf("\n the probability of ray %d : %d", i, static_cast<uint8_t>(occ_grid_map->OCCUPIED*(it->second)));
         }
@@ -347,6 +358,35 @@ void robot::merge_map(const std::vector<myRobot::robot*>& swarm)
 }
 
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void robot::merge_map()
+/**
+ * The function merge the map between robots
+ */
+
+{
+  // Check if robot found any other robot on its fiducial sensor
+  if(fiducial_sensor->GetFiducials().size()>0){
+    const auto& fiducials = fiducial_sensor->GetFiducials(); // create a const reference to the sensor output vector
+    // iterate through each fiducial in fiducials for merging the map with the robot found in the fidicual sensor
+    for (auto fid : fiducials){
+      // encountering this robot for the first time
+      if(fid.id > last_communication.size()){
+        last_communication.resize(static_cast<uint>(fid.id),0.0);
+      }
+      // check if ample time has past since the map merger
+      if(last_communication[fid.id-1]+comm_delay < world->SimTimeNow()/1000000.0){
+        // access the data of the robot in the swarm with fiducial id obtained from robot's fiducial sensor
+        // and the merge map using the merger functions
+        merger(occ_grid_map->og_, myRobot::robot::swarm[fid.id-1]->occ_grid_map->og_);
+        last_communication[fid.id-1] = world->SimTimeNow()/1000000.0; // update the communication time
+      }
+
+    }
+  }
+}
+
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -360,8 +400,39 @@ void robot::write_map()
   std::string count=std::to_string(image_count);
   count = std::string(9 - count.length(), '0') + count;
   std::string filename = img_path + robot_name  + "_" + count + img_type;
+  cv::Mat write_img;
+  // converting log odds to probability
+  occ_grid_map->og_.convertTo(write_img, CV_32F);
+  //printf("\n\n The Robot %d data\n\n",get_robot_id());
+  //std::cout<<"\n The matrix is og_ is"<<std::endl;
+  //cv::Rect r( 150, 200, 10, 10 );
+  //std::cout<<occ_grid_map->og_(r);
+  write_img *= static_cast<float>(myRobot::robot::gen_id);
+  //std::cout<<"\n The matrix des1 after multiplying with # of robots is"<<std::endl;
+  //std::cout<<des1(r);
+  cv::exp(write_img, write_img);
+  //std::cout<<"\n The matrix des1 after exponential is : "<<std::endl;
+  //std::cout<<des1(r);
+  write_img +=1.0;
+  //std::cout<<"\n The matrix des1 after adding one is : "<<std::endl;
+  //std::cout<<des1(r);
+  cv::divide(1, write_img, write_img);
+  //std::cout<<"\n The matrix des1 after dividing by one is "<<std::endl;
+  //std::cout<<des1(r);
+  write_img = cv::Scalar(1)-write_img;
+  //std::cout<<"\n The matrix des1 after subtracting from one is "<<std::endl;
+  //std::cout<<des1(r);
+  // debugging print
+  //std::cout<<"\n The matrix is des1 is"<<std::endl;
+  //std::cout<<des1(r)<<std::endl;
+  write_img *=255.0;
+
+
+  write_img.convertTo(write_img, CV_8U);
+  //printf("\n The size of write_img is x = %d, y = %d \n", write_img.size[0], write_img.size[1]);
   try {
-    cv::imwrite(filename.c_str(), occ_grid_map->og_);
+    //cv::imwrite(filename.c_str(), occ_grid_map->og_);
+    cv::imwrite(filename.c_str(), write_img);
     image_count++;
   }catch (std::runtime_error& ex) {
     fprintf(stderr, "Exception converting image to PNG format: %s\n", ex.what());
