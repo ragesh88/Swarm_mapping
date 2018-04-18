@@ -93,7 +93,7 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
     const int n_cell_y = 800; // no of cells along y
 
     // Setting up the map object
-    occupancy_grid::Prob_occupancyGrid2D<double,int>* occ_grid = new occupancy_grid::Prob_occupancyGrid2D<double,int>(min_x, min_y,
+    occupancy_grid::occupancyGrid2D<double,int>* occ_grid = new occupancy_grid::occupancyGrid2D<double,int>(min_x, min_y,
                                                                                     cell_size_x, cell_size_y,
                                                                                     n_cell_x, n_cell_y);
     if(occ_grid==NULL)

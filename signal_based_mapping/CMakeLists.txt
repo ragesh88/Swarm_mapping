@@ -47,10 +47,16 @@ add_subdirectory(src)
 
 
 # Descend into the doc directory for documentation generation using Doxygen
-IF(DOC)
+# The document is generated if DOC variable is "ON" or if it is build in release mode
+IF(DOC OR CMAKE_BUILD_TYPE MATCHES "^[Rr]elease")
+    message("Document generation command using Doxygen added to Makefile")
     message("The doc value is ${DOC}")
     add_subdirectory(doc)
 ENDIF()
+
+if ()
+    # build the docs
+endif()
 
 
 # Descend into the test directory

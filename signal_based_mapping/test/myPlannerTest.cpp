@@ -10,6 +10,7 @@
 
 #include "robot/robot.h"
 
+std::vector<myRobot::robot*>myRobot::robot::swarm;
 
 using namespace myPlanner;
 

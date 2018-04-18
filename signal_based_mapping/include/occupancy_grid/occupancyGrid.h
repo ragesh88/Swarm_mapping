@@ -53,27 +53,22 @@ namespace occupancy_grid{
       /// the cell size of the grid in meters
       cv::Vec<real_t, 2> cell_size{static_cast<real_t>(0.2), static_cast<real_t>(0.2)};
       /// the matrix to store the occupancy values
-      cv::Mat og_{100, 100, CV_8U, cv::Scalar(FREE)};
-      /// a counter variable
-      //int counter{0};
-      /// Value when the map cell is occupied for log odds
-      static const int8_t OCCUPIED{255};
-      /// Value when the map cell is free for log odds
-      static const int8_t FREE{0};
-      /// Value when the map cell status is unknown for log odds
-      static const int8_t UNKNOWN{127};
+      cv::Mat og_;
+      /// Value when the map cell is free
+       static const uint8_t FREE{0};
+      /// Value when the map cell status is unknown
+       static const uint8_t UNKNOWN{127};
+      /// Value when the map cell is occupied
+      static const uint8_t OCCUPIED{255};
 
-      //TODO Convert the map representation to log odd than probability
+      //TODO Add a data structure probably a opencv matrix to store grid cells traversed or scanned by the robot
 
       // Constructors
 
-      occupancyGrid2D() {
-        ///Default constructor
-      }
 
       occupancyGrid2D(real_t min_x, real_t min_y, real_t cell_size_x, real_t cell_size_y, int n_cells_x, int n_cell_y)
           :
-          min_pt{min_x, min_y}, cell_size{cell_size_x, cell_size_y}, og_{n_cells_x, n_cell_y, CV_8U, cv::Scalar(UNKNOWN)}{
+          min_pt{min_x, min_y}, cell_size{cell_size_x, cell_size_y}, og_{n_cells_x, n_cell_y, CV_8U, cv::Scalar(OCCUPIED)}{
         /**
          * The constructor for the occupancyGrid2D class.
          *
@@ -85,6 +80,14 @@ namespace occupancy_grid{
          * \param n_cell_y : the number of cell in the grid map along y
          *
          */
+        {
+//          double max,min;
+//          cv::minMaxLoc(og_, &min, &max);
+//          printf("\n The display in constructor \n");
+//          printf("\n The max value of the og matrix is : %f \n", max);
+//          printf("\n The min value of the og matrix is : %f \n", min);
+//          printf("\n The value of OCCUPIED is %d \n",OCCUPIED);
+        }
 
       }
 
@@ -142,6 +145,7 @@ namespace occupancy_grid{
       void ray_trace_all(real_t px, real_t py,real_t p_theta, real_t max_range,
                          std::map<real_t,cv::Vec<int_t, 2>>& all_range_pos);
 
+      void map_write(const std::string& filename, int no_of_robots=1);
 
 
       cv::Point2i xy2rc(const cv::Vec<real_t, 2> &xy) const {
@@ -347,6 +351,24 @@ void occupancyGrid2D<real_t, int_t>::ray_trace_all(real_t px,real_t py, real_t p
 
 }
 
+template<typename real_t, typename int_t>
+void occupancyGrid2D<real_t, int_t>::map_write(const std::string& filename, int no_of_robots)
+/**
+ * The function writes the occupancy grid map to an image file
+ * @tparam real_t
+ * @tparam int_t
+ * @param filename : the filename of the map as a C++ string
+ */
+{
+
+  cv::imwrite(filename.c_str(), og_);
+//  double max,min;
+//  cv::minMaxLoc(og_, &min, &max);
+//  printf("\n The max value of the og matrix is : %f \n", max);
+//  printf("\n The min value of the og matrix is : %f \n", min);
+
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename int_t>
@@ -477,6 +499,8 @@ class vec_comp_class{
 
         void ray_trace_all(real_t px, real_t py,real_t p_theta, real_t max_range,
                            std::map<real_t,cv::Vec<int_t, 2>>& all_range_pos);
+
+        void map_write(const std::string& filename, const int no_of_robots);
 
         cv::Point2i xy2rc(const cv::Vec<real_t, 2>& xy) const{
           /// the function converts the \f$(x,y)\f$ coordinates to corresponding
@@ -676,6 +700,9 @@ void Prob_occupancyGrid2D<real_t, int_t>::ray_trace_all(real_t px,real_t py, rea
   int max_size_x = og_.size[0];
   int max_size_y = og_.size[1];
 
+  // uncomment the line below for debugging
+  //printf("\n new Ray \n");
+
   // iterate using the ray trace iterate object
   for (; n > 0 ; n--, ray_trace_it++) {
 
@@ -714,6 +741,61 @@ void Prob_occupancyGrid2D<real_t, int_t>::ray_trace_all(real_t px,real_t py, rea
 
   }
 
+
+}
+
+template <typename real_t, typename int_t>
+void Prob_occupancyGrid2D<real_t, int_t>::map_write(const std::string& filename, const int no_of_robots)
+
+/**
+ * The function writes the occupancy grid to an image file according to the filename
+ * @tparam real_t
+ * @tparam int_t
+ * @param filename : filename as a C++ string format
+ * @param no_of_robots : the no of robots in the swarm
+ */
+
+{
+  cv::Mat write_img;
+  // converting log odds to probability
+  og_.convertTo(write_img, CV_32F);
+  //printf("\n\n The Robot %d data\n\n",get_robot_id());
+  //std::cout<<"\n The matrix is og_ is"<<std::endl;
+  //cv::Rect r( 150, 200, 10, 10 );
+  //std::cout<<occ_grid_map->og_(r);
+  write_img *= static_cast<float>(no_of_robots);
+  //std::cout<<"\n The matrix des1 after multiplying with # of robots is"<<std::endl;
+  //std::cout<<des1(r);
+  cv::exp(write_img, write_img);
+  //std::cout<<"\n The matrix des1 after exponential is : "<<std::endl;
+  //std::cout<<des1(r);
+  write_img +=1.0;
+  //std::cout<<"\n The matrix des1 after adding one is : "<<std::endl;
+  //std::cout<<des1(r);
+  cv::divide(1, write_img, write_img);
+  //std::cout<<"\n The matrix des1 after dividing by one is "<<std::endl;
+  //std::cout<<des1(r);
+  //write_img = cv::Scalar(1.0)-write_img;
+  //std::cout<<"\n The matrix des1 after subtracting from one is "<<std::endl;
+  //std::cout<<des1(r);
+  // debugging print
+  //std::cout<<"\n The matrix is des1 is"<<std::endl;
+  //std::cout<<des1(r)<<std::endl;
+  write_img *=255.0;
+
+
+  write_img.convertTo(write_img, CV_8U);
+
+  cv::imwrite(filename.c_str(), write_img);
+  double max,min;
+  cv::minMaxLoc(og_, &min, &max);
+  printf("\n The max value of the og matrix is : %f \n", max);
+  printf("\n The min value of the og matrix is : %f \n", min);
+//  og_.convertTo(write_img, CV_8U, 255.0/(max-min), -min*255.0/(max-min));
+//  cv::imwrite(filename.c_str(), write_img);
+  cv::minMaxLoc(write_img, &min, &max);
+  printf("\n The max value of the write_img matrix is : %f \n", max);
+  printf("\n The min value of the write_img matrix is : %f \n", min);
 
 }
 

@@ -251,7 +251,10 @@ int robot::gen_id=0;
     //laserSensor.pose.Print("Sensor pose ");
 
     const Stg::Pose base_pose = position->GetPose();
-
+    // uncomment the line below for debugging
+    //printf("\n The measurement at a new pose \n");
+    //base_pose.Print("base pose ");
+    //std::cout<<std::endl;
     const int ray_incre = 5; // interval in choosing the laser rays
     // Iterate through each ray in the interval ray_incre
     for(int i=0; i<laserSensor.sample_count; i+=ray_incre){
@@ -270,39 +273,36 @@ int robot::gen_id=0;
       }
 
       // compute the probability of occupancy for each grid cell using inverse sensor model for the ray
-      //std::list<std::pair<cv::Vec<int,2>,double>> occ_probability;
-      //occupancy_grid::probability_map_given_measurement_pose(laserSensor, i, passed_grids_ranges, occ_probability);
+      std::list<std::pair<cv::Vec<int,2>,double>> occ_probability;
+      occupancy_grid::probability_map_given_measurement_pose(laserSensor, i, passed_grids_ranges, occ_probability);
 
       // compute the log odds of the probability for better numerical accuracy
-      std::list<std::pair<cv::Vec<int,2>,double>> occ_logOdds;
-      occupancy_grid::log_odds_map_given_measurement_pose(laserSensor, i, passed_grids_ranges, occ_logOdds);
+      //std::list<std::pair<cv::Vec<int,2>,double>> occ_logOdds;
+      //occupancy_grid::log_odds_map_given_measurement_pose(laserSensor, i, passed_grids_ranges, occ_logOdds);
 
       // update the map using the probability value scaled between 0 - 255
       if(verbose_local){
-        if(!occ_logOdds.size())
-        std::cout<<"The size of probability measurements : "<<occ_logOdds.size()<<std::endl;
+        if(!occ_probability.size())
+        std::cout<<"The size of probability measurements : "<<occ_probability.size()<<std::endl;
         std::cout<<"The size of passed grid ranges : "<<passed_grids_ranges.size()<<std::endl;
       }
 
-      for (auto it = occ_logOdds.begin(); it != occ_logOdds.end(); ++it){
+      for (auto it = occ_probability.begin(); it != occ_probability.end(); ++it){
         // In the case of combining probability values for occupancyGrid2D objects
-        //double v = static_cast<double>(occ_grid_map->get(it->first[0], it->first[1]));
+        double v = static_cast<double>(occ_grid_map->get(it->first[0], it->first[1]))/occ_grid_map->OCCUPIED;
         //occ_grid_map->set(it->first[0], it->first[1], static_cast<uint8_t>(occ_grid_map->OCCUPIED*(0.5*(it->second))+0.5*v));
+        occ_grid_map->set(it->first[0], it->first[1], static_cast<uint8_t>(occ_grid_map->OCCUPIED*((it->second)*v)));
 
         // In the case of combining log odds values for Prob_occupancyGrid objects
-        const int& v = occ_grid_map->get(it->first[0], it->first[1]);
-        occ_grid_map->set(it->first[0], it->first[1], static_cast<int>(v + it->second));
+        //const int v = occ_grid_map->get(it->first[0], it->first[1]);
+        //occ_grid_map->set(it->first[0], it->first[1], static_cast<int>(v + it->second));
         if(i == 10){
           //printf("\n the probability of ray %d : %d", i, static_cast<uint8_t>(occ_grid_map->OCCUPIED*(it->second)));
         }
 
       }
 
-
-
     }
-
-
  }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -314,16 +314,16 @@ void merger(cv::Mat& map1, const cv::Mat& map2)
    * @param map2 : occupancy grid map of robot 2
    */
 {
-  // power protocol
-//  cv::Mat tempMap1, tempMap2;
-//  map1.convertTo(tempMap1, CV_32F);
-//  map2.convertTo(tempMap2, CV_32F);
-//  cv::sqrt(tempMap1, map1);
-//  cv::sqrt(tempMap2, tempMap2);
-//  map1.mul(tempMap2);
-//  map1 +=map2;
-//  map1 = map1/2;
-  cv::addWeighted(map1,0.5, map2, 0.5, 0, map1);
+  // power protocol for probability
+  cv::Mat tempMap1, tempMap2;
+  map1.convertTo(tempMap1, CV_32F);
+  map2.convertTo(tempMap2, CV_32F);
+  tempMap1=tempMap1.mul(tempMap2);
+  cv::sqrt(tempMap1, tempMap2);
+  tempMap2.convertTo(map1, CV_8U);
+
+  // arithmetic mean protocol for log odds
+  //cv::addWeighted(map1,0.5, map2, 0.5, 0, map1);
 
 }
 
@@ -400,39 +400,8 @@ void robot::write_map()
   std::string count=std::to_string(image_count);
   count = std::string(9 - count.length(), '0') + count;
   std::string filename = img_path + robot_name  + "_" + count + img_type;
-  cv::Mat write_img;
-  // converting log odds to probability
-  occ_grid_map->og_.convertTo(write_img, CV_32F);
-  //printf("\n\n The Robot %d data\n\n",get_robot_id());
-  //std::cout<<"\n The matrix is og_ is"<<std::endl;
-  //cv::Rect r( 150, 200, 10, 10 );
-  //std::cout<<occ_grid_map->og_(r);
-  write_img *= static_cast<float>(myRobot::robot::gen_id);
-  //std::cout<<"\n The matrix des1 after multiplying with # of robots is"<<std::endl;
-  //std::cout<<des1(r);
-  cv::exp(write_img, write_img);
-  //std::cout<<"\n The matrix des1 after exponential is : "<<std::endl;
-  //std::cout<<des1(r);
-  write_img +=1.0;
-  //std::cout<<"\n The matrix des1 after adding one is : "<<std::endl;
-  //std::cout<<des1(r);
-  cv::divide(1, write_img, write_img);
-  //std::cout<<"\n The matrix des1 after dividing by one is "<<std::endl;
-  //std::cout<<des1(r);
-  write_img = cv::Scalar(1)-write_img;
-  //std::cout<<"\n The matrix des1 after subtracting from one is "<<std::endl;
-  //std::cout<<des1(r);
-  // debugging print
-  //std::cout<<"\n The matrix is des1 is"<<std::endl;
-  //std::cout<<des1(r)<<std::endl;
-  write_img *=255.0;
-
-
-  write_img.convertTo(write_img, CV_8U);
-  //printf("\n The size of write_img is x = %d, y = %d \n", write_img.size[0], write_img.size[1]);
   try {
-    //cv::imwrite(filename.c_str(), occ_grid_map->og_);
-    cv::imwrite(filename.c_str(), write_img);
+    occ_grid_map->map_write(filename, myRobot::robot::gen_id);
     image_count++;
   }catch (std::runtime_error& ex) {
     fprintf(stderr, "Exception converting image to PNG format: %s\n", ex.what());
