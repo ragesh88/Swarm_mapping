@@ -2,14 +2,14 @@
 <project version="4">
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true" buildAllGenerated="true">
     <generated>
-      <config projectName="stage_ctrl_plugin" targetName="robot" />
-      <config projectName="stage_ctrl_plugin" targetName="mySampleTest" />
-      <config projectName="stage_ctrl_plugin" targetName="lasernoise" />
-      <config projectName="stage_ctrl_plugin" targetName="forward_sensor_model" />
-      <config projectName="stage_ctrl_plugin" targetName="myPlannerTest" />
-      <config projectName="stage_ctrl_plugin" targetName="mylevyWalker" />
-      <config projectName="stage_ctrl_plugin" targetName="inverse_sensor_model" />
       <config projectName="stage_ctrl_plugin" targetName="planners" />
+      <config projectName="stage_ctrl_plugin" targetName="mySampleTest" />
+      <config projectName="stage_ctrl_plugin" targetName="inverse_sensor_model" />
+      <config projectName="stage_ctrl_plugin" targetName="forward_sensor_model" />
+      <config projectName="stage_ctrl_plugin" targetName="mylevyWalker" />
+      <config projectName="stage_ctrl_plugin" targetName="robot" />
+      <config projectName="stage_ctrl_plugin" targetName="myPlannerTest" />
+      <config projectName="stage_ctrl_plugin" targetName="lasernoise" />
     </generated>
   </component>
   <component name="CMakeSettings" AUTO_RELOAD="true">
@@ -19,14 +19,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8ffdee99-406e-4af1-9969-a672001194bc" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/include/occupancy_grid/occupancyGrid.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/occupancy_grid/occupancyGrid.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/include/robot/robot.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/robot/robot.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ctrl_plugin/mylevyWalker.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/ctrl_plugin/mylevyWalker.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/robot/robot.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/robot/robot.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/myPlannerTest.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/test/myPlannerTest.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worlds/myLevyTest.world" beforeDir="false" afterPath="$PROJECT_DIR$/worlds/myLevyTest.world" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <ignored path="$PROJECT_DIR$/src/ctrl_plugin/CMakeFiles/" />
@@ -41,11 +35,11 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="robot.h" pinned="false" current-in-tab="false">
+      <file leaf-file-name="robot.h" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/include/robot/robot.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2538">
-              <caret line="141" column="31" selection-start-line="141" selection-start-column="31" selection-end-line="141" selection-end-column="31" />
+            <state relative-caret-position="866">
+              <caret line="120" column="68" selection-start-line="120" selection-start-column="68" selection-end-line="120" selection-end-column="68" />
               <folding>
                 <element signature="e#465#498#0" expanded="true" />
               </folding>
@@ -77,23 +71,17 @@
       <file leaf-file-name="robot.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/robot/robot.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-5634">
-              <caret line="26" column="55" selection-start-line="26" selection-start-column="55" selection-end-line="26" selection-end-column="55" />
+            <state relative-caret-position="306">
+              <caret line="17" column="20" selection-start-line="17" selection-start-column="20" selection-end-line="17" selection-end-column="20" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="occupancyGrid.h" pinned="false" current-in-tab="true">
+      <file leaf-file-name="occupancyGrid.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/include/occupancy_grid/occupancyGrid.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="324">
-              <caret line="90" selection-start-line="90" selection-end-line="90" />
-              <folding>
-                <element signature="e#9814#9847#0" expanded="true" />
-                <element signature="e#12355#12388#0" expanded="true" />
-                <element signature="e#22742#22775#0" expanded="true" />
-                <element signature="e#25482#25515#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="1728">
+              <caret line="103" column="30" selection-start-line="103" selection-start-column="30" selection-end-line="103" selection-end-column="30" />
             </state>
           </provider>
         </entry>
@@ -183,11 +171,11 @@
         <option value="$PROJECT_DIR$/src/planner/base_planner.cpp" />
         <option value="$PROJECT_DIR$/src/occupancy_grid/inverse_sensor_model.cpp" />
         <option value="$PROJECT_DIR$/src/ctrl_plugin/mylevyWalker.cpp" />
-        <option value="$PROJECT_DIR$/include/robot/robot.h" />
-        <option value="$PROJECT_DIR$/src/robot/robot.cpp" />
         <option value="$PROJECT_DIR$/test/myPlannerTest.cpp" />
         <option value="$PROJECT_DIR$/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/include/occupancy_grid/occupancyGrid.h" />
+        <option value="$PROJECT_DIR$/src/robot/robot.cpp" />
+        <option value="$PROJECT_DIR$/include/robot/robot.h" />
       </list>
     </option>
   </component>
@@ -214,6 +202,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -230,7 +219,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -259,7 +247,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Application.mylevyWalker">
+  <component name="RunManager" selected="Application.Build All">
     <configuration name="Build All" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="stage_ctrl_plugin" RUN_TARGET_NAME="mySampleTest" EXPLICIT_BUILD_TARGET_NAME="all" />
     <configuration name="forward_sensor_model" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="stage_ctrl_plugin" TARGET_NAME="forward_sensor_model" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="stage_ctrl_plugin" RUN_TARGET_NAME="mySampleTest" />
     <configuration name="inverse_sensor_model" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="stage_ctrl_plugin" TARGET_NAME="inverse_sensor_model" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="stage_ctrl_plugin" RUN_TARGET_NAME="mySampleTest" />
@@ -316,18 +304,20 @@
       <workItem from="1523764067665" duration="31377000" />
       <workItem from="1524007598715" duration="16160000" />
       <workItem from="1524078586216" duration="2986000" />
+      <workItem from="1524110687227" duration="923000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="317577000" />
+    <option name="totallyTimeSpent" value="318500000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="64" y="-11" width="1857" height="1212" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.22048518" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.22048518" />
       <window_info anchor="bottom" id="TODO" order="7" />
-      <window_info anchor="bottom" id="Messages" order="0" visible="true" weight="0.32937956" />
+      <window_info anchor="bottom" id="Messages" order="0" weight="0.32937956" />
       <window_info anchor="bottom" id="CMake" order="8" weight="0.33029196" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5018868" side_tool="true" weight="0.32969034" />
       <window_info anchor="bottom" id="Version Control" order="10" />
@@ -337,11 +327,11 @@
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="4" weight="0.39981785" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="6" weight="0.4" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" id="Data View" order="3" />
       <window_info anchor="bottom" id="Find" order="2" />
-      <window_info anchor="bottom" id="Inspection" order="6" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="5" weight="0.25" />
       <window_info anchor="bottom" id="Message" order="1" />
     </layout>
@@ -669,16 +659,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/include/robot/robot.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2538">
-          <caret line="141" column="31" selection-start-line="141" selection-start-column="31" selection-end-line="141" selection-end-column="31" />
-          <folding>
-            <element signature="e#465#498#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/ctrl_plugin/mylevyWalker.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1782">
@@ -727,22 +707,26 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/robot/robot.cpp">
+    <entry file="file://$PROJECT_DIR$/include/occupancy_grid/occupancyGrid.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-5634">
-          <caret line="26" column="55" selection-start-line="26" selection-start-column="55" selection-end-line="26" selection-end-column="55" />
+        <state relative-caret-position="1728">
+          <caret line="103" column="30" selection-start-line="103" selection-start-column="30" selection-end-line="103" selection-end-column="30" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/include/occupancy_grid/occupancyGrid.h">
+    <entry file="file://$PROJECT_DIR$/src/robot/robot.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="324">
-          <caret line="90" selection-start-line="90" selection-end-line="90" />
+        <state relative-caret-position="306">
+          <caret line="17" column="20" selection-start-line="17" selection-start-column="20" selection-end-line="17" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/include/robot/robot.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="866">
+          <caret line="120" column="68" selection-start-line="120" selection-start-column="68" selection-end-line="120" selection-end-column="68" />
           <folding>
-            <element signature="e#9814#9847#0" expanded="true" />
-            <element signature="e#12355#12388#0" expanded="true" />
-            <element signature="e#22742#22775#0" expanded="true" />
-            <element signature="e#25482#25515#0" expanded="true" />
+            <element signature="e#465#498#0" expanded="true" />
           </folding>
         </state>
       </provider>
