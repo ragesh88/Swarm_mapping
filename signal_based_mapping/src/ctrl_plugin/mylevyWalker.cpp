@@ -3,7 +3,9 @@
 
  This is a source code for a Levy walk plugin for the stage simulator.
  The plugin enables the robot to perform Levy walk in a bounded domain.
- The robot can have only one laser sensor.
+ The robot can have only one laser sensor and fiducial sensor to identify
+ its neighbors. The robots also follow a consensus based map sharing
+ protocol.
 **/
 
 #include <Stage-4.3/stage.hh>
@@ -13,15 +15,13 @@ using namespace Stg;
 
 static const double cruisesSpeed = 0.4;
 static const double turnSpeed = 0.2;
-static const double avoidSpeed = 0.05;
-static const double avoidTurn = 0.5;
-static const double minFrontDistance = 1.0;
 static const bool verbose = true;
-static const bool verbose_new = true;
 static const bool debug = false;
 static const bool record_maps = false;
+
 // Defining the static member vector containing the robot object pointers
-std::vector<myRobot::robot *>myRobot::robot::swarm{NULL};
+std::vector<myRobot::robot*>myRobot::robot::swarm{nullptr};
+
 
 int8_t newLaserUpdate(Model *mod, myRobot::robot *robot);
 
@@ -43,7 +43,8 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
       args->cmdline.c_str() );
 */
 
-  myRobot::robot *robot = new myRobot::robot();
+
+  auto*robot = new myRobot::robot();
   // Storing the pointer of the dynamically allocated object in a vector
   // This is done that other robots can access the robot data to mimic communication.
   if (robot->get_robot_id() == 1) {
@@ -71,8 +72,7 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
   robot->position->Subscribe(); // starts the position updates
 
   // Setting up the planner
-  myPlanner::levyWalk_planner
-      *levyWalkPlanner = new myPlanner::levyWalk_planner(0, pose, Stg::Velocity(cruisesSpeed, 0, 0, turnSpeed));
+  auto* levyWalkPlanner = new myPlanner::levyWalk_planner(0, pose, Stg::Velocity(cruisesSpeed, 0, 0, turnSpeed));
 
   if (levyWalkPlanner == NULL)
     printf("NO Planner generated");
@@ -88,8 +88,7 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
   const int n_cell_y = 800; // no of cells along y
 
   // Setting up the map object
-  occupancy_grid::occupancyGrid2D<double, int>
-      *occ_grid = new occupancy_grid::occupancyGrid2D<double, int>(min_x, min_y,
+  auto *occ_grid = new occupancy_grid::occupancyGrid2D<double, int>(min_x, min_y,
                                                                    cell_size_x, cell_size_y,
                                                                    n_cell_x, n_cell_y);
   if (occ_grid == NULL)

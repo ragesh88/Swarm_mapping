@@ -77,13 +77,13 @@ void occupancy_grid::log_odds_map_given_measurement_pose(const occupancy_grid::L
   if (reflectance) {
     for (auto it = passed_grids_ranges.begin(); it != passed_grids_ranges.end(); it++) {
       double prob = reflectance_model(it->first, sensor.ranges[ray_index], sensor.range.max, noise_variance);
-      log_odds.push_back(std::pair<cv::Vec<int, 2>, double>(it->second, std::log(prob / (1 - prob))));
+      log_odds.emplace_back(std::pair<cv::Vec<int, 2>, double>(it->second, std::log(prob / (1 - prob))));
 
     }
   } else {
     for (auto it = passed_grids_ranges.begin(); it != passed_grids_ranges.end(); it++) {
       double prob = non_reflectance_model(it->first, sensor.range.max, noise_variance);
-      log_odds.push_back(std::pair<cv::Vec<int, 2>, double>(it->second, std::log(prob / (1 - prob))));
+      log_odds.emplace_back(std::pair<cv::Vec<int, 2>, double>(it->second, std::log(prob / (1 - prob))));
     }
 
   }
