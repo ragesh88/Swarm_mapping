@@ -61,12 +61,16 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
   robot->avoidCount = 0;
   robot->randCount = 0;
   robot->position = dynamic_cast<ModelPosition *>(mod);
+
   if (!robot->position) {
     PRINT_ERR("No position model given in wander controller.");
     exit(1);
   }
+
+  // display the position of the robot for debugging
   if (debug)
     robot->position->AddCallback(Model::CB_UPDATE, model_callback_t(PositionUpdate), robot);
+
   Pose pose = robot->position->GetPose();
   robot->set_current_pose(pose.x, pose.y, pose.z, pose.a);
   robot->position->Subscribe(); // starts the position updates

@@ -141,7 +141,7 @@ class robot {
   ~robot() {
     /// Destructor of robot class
     //write_map();
-
+    //printf("\n Robot %d destructor called \n", robot_id);
     // Destroying the planner object
     delete (planner);
     delete (occ_grid_map);

@@ -75,15 +75,15 @@ void occupancy_grid::log_odds_map_given_measurement_pose(const occupancy_grid::L
   }
 
   if (reflectance) {
-    for (auto it = passed_grids_ranges.begin(); it != passed_grids_ranges.end(); it++) {
-      double prob = reflectance_model(it->first, sensor.ranges[ray_index], sensor.range.max, noise_variance);
-      log_odds.emplace_back(std::pair<cv::Vec<int, 2>, double>(it->second, std::log(prob / (1 - prob))));
+    for (const auto &it : passed_grids_ranges) {
+      double prob = reflectance_model(it.first, sensor.ranges[ray_index], sensor.range.max, noise_variance);
+      log_odds.emplace_back(std::pair<cv::Vec<int, 2>, double>(it.second, std::log(prob / (1 - prob))));
 
     }
   } else {
-    for (auto it = passed_grids_ranges.begin(); it != passed_grids_ranges.end(); it++) {
-      double prob = non_reflectance_model(it->first, sensor.range.max, noise_variance);
-      log_odds.emplace_back(std::pair<cv::Vec<int, 2>, double>(it->second, std::log(prob / (1 - prob))));
+    for (const auto &it : passed_grids_ranges) {
+      double prob = non_reflectance_model(it.first, sensor.range.max, noise_variance);
+      log_odds.emplace_back(std::pair<cv::Vec<int, 2>, double>(it.second, std::log(prob / (1 - prob))));
     }
 
   }
@@ -115,15 +115,15 @@ void occupancy_grid::probability_map_given_measurement_pose(const occupancy_grid
   }
 
   if (reflectance) {
-    for (auto it = passed_grids_ranges.begin(); it != passed_grids_ranges.end(); it++) {
-      double prob = reflectance_model(it->first, sensor.ranges[ray_index], sensor.range.max, noise_variance);
-      probability.push_back(std::pair<cv::Vec<int, 2>, double>(it->second, prob));
+    for (const auto &it : passed_grids_ranges) {
+      double prob = reflectance_model(it.first, sensor.ranges[ray_index], sensor.range.max, noise_variance);
+      probability.emplace_back(std::pair<cv::Vec<int, 2>, double>(it.second, prob));
 
     }
   } else {
-    for (auto it = passed_grids_ranges.begin(); it != passed_grids_ranges.end(); it++) {
-      double prob = non_reflectance_model(it->first, sensor.range.max, noise_variance);
-      probability.push_back(std::pair<cv::Vec<int, 2>, double>(it->second, prob));
+    for (const auto &it : passed_grids_ranges) {
+      double prob = non_reflectance_model(it.first, sensor.range.max, noise_variance);
+      probability.emplace_back(std::pair<cv::Vec<int, 2>, double>(it.second, prob));
     }
 
   }
