@@ -12,17 +12,20 @@
 #ifndef STAGE_CTRL_PLUGIN_ROBOT_H
 #define STAGE_CTRL_PLUGIN_ROBOT_H
 
-// stage header file added for some functions
-#include <Stage-4.3/stage.hh>
+
 
 // C++ library header files
 
 
 // local header files
-#include "planner/base_planner.h"
 #include "occupancy_grid/occupancyGrid.h"
+#include "planner/base_planner.h"
 //#include "occupancy_grid/forward_sensor_model.h"
 #include "occupancy_grid/inverse_sensor_model.h"
+
+
+// stage header file added for some functions
+#include <Stage-4.3/stage.hh>
 
 namespace myRobot {
 
@@ -96,7 +99,9 @@ class robot {
   //occupancy_grid::Prob_occupancyGrid2D<double, int>* occ_grid_map{NULL};
 
 
-
+  // Static member function
+  /// Static function to update the static variable swarm
+  static void swarm_update(myRobot::robot* member);
 
 
 

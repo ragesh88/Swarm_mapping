@@ -8,7 +8,7 @@
  protocol.
 **/
 
-#include <Stage-4.3/stage.hh>
+//#include <Stage-4.3/stage.hh>
 #include "robot/robot.h"
 
 using namespace Stg;
@@ -20,7 +20,7 @@ static const bool debug = false;
 static const bool record_maps = false;
 
 // Defining the static member vector containing the robot object pointers
-std::vector<myRobot::robot*>myRobot::robot::swarm{nullptr};
+//std::vector<myRobot::robot*>myRobot::robot::swarm{nullptr};
 
 
 int8_t newLaserUpdate(Model *mod, myRobot::robot *robot);
@@ -45,15 +45,11 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
 
 
   auto*robot = new myRobot::robot();
+
   // Storing the pointer of the dynamically allocated object in a vector
   // This is done that other robots can access the robot data to mimic communication.
-  if (robot->get_robot_id() == 1) {
-    //robots_pointer[0] = robot;
-    myRobot::robot::swarm[0] = robot;
-  } else {
-    //robots_pointer.push_back(robot);
-    myRobot::robot::swarm.push_back(robot);
-  }
+  myRobot::robot::swarm_update(robot);
+
 
   printf("\n*******Ragesh Levy walk controller******");
   robot->set_current_velocity(cruisesSpeed, 0, turnSpeed);

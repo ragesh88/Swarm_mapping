@@ -17,6 +17,25 @@ using namespace occupancy_grid;
 // Define the static variables
 int robot::gen_id = 0;
 
+// Defining the static member vector containing the robot object pointers
+std::vector<myRobot::robot*>myRobot::robot::swarm{nullptr};
+
+// Defining the static member functions
+void robot::swarm_update(myRobot::robot* member)
+/**
+ * The static member function for the class robot
+ * to update the members of the swarm *
+ * @param member : the pointer to the member of the swarm
+ */
+{
+  if (member->get_robot_id() == 1) {
+    myRobot::robot::swarm[0] = member;
+  } else {
+    myRobot::robot::swarm.push_back(member);
+  }
+
+}
+
 void robot::move() {
   /// The function moves the robot according to the planner object
 
@@ -342,6 +361,7 @@ void robot::write_map()
   std::string count = std::to_string(image_count);
   count = std::string(9 - count.length(), '0') + count;
   std::string filename = img_path + robot_name + "_" + count + img_type;
+  //std::cout<<"\n writing map as "<<filename<<std::endl;
   try {
     occ_grid_map->map_write(filename, myRobot::robot::gen_id);
     image_count++;

@@ -13,8 +13,8 @@
 #ifndef STAGE_CTRL_PLUGIN_INVERSE_SENSOR_MODEL_H
 #define STAGE_CTRL_PLUGIN_INVERSE_SENSOR_MODEL_H
 
-#include<Stage-4.3/stage.hh>
 #include<opencv2/opencv.hpp>
+#include<Stage-4.3/stage.hh>
 #include<list>
 
 namespace occupancy_grid {

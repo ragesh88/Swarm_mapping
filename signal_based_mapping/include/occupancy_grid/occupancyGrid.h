@@ -12,9 +12,9 @@
 #ifndef STAGE_CTRL_PLUGIN_OCCUPANCYGRID_H
 #define STAGE_CTRL_PLUGIN_OCCUPANCYGRID_H
 
-#include <Stage-4.3/stage.hh>
-#include <opencv2/opencv.hpp>
 
+#include <opencv2/opencv.hpp>
+#include <Stage-4.3/stage.hh>
 // C libraries
 #include <cassert>
 
@@ -354,6 +354,8 @@ void occupancyGrid2D<real_t, int_t>::map_write(const std::string &filename, int 
 {
 
   cv::imwrite(filename.c_str(), og_);
+  //cv::imshow(filename.c_str(), og_);
+  //cv::waitKey(30);
 //  double max,min;
 //  cv::minMaxLoc(og_, &min, &max);
 //  printf("\n The max value of the og matrix is : %f \n", max);
