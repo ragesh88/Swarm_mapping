@@ -13,9 +13,9 @@
 
 using namespace occupancy_grid;
 
-double log_odds_observations_given_map_pose(const Observation2D& observation,
-                                            occupancyGrid2D<double, int>& map,
-                                            double& expected_range)
+double log_odds_observations_given_map_pose(const Observation2D &observation,
+                                            occupancyGrid2D<double, int> &map,
+                                            double &expected_range)
 /**
  * The function returns log odds of the observation given the map and pose of
  * the robot.
@@ -30,13 +30,13 @@ double log_odds_observations_given_map_pose(const Observation2D& observation,
   cv::Vec2d direction{std::cos(total_angle), sin(total_angle)};
   cv::Vec2d position{observation.px, observation.py};
 
-  assert(! std::isnan(direction(1)));
-  assert(! std::isnan(direction(0)));
+  assert(!std::isnan(direction(1)));
+  assert(!std::isnan(direction(0)));
 
   cv::Vec2d final_pos;
   bool reflectance;
   expected_range = map.ray_trace(observation.px, observation.py, observation.p_theta,
-                                LASER_MAX_RANGE, final_pos, reflectance);
+                                 LASER_MAX_RANGE, final_pos, reflectance);
 
   // noise variance increases with distance
   double sigma = NOISE_VARIANCE * expected_range;
@@ -48,13 +48,11 @@ double log_odds_observations_given_map_pose(const Observation2D& observation,
 
   return log_gaussian1D(observation.range, expected_range, sigma);
 
-
 }
 
-
-double probability_observations_given_map_pose(const Observation2D& observation,
-                                            occupancyGrid2D<double, int>& map,
-                                            double& expected_range)
+double probability_observations_given_map_pose(const Observation2D &observation,
+                                               occupancyGrid2D<double, int> &map,
+                                               double &expected_range)
 /**
  * The function returns log odds of the observation given the map and pose of
  * the robot.
@@ -69,8 +67,8 @@ double probability_observations_given_map_pose(const Observation2D& observation,
   cv::Vec2d direction{std::cos(total_angle), sin(total_angle)};
   cv::Vec2d position{observation.px, observation.py};
 
-  assert(! std::isnan(direction(1)));
-  assert(! std::isnan(direction(0)));
+  assert(!std::isnan(direction(1)));
+  assert(!std::isnan(direction(0)));
 
   cv::Vec2d final_pos;
   bool reflectance;
@@ -86,6 +84,5 @@ double probability_observations_given_map_pose(const Observation2D& observation,
   // printf("Observed range:%f\n", observation.range);
 
   return gaussian1D(observation.range, expected_range, sigma);
-
 
 }

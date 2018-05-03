@@ -8,4 +8,4 @@ syntax: glob
 */CMakeFiles/*
 *.cmake
 */Makefile
-
+*/.idea/*
