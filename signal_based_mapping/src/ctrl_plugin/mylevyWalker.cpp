@@ -49,7 +49,7 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
   myRobot::robot::swarm_update(robot);
 
 
-  printf("\n*******Ragesh Levy walk controller******");
+  printf("\n\n**************Ragesh Levy walk controller assignment*************");
   robot->set_current_velocity(cruisesSpeed, 0, turnSpeed);
   robot->world = mod->GetWorld();
   robot->avoidCount = 0;
@@ -57,7 +57,7 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
   robot->position = dynamic_cast<ModelPosition *>(mod);
 
   if (!robot->position) {
-    PRINT_ERR("No position model given in wander controller.");
+    PRINT_ERR("No position model given for the controller.");
     exit(1);
   }
 
@@ -99,7 +99,7 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
 
   ModelRanger *laser = nullptr;
 
-  printf("\nWander ctrl for robot %s:\n", robot->position->Token());
+  printf("\n  Ragesh Levy walk controller assignment for robot %s initiated \n", robot->position->Token());
   for (int i = 0; i < 16; i++) {
 
     char name[32];
@@ -128,7 +128,7 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
 
   // Looking for fiducial sensors in the model.
   // This required for sharing map among robots using consensus
-  printf(" \n looking for a suitable fiducial sensor for \"%s ... \"", robot->position->Token());
+  printf(" \n  looking for a suitable fiducial sensor for \"%s\" ... ", robot->position->Token());
   ModelFiducial *fiducial_sensor = nullptr;
   fiducial_sensor = dynamic_cast<ModelFiducial *>(robot->position->GetChild("fiducial:0"));
   if (fiducial_sensor == nullptr) {
@@ -136,12 +136,12 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
     exit(2);
 
   }
-
+  printf("found one");
   robot->fiducial_sensor = fiducial_sensor;
   robot->fiducial_sensor->AddCallback(Model::CB_UPDATE, model_callback_t(newFiducialUpdate), robot);
   robot->fiducial_sensor->Subscribe(); // starts the fiducial sensor update
 
-
+  printf("\n************************Process completed************************");
   return 0;
 }
 
