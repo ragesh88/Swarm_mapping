@@ -8,7 +8,7 @@
  protocol.
 **/
 
-//#include <Stage-4.3/stage.hh>
+
 #include "robot/robot.h"
 
 using namespace Stg;
@@ -18,9 +18,6 @@ static const double turnSpeed = 0.2;
 static const bool verbose = true;
 static const bool debug = false;
 static const bool record_maps = false;
-
-// Defining the static member vector containing the robot object pointers
-//std::vector<myRobot::robot*>myRobot::robot::swarm{nullptr};
 
 
 int8_t newLaserUpdate(Model *mod, myRobot::robot *robot);
@@ -91,7 +88,7 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
   auto *occ_grid = new occupancy_grid::occupancyGrid2D<double, int>(min_x, min_y,
                                                                    cell_size_x, cell_size_y,
                                                                    n_cell_x, n_cell_y);
-  if (occ_grid == NULL)
+  if (occ_grid == nullptr)
     printf("No map object created");
 
   // Assigning the map object to robot
@@ -99,7 +96,7 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
 
   // find a range finder
 
-  ModelRanger *laser = NULL;
+  ModelRanger *laser = nullptr;
 
   printf("\nWander ctrl for robot %s:\n", robot->position->Token());
   for (int i = 0; i < 16; i++) {
@@ -131,9 +128,9 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
   // Looking for fiducial sensors in the model.
   // This required for sharing map among robots using consensus
   printf(" \n looking for a suitable fiducial sensor for \"%s ... \"", robot->position->Token());
-  ModelFiducial *fiducial_sensor = NULL;
+  ModelFiducial *fiducial_sensor = nullptr;
   fiducial_sensor = dynamic_cast<ModelFiducial *>(robot->position->GetChild("fiducial:0"));
-  if (fiducial_sensor == NULL) {
+  if (fiducial_sensor == nullptr) {
     printf("\n Failed to find a fiducial sensor. Exit");
     exit(2);
 
