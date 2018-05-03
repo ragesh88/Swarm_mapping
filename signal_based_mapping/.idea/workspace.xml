@@ -18,9 +18,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8ffdee99-406e-4af1-9969-a672001194bc" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/src/ctrl_plugin/mylevyWalker.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/ctrl_plugin/mylevyWalker.cpp" afterDir="false" />
-    </list>
+    <list default="true" id="8ffdee99-406e-4af1-9969-a672001194bc" name="Default" comment="" />
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <ignored path="$PROJECT_DIR$/src/ctrl_plugin/CMakeFiles/" />
     <ignored path="$PROJECT_DIR$/src/CMakeFiles/" />
@@ -58,8 +56,8 @@
       <file leaf-file-name="mylevyWalker.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/ctrl_plugin/mylevyWalker.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="306">
-              <caret line="19" column="38" selection-start-line="19" selection-start-column="38" selection-end-line="19" selection-end-column="38" />
+            <state relative-caret-position="126">
+              <caret line="82" column="47" lean-forward="true" selection-start-line="82" selection-start-column="47" selection-end-line="82" selection-end-column="47" />
             </state>
           </provider>
         </entry>
@@ -117,6 +115,7 @@
       <find>ray_trace_all</find>
       <find>ray_all</find>
       <find>uint8_t</find>
+      <find>NULL</find>
     </findStrings>
     <replaceStrings>
       <replace>set</replace>
@@ -133,6 +132,7 @@
       <replace>rotate_time</replace>
       <replace>int_t</replace>
       <replace>int</replace>
+      <replace>nullptr</replace>
     </replaceStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -292,12 +292,12 @@
       <workItem from="1524007598715" duration="16160000" />
       <workItem from="1524078586216" duration="2986000" />
       <workItem from="1525240050500" duration="447000" />
-      <workItem from="1525306176982" duration="347000" />
+      <workItem from="1525306176982" duration="782000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="318371000" />
+    <option name="totallyTimeSpent" value="318806000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="64" y="-11" width="1857" height="1212" extended-state="6" />
@@ -699,8 +699,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/ctrl_plugin/mylevyWalker.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="19" column="38" selection-start-line="19" selection-start-column="38" selection-end-line="19" selection-end-column="38" />
+        <state relative-caret-position="126">
+          <caret line="82" column="47" lean-forward="true" selection-start-line="82" selection-start-column="47" selection-end-line="82" selection-end-column="47" />
         </state>
       </provider>
     </entry>
