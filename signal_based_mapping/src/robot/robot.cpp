@@ -249,9 +249,20 @@ void robot::build_map() {
 
     for (auto it = occ_probability.begin(); it != occ_probability.end(); ++it) {
       // In the case of combining probability values for occupancyGrid2D objects
-      double v =
-          static_cast<double>(occ_grid_map->get(it->first[0], it->first[1])) / occupancyGrid2D<double, int>::OCCUPIED;
+      double v = static_cast<double>(occ_grid_map->get(it->first[0], it->first[1])) /
+                  static_cast<double>(occupancyGrid2D<double, int>::OCCUPIED);
       //occ_grid_map->set(it->first[0], it->first[1], static_cast<uint8_t>(occ_grid_map->OCCUPIED*(0.5*(it->second))+0.5*v));
+      // TODO delete the line below after debugging
+//      if (!static_cast<uint8_t>(occupancyGrid2D<double, int>::OCCUPIED * ((it->second) * v))){
+//        std::cout<<"the value of it->second is : "<<(it->second)<<std::endl;
+//        std::cout<<"the value of v is : "<<v<<std::endl;
+//        std::cout<<"the value of OCCUPIED is : "<<static_cast<double>(occupancyGrid2D<double, int>::OCCUPIED)<<std::endl;
+//        std::cout<<"the value of the point is : "<<static_cast<double>(occ_grid_map->get(it->first[0], it->first[1]))<<std::endl;
+//        std::cout<<"the value computed is non zero which is : "<<(it->second * v)<<std::endl;
+//      } else{
+//        std::cout<<"the value when computed to be zero is "<<(it->second * v)<<std::endl;
+//      }
+
       occ_grid_map->set(it->first[0],
                         it->first[1],
                         static_cast<uint8_t>(occupancyGrid2D<double, int>::OCCUPIED * ((it->second) * v)));
@@ -364,6 +375,7 @@ void robot::write_map()
   //std::cout<<"\n writing map as "<<filename<<std::endl;
   try {
     occ_grid_map->map_write(filename, myRobot::robot::gen_id);
+    occ_grid_map->map_csv_write(filename,myRobot::robot::gen_id);
     image_count++;
   } catch (std::runtime_error &ex) {
     fprintf(stderr, "Exception converting image to PNG format: %s\n", ex.what());

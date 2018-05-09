@@ -21,6 +21,7 @@
 // C++ libraries
 #include <algorithm>
 #include <iostream>
+#include <fstream>
 #include <stdexcept>
 #include <map>
 #include <set>
@@ -94,33 +95,33 @@ class occupancyGrid2D {
 
   // get functions
 
-  int8_t get(int k) const {
+  uint8_t get(int k) const {
     /// get the value at the \f$k^{the}\f$ location
     int row = k / og_.size[1];
     int col = k % og_.size[1];
-    return og_.at<int8_t>(row, col);
+    return og_.at<uint8_t>(row, col);
   }
 
-  int8_t get(int row, int col) const {
+  uint8_t get(int row, int col) const {
     /// get the value at \f$(row,col)\f$ location
-    return og_.at<int8_t>(row, col);
+    return og_.at<uint8_t>(row, col);
   }
 
 
 
   // set functions
 
-  void set(int k, int8_t value) {
+  void set(int k, uint8_t value) {
     /// set the value at the \f $k^{th}\f$ location
     int row = k / og_.size[1];
     int col = k % og_.size[1];
-    og_.at<int8_t>(row, col) = value;
+    og_.at<uint8_t>(row, col) = value;
 
   }
 
-  void set(int row, int col, int8_t value) {
+  void set(int row, int col, uint8_t value) {
     /// set the value at \f$(row,col)\f$ location
-    og_.at<int8_t>(row, col) = value;
+    og_.at<uint8_t>(row, col) = value;
   }
 
 
@@ -133,7 +134,7 @@ class occupancyGrid2D {
 
   virtual bool is_occupied(int i, int j) {
     /// check if the grid cell in \f$(i,j)\f$ is occupied
-    return (og_.at<int>(i, j) != FREE);
+    return (og_.at<uint8_t>(i, j) != FREE);
   }
 
   real_t nearest_neighbor_distance(cv::Vec<real_t, 2> position, real_t max_range,
@@ -146,6 +147,8 @@ class occupancyGrid2D {
                      std::map<real_t, cv::Vec<int_t, 2>> &all_range_pos);
 
   void map_write(const std::string &filename, int no_of_robots = 1);
+
+  void map_csv_write(const std::string &filename, int no_of_robots = 1);
 
   cv::Point2i xy2rc(const cv::Vec<real_t, 2> &xy) const {
     /// the function converts the \f$(x,y)\f$ coordinates to corresponding
@@ -353,7 +356,22 @@ void occupancyGrid2D<real_t, int_t>::map_write(const std::string &filename, int 
  */
 {
 
-  cv::imwrite(filename.c_str(), og_);
+  //cv::Mat og_write = og_.clone();
+  cv::Mat og_write;
+  og_.convertTo(og_write, CV_8U);
+  for (int row =0; row < og_write.rows; ++row){
+    uchar* p = og_write.ptr(row);
+    for (int col=0; col<og_write.cols; ++col){
+      if (*p == OCCUPIED){
+        *p = UNKNOWN;
+        //std::cout<<"value of p after made unknown is "<< int(*p)<<std::endl;
+      }
+      p++;
+    }
+  }
+  cv::imshow("output", og_write);
+  cv::waitKey(0);
+  cv::imwrite(filename.c_str(), og_write);
   //cv::imshow(filename.c_str(), og_);
   //cv::waitKey(30);
 //  double max,min;
@@ -362,9 +380,61 @@ void occupancyGrid2D<real_t, int_t>::map_write(const std::string &filename, int 
 //  printf("\n The min value of the og matrix is : %f \n", min);
 
 }
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+template<typename real_t, typename int_t>
+void occupancyGrid2D<real_t, int_t>::map_csv_write(const std::string &filename, int no_of_robots)
+{
+  // check if the filename have an extension of .csv if not put it
+  auto pos = filename.find_last_of('.');
+  std::string new_filename = filename;
+  std::string ext = ".txt";
+  if(pos == std::string::npos){
+    // no extension in the file name
+    // then add .csv to file name
+    new_filename += ext;
+  } else {
+    // check if the extension is .csv
+    if(filename.substr(pos + 1).compare(ext)){
+      // if the extension is not .csv make it .csv
+      new_filename = filename.substr(0, pos) + ext;
+    }
+  }
+
+
+
+  // write the matrix to a csv file
+
+  std::ofstream f_out(new_filename);
+
+  if(!f_out) {
+    std::cout<<"Files not opened \n";
+    return;
+  }
+
+
+  for (int row =0; row < og_.rows; ++row){
+    uchar* p = og_.ptr(row);
+    for (int col=0; col<og_.cols; ++col){
+      if (*p == OCCUPIED){
+        f_out<< std::to_string(static_cast<uint8_t>(UNKNOWN))<<",";
+      }else{
+        f_out<< std::to_string(static_cast<uint8_t>(*p))<<",";
+      }
+      p++;
+    }
+    f_out<<std::endl;
+  }
+
+  // closing the file stream
+  f_out.close();
+
+
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<typename int_t>
 class vec_comp_class {
  public:
