@@ -12,7 +12,8 @@
 #ifndef STAGE_CTRL_PLUGIN_ROBOT_H
 #define STAGE_CTRL_PLUGIN_ROBOT_H
 
-
+// C library header files
+#include <ctime>
 
 // C++ library header files
 

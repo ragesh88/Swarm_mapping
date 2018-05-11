@@ -40,6 +40,9 @@ namespace occupancy_grid {
 template<typename int_t>
 class vec_comp_class;
 
+template<typename int_t>
+class vec_path_comp_class;
+
 template<typename real_t, typename int_t>
 class occupancyGrid2D {
   /**
@@ -62,7 +65,7 @@ class occupancyGrid2D {
   /// Value when the map cell is occupied
   static const uint8_t OCCUPIED{255};
 
-  //TODO Add a data structure probably a opencv matrix to store grid cells traversed or scanned by the robot
+
 
   // Constructors
 
@@ -146,9 +149,14 @@ class occupancyGrid2D {
   void ray_trace_all(real_t px, real_t py, real_t p_theta, real_t max_range,
                      std::map<real_t, cv::Vec<int_t, 2>> &all_range_pos);
 
+  void ray_trace_path(real_t px, real_t py, real_t p_theta, real_t max_range,
+                      std::map<std::vector<int_t>, real_t, vec_path_comp_class<int_t>> &all_range_pos);
+
+  // Writing as an image is at least 20 times faster than writing to an text file
+
   void map_write(const std::string &filename, int no_of_robots = 1);
 
-  void map_csv_write(const std::string &filename, int no_of_robots = 1);
+  void map_txt_write(const std::string &filename, int no_of_robots = 1);
 
   cv::Point2i xy2rc(const cv::Vec<real_t, 2> &xy) const {
     /// the function converts the \f$(x,y)\f$ coordinates to corresponding
@@ -347,6 +355,61 @@ void occupancyGrid2D<real_t, int_t>::ray_trace_all(real_t px, real_t py, real_t 
 }
 
 template<typename real_t, typename int_t>
+void occupancyGrid2D<real_t, int_t>::ray_trace_path(real_t px, real_t py, real_t p_theta, real_t max_range,
+                                                   std::map<std::vector<int_t>, real_t, vec_path_comp_class<int_t>> &all_range_pos)
+/**
+ *  The method performs a ray trace operation and send all the grid coordinates and associated occupancy probability
+ *  as a map object
+ */
+
+
+{
+  real_t dx = std::cos(p_theta);
+  real_t dy = std::sin(p_theta);
+
+  ray_trace_iterator<real_t, int_t> ray_trace_it(px, py, dx, dy, min_pt(0), min_pt(1), cell_size(0), cell_size(1));
+
+
+  real_t dir_mag = std::sqrt(dx * dx + dy * dy);
+  real_t n = std::floor(max_range * std::fabs(dx) / (dir_mag * cell_size(0))) +
+      std::floor(max_range * std::fabs(dy) / (dir_mag * cell_size(1)));
+
+  int max_size_x = og_.size[0];
+  int max_size_y = og_.size[1];
+
+  // iterate using the ray trace iterate object
+  for (; n > 0; n--, ray_trace_it++) {
+
+    // grid the coordinates (i,j) as std::pair
+    int i = ray_trace_it->first;
+    int j = ray_trace_it->second;
+
+
+
+
+    // uncomment the line below to debug
+    //printf("\n (%d, %d), (%f, %f) \n", i, j, pos_pair.first, pos_pair.second);
+
+
+    // check if the coordinates are in bounds and is occupied
+    if (i < 0 || j < 0 || i >= max_size_x || j >= max_size_y ) {
+
+      break;
+
+    }
+
+    real_t prob = static_cast<real_t>(get(i,j))/ static_cast<real_t>(OCCUPIED);
+
+    // inserting the elements in to the map data structure
+    std::vector<int_t> grid_coord{i, j}; // value to the map object
+
+    all_range_pos.emplace(grid_coord, prob);
+
+  }
+
+}
+
+template<typename real_t, typename int_t>
 void occupancyGrid2D<real_t, int_t>::map_write(const std::string &filename, int no_of_robots)
 /**
  * The function writes the occupancy grid map to an image file
@@ -356,8 +419,8 @@ void occupancyGrid2D<real_t, int_t>::map_write(const std::string &filename, int 
  */
 {
 
-  //cv::Mat og_write = og_.clone();
-  cv::Mat og_write;
+
+  cv::Mat og_write ;
   og_.convertTo(og_write, CV_8U);
   for (int row =0; row < og_write.rows; ++row){
     uchar* p = og_write.ptr(row);
@@ -369,22 +432,21 @@ void occupancyGrid2D<real_t, int_t>::map_write(const std::string &filename, int 
       p++;
     }
   }
-  cv::imshow("output", og_write);
-  cv::waitKey(0);
+
+
+
+  // showing the image for debugging
+//  cv::imshow("output", og_write);
+//  cv::waitKey(0);
   cv::imwrite(filename.c_str(), og_write);
-  //cv::imshow(filename.c_str(), og_);
-  //cv::waitKey(30);
-//  double max,min;
-//  cv::minMaxLoc(og_, &min, &max);
-//  printf("\n The max value of the og matrix is : %f \n", max);
-//  printf("\n The min value of the og matrix is : %f \n", min);
+
 
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 template<typename real_t, typename int_t>
-void occupancyGrid2D<real_t, int_t>::map_csv_write(const std::string &filename, int no_of_robots)
+void occupancyGrid2D<real_t, int_t>::map_txt_write(const std::string &filename, int no_of_robots)
 {
   // check if the filename have an extension of .csv if not put it
   auto pos = filename.find_last_of('.');
@@ -454,6 +516,29 @@ class vec_comp_class {
   }
 };
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<typename int_t>
+class vec_path_comp_class {
+  /**
+   * key comparison class for ray trace path method in the occupancyGrid2D<real_t, int_t> class
+   */
+ public:
+  bool operator()(const std::vector<int_t> &t1, const std::vector<int_t> &t2) {
+    // An operator to compare the cv::Vec<int_t> objects
+    if (t1[0] == t2[0] && t1[1] == t2[1])
+      return false;
+    if (t1[0] < t2[0]) {
+      return true;
+    } else {
+      if (t1[0] == t1[0]) {
+        return (t1[1] < t2[1]);
+      }
+      return false;
+    }
+
+  }
+};
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////

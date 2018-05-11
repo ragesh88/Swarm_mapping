@@ -157,7 +157,7 @@ int8_t newLaserUpdate(Model *, myRobot::robot *robot) {
   if (robot->world->Paused() || record_maps) {
     //printf("\n Paused");
     //printf("\n Writing the map");
-    if (robot->get_robot_id() == 1 || robot->get_robot_id() == 0)
+    if (robot->get_robot_id() == 1 || robot->get_robot_id() == 3)
       robot->write_map();
   }
 

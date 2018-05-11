@@ -36,6 +36,8 @@ void base_planner::generate_path(double start_time) {
 
 }
 
+/***************************************************************************************************/
+
 Stg::meters_t levyWalk_planner::generate_levy_dist() {
   /**
    * Generate the length from the distribution
@@ -148,11 +150,11 @@ void levyWalk_planner::generate_path(double start_time) {
       rotate_time = (std::fabs(-M_PI - cur_dir) + std::fabs(M_PI - des_dir)) / std::fabs(w);
     }
   }
-  //point.motion_end_time+=rotate_time; //TODO : uncomment this after debugging
+  point.motion_end_time+=rotate_time; //TODO : uncomment this after debugging
   point.computed_desPose = true;
 
 
-  //path.push(point); // pushing the second point to the path //TODO : uncomment this after debugging
+  path.push(point); // pushing the second point to the path //TODO : uncomment this after debugging
 
   // computing the third point in the path
   point.modes = MOTION_MODES::TRANSLATION_X;
@@ -161,6 +163,129 @@ void levyWalk_planner::generate_path(double start_time) {
   point.computed_desPose = false;
 
   path.push(point); // pushing the third point to the path
+
+
+}
+
+/***************************************************************************************************/
+
+meters MI_levyWalk_planner::generate_levy_dist()
+{
+  /**
+   * Generate the length from the distribution
+   */
+  //uniform random number generator
+  std::random_device rd;
+  std::default_random_engine generator(rd());
+  std::uniform_real_distribution<double> distribution(0.0, 1.0);
+  // generate a uniform random number between 0 and 1
+  auto u = distribution(generator);
+
+  if (alpha == 0) {
+    throw "\nLevy alpha should be non zero\n";
+  }
+
+  double speed = std::sqrt(get_velocity()->x * get_velocity()->x +
+      get_velocity()->y * get_velocity()->y +
+      get_velocity()->z * get_velocity()->z);
+
+  if (speed == 0) {
+    throw "\nSpeed should be non zero\n";
+  }
+
+  return levy_min * pow((1 - u), -1 / alpha); // levy walk distance
+}
+
+
+void MI_levyWalk_planner::generate_dir_via_point(const Stg::Pose &start_pos,
+                                                 const myPlanner::meters& plan_len,
+                                                 std::queue<Stg::Pose> &dir_via_point)
+/**
+ *
+ * @param start_pos : The start pose of the path whose via points need to be created
+ * @param plan_dis : The length of the path
+ * @param dir_via_point : The set of via points as a queue
+ */
+{
+  meters dist_covered{0};
+  // check if the queue is empty
+  assert(dir_via_point.empty()); // abort if the queue is non empty
+  // push the first point into the queue
+  dir_via_point.emplace(start_pos);
+
+  while(dist_covered + dist_btw_path_via < plan_len){
+    // computing the next via point and pushing it to the queue
+    dir_via_point.emplace(Stg::Pose{dir_via_point.back().x + dist_btw_path_via*cos(dir_via_point.back().a),
+                                    dir_via_point.back().y + dist_btw_path_via*sin(dir_via_point.back().a),
+                                    dir_via_point.back().z,
+                                    dir_via_point.back().a});
+    dist_covered += dist_btw_path_via;
+  }
+}
+
+
+double MI_levyWalk_planner::compute_beam_MI(occupancy_grid::occupancyGrid2D<double, int>* map,
+                                            double px,
+                                            double py,
+                                            double p_theta)
+/**
+ *
+ * @param map : a pointer to the map object for ray tracing operations
+ * @param px : the x coordinate of the beam base in global frame
+ * @param py : the y coordinate of the beam base in global frame
+ * @param p_theta : the orientation of the beam in global frame
+ * @return : the Cauchy Schwarz Mutual Information for a single beam
+ */
+{
+  // finding the grids and its occupancy probability traced by the beam
+  std::map<std::vector<int>, double, occupancy_grid::vec_path_comp_class<int>> traced_grids;
+  map->ray_trace_path(px, py, p_theta, fsm.z_max, traced_grids);
+
+  // TODO compute the Cauchy Schwarz Mutual Information for the beam
+
+}
+
+
+void MI_levyWalk_planner::generate_path(double start_time, const Stg::Pose& curPose,
+                                        occupancy_grid::occupancyGrid2D<double, int>* map)
+/**
+ * The virtual method of generating the direction the robot should move to increase information gain
+ * @param start_time : the start time when the robot start to plan
+ * @param curPose : the pose at which the robot start
+ * @param map : the pointer to the map object for ray tracing
+ */
+{
+  // generate the levy distance that the robot should move
+  meters levy_dis = generate_levy_dist();
+
+  // make sure the velocity is non zero
+  assert(get_velocity()->x);
+
+  double levy_travel_time = levy_dis/std::fabs(get_velocity()->x);
+
+  std::map<double, std::vector<radians>> dir_MI; // store the compute MI and associated direction
+
+  // path set generation for the robots initialize with current orientation of the robot(global coordinates)
+  std::vector<radians> path_directions{curPose.a};
+  // adding directions to the left(anti-clockwise) of the robot(global coordinates)
+  for(int i = 0; i < (no_path_each_side-1); i++){
+    radians new_dir = (i+1)*max_ang/no_path_each_side;
+    // adjust the angles to [-M_PI M_PI] when it goes above 180 degree
+    if (curPose.a + new_dir > M_PI){
+      dir_MI.emplace(curPose.a + new_dir -  (2*M_PI));
+    } else {
+      dir_MI.emplace(curPose.a+new_dir);
+    }
+  }
+
+  // adding directions to the right(clockwise) of robot (global coordinates)
+  for(int i=0; i < (no_path_each_side-1); i++){
+    radians new_dir = (i+1)*min_ang/no_path_each_side;
+    // adjust the angles the [-M_PI M_PI] when it below -180 degree
+    if (curPose.a - new_dir < -M_PI){
+      dir_MI.emplace(curPose.a + new_dir + 2*M_PI);
+    }else{}
+  }
 
 
 }

@@ -215,7 +215,8 @@ void robot::build_map() {
   //printf("\n The measurement at a new pose \n");
   //base_pose.Print("base pose ");
   //std::cout<<std::endl;
-  const int ray_incre = 5; // interval in choosing the laser rays
+  const int no_of_rays = 10;
+  const int ray_incre = laserSensor.sample_count/no_of_rays; // interval in choosing the laser rays
   // Iterate through each ray in the interval ray_incre
   for (int i = 0; i < laserSensor.sample_count; i += ray_incre) {
 
@@ -253,14 +254,14 @@ void robot::build_map() {
                   static_cast<double>(occupancyGrid2D<double, int>::OCCUPIED);
       //occ_grid_map->set(it->first[0], it->first[1], static_cast<uint8_t>(occ_grid_map->OCCUPIED*(0.5*(it->second))+0.5*v));
       // TODO delete the line below after debugging
-//      if (!static_cast<uint8_t>(occupancyGrid2D<double, int>::OCCUPIED * ((it->second) * v))){
+//      if (static_cast<uint8_t>(occupancyGrid2D<double, int>::OCCUPIED * ((it->second) * v))>0){
 //        std::cout<<"the value of it->second is : "<<(it->second)<<std::endl;
 //        std::cout<<"the value of v is : "<<v<<std::endl;
 //        std::cout<<"the value of OCCUPIED is : "<<static_cast<double>(occupancyGrid2D<double, int>::OCCUPIED)<<std::endl;
 //        std::cout<<"the value of the point is : "<<static_cast<double>(occ_grid_map->get(it->first[0], it->first[1]))<<std::endl;
 //        std::cout<<"the value computed is non zero which is : "<<(it->second * v)<<std::endl;
 //      } else{
-//        std::cout<<"the value when computed to be zero is "<<(it->second * v)<<std::endl;
+//        std::cout<<"the value when computed to be zero is "<<static_cast<uint8_t>(occupancyGrid2D<double, int>::OCCUPIED * ((it->second) * v))<<std::endl;
 //      }
 
       occ_grid_map->set(it->first[0],
@@ -339,7 +340,7 @@ void robot::merge_map()
 
 {
   // Check if robot found any other robot on its fiducial sensor
-  if (fiducial_sensor->GetFiducials().size() > 0) {
+  if (!fiducial_sensor->GetFiducials().empty()) {
     const auto &fiducials = fiducial_sensor->GetFiducials(); // create a const reference to the sensor output vector
     // iterate through each fiducial in fiducials for merging the map with the robot found in the fidicual sensor
     for (auto fid : fiducials) {
@@ -374,8 +375,14 @@ void robot::write_map()
   std::string filename = img_path + robot_name + "_" + count + img_type;
   //std::cout<<"\n writing map as "<<filename<<std::endl;
   try {
+    // Writing as an image is at least 20 times faster than writing to an text file
+    //auto start = clock();
     occ_grid_map->map_write(filename, myRobot::robot::gen_id);
-    occ_grid_map->map_csv_write(filename,myRobot::robot::gen_id);
+    //auto stop = clock();
+    //std::cout<<"\n the time for image writing is : "<<(stop-start)/double(CLOCKS_PER_SEC)*1000 <<std::endl;
+
+    //occ_grid_map->map_txt_write(filename,myRobot::robot::gen_id);
+
     image_count++;
   } catch (std::runtime_error &ex) {
     fprintf(stderr, "Exception converting image to PNG format: %s\n", ex.what());

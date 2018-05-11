@@ -6,6 +6,8 @@
 #ifndef STAGE_CTRL_PLUGIN_BASE_PLANNER_H
 #define STAGE_CTRL_PLUGIN_BASE_PLANNER_H
 
+#include "occupancy_grid/occupancyGrid.h"
+
 // stage header file added for some functions
 #include <Stage-4.3/stage.hh>
 
@@ -152,6 +154,10 @@ class base_planner {
   ///The function generates path for a base planner
   virtual void generate_path(double start_time);
 
+  /// The function generates path for a derive planner class
+  /// the non trivial implementation can be found in MI_levyWalk_planner class
+  virtual void generate_path(double start_time, Stg::Pose curPose, occupancy_grid::occupancyGrid2D<double, int>* map){}
+
   void delete_path() {
     /// The function deletes the path stored in the variable
     while (!path.empty()) path.pop();
@@ -161,6 +167,8 @@ class base_planner {
   virtual ~base_planner() {}
 
 };
+
+//////////////////////////////////////////////////////////////////////////////////////////////
 
 class levyWalk_planner : public base_planner {
 
@@ -216,6 +224,99 @@ class levyWalk_planner : public base_planner {
 
   virtual ~levyWalk_planner() {}
 };
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+typedef double radians;
+typedef double meters;
+
+struct F_S_M_parameters{
+  /**
+   * The structure stores the parameters for the forward sensor
+   * for mutual information computation
+   */
+   /// The maximum distance that a sensor can detect
+   meters z_max;
+   /// The variance of the sensor along the radial direction when modelled as Gaussian
+   meters sigma;
+   /// The minimum angle of the laser range sensor wrt to the robot base
+   radians min_angle;
+   /// The maximum angle of the laser range sensor wrt to the robot base
+   radians max_angle;
+};
+
+
+class MI_levyWalk_planner : public base_planner {
+  /**
+   * @brief The class implements the path generation for a robot by combining levy walk with
+   * the Mutual Information between the sensor model and the map. The basic idea behind the planning
+   * is instead of choosing a random direction like in the levy walk setting choose a direction
+   * that maximizes the information gain based the mutual information.
+   *
+   */
+
+  /// to store the forward sensor model parameters of the sensor
+  F_S_M_parameters fsm;
+  /// the minimum angle for the Levy walk
+  radians min_ang;
+  /// the maximum angle for the Levy walk
+  radians max_ang;
+  /// alpha value for the levy walk
+  double alpha;
+  /// minimum distance for the levy walk in meters
+  meters levy_min;
+  /// the distance adjacent via points in a path
+  meters dist_btw_path_via;
+  /// number of path consider on each side of the robot for computing the mutual information
+  int no_path_each_side{3}; // better to keep it odd
+  /// number of beams consider for computing the mutual information
+  int no_beams_beam_set{8};
+
+  // private methods
+  /// the method to generate the distance to move according to the levy distribution
+  meters generate_levy_dist();
+  /// the method to generate the intermediate via points as poses for a given direction in the starting pos
+  void generate_dir_via_point(const Stg::Pose& start_pos, const meters& plan_len, std::queue<Stg::Pose>& dir_via_point);
+  /// the method to compute the mutual information of a beam based on the forward sensor model
+  double compute_beam_MI(occupancy_grid::occupancyGrid2D<double, int>* map, double px, double py, double p_theta);
+
+ public:
+
+  // constructor
+
+  MI_levyWalk_planner(double pSTime, Stg::Pose P, Stg::Velocity V, F_S_M_parameters fsm_,
+                      radians min = -M_PI, radians max = M_PI, double a = 1.5,
+                      meters l_min = 3.0, meters dis_btw_path_via_=2):
+                      base_planner{0, pSTime, P, V},
+                      fsm{fsm_},
+                      min_ang{min},
+                      max_ang{max},
+                      alpha{a},
+                      levy_min{l_min},
+                      dist_btw_path_via{dis_btw_path_via_}
+  /**
+   * The constructor with parameters for the class
+   * @param pSTime : start time for planning
+   * @param P : the start pose for planning
+   * @param V : the start velocity for planning
+   * @param min : the min angle to rotate
+   * @param max : the max angle to rotate
+   * @param a : the alpha value of the levy distribution
+   * @param l_min : the min distance that robot should move
+   * @param dis_btw_path_via_ : the distance adjacent via points in a path
+   */
+  {
+
+  }
+
+  // public methods
+
+  virtual void generate_path(double start_time, const Stg::Pose& curPose, occupancy_grid::occupancyGrid2D<double, int>* map);
+
+  virtual ~MI_levyWalk_planner() {}
+};
+
+
 }
 
 #endif //STAGE_CTRL_PLUGIN_BASE_PLANNER_H
