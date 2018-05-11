@@ -272,9 +272,9 @@ void MI_levyWalk_planner::generate_path(double start_time, const Stg::Pose& curP
     radians new_dir = (i+1)*max_ang/no_path_each_side;
     // adjust the angles to [-M_PI M_PI] when it goes above 180 degree
     if (curPose.a + new_dir > M_PI){
-      dir_MI.emplace(curPose.a + new_dir -  (2*M_PI));
+      //dir_MI.emplace(curPose.a + new_dir -  (2*M_PI));
     } else {
-      dir_MI.emplace(curPose.a+new_dir);
+      //dir_MI.emplace(curPose.a+new_dir);
     }
   }
 
@@ -283,7 +283,7 @@ void MI_levyWalk_planner::generate_path(double start_time, const Stg::Pose& curP
     radians new_dir = (i+1)*min_ang/no_path_each_side;
     // adjust the angles the [-M_PI M_PI] when it below -180 degree
     if (curPose.a - new_dir < -M_PI){
-      dir_MI.emplace(curPose.a + new_dir + 2*M_PI);
+      //dir_MI.emplace(curPose.a + new_dir + 2*M_PI);
     }else{}
   }
 
