@@ -272,9 +272,9 @@ void MI_levyWalk_planner::generate_path(double start_time, const Stg::Pose& curP
     radians new_dir = (i+1)*max_ang/no_path_each_side;
     // adjust the angles to [-M_PI M_PI] when it goes above 180 degree
     if (curPose.a + new_dir > M_PI){
-      //dir_MI.emplace(curPose.a + new_dir -  (2*M_PI));
+      path_directions.push_back(curPose.a + new_dir -  (2*M_PI));
     } else {
-      //dir_MI.emplace(curPose.a+new_dir);
+      path_directions.push_back(curPose.a+new_dir);
     }
   }
 
@@ -283,8 +283,17 @@ void MI_levyWalk_planner::generate_path(double start_time, const Stg::Pose& curP
     radians new_dir = (i+1)*min_ang/no_path_each_side;
     // adjust the angles the [-M_PI M_PI] when it below -180 degree
     if (curPose.a - new_dir < -M_PI){
-      //dir_MI.emplace(curPose.a + new_dir + 2*M_PI);
-    }else{}
+      path_directions.push_back(curPose.a + new_dir + 2*M_PI);
+    }else{
+      path_directions.push_back(curPose.a - new_dir);
+    }
+  }
+
+  // generate via points for each path dir in path_directions vector
+  // and compute mutual information for each path and store in the map dir_MI
+  for(const auto& path_dir : path_directions){
+    std::queue<Stg::Pose> dir_via_point; // variable to store via point
+    // TODO do the rest
   }
 
 

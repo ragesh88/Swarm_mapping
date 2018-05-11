@@ -384,7 +384,9 @@ void occupancyGrid2D<real_t, int_t>::ray_trace_path(real_t px, real_t py, real_t
     int i = ray_trace_it->first;
     int j = ray_trace_it->second;
 
-
+    const std::pair<real_t, real_t> &pos_pair = ray_trace_it.real_position();
+    auto range = std::sqrt((pos_pair.first - px) * (pos_pair.first - px) +
+        (pos_pair.second - py) * (pos_pair.second - py));
 
 
     // uncomment the line below to debug
@@ -392,7 +394,7 @@ void occupancyGrid2D<real_t, int_t>::ray_trace_path(real_t px, real_t py, real_t
 
 
     // check if the coordinates are in bounds and is occupied
-    if (i < 0 || j < 0 || i >= max_size_x || j >= max_size_y ) {
+    if (i < 0 || j < 0 || i >= max_size_x || j >= max_size_y || range >= max_range) {
 
       break;
 
