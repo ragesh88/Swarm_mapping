@@ -156,7 +156,7 @@ class base_planner {
 
   /// The function generates path for a derive planner class
   /// the non trivial implementation can be found in MI_levyWalk_planner class
-  virtual void generate_path(double start_time, Stg::Pose curPose, occupancy_grid::occupancyGrid2D<double, int>* map){}
+  virtual void generate_path(double start_time, occupancy_grid::occupancyGrid2D<double, int>* map){}
 
   void delete_path() {
     /// The function deletes the path stored in the variable
@@ -322,7 +322,7 @@ class MI_levyWalk_planner : public base_planner {
 
   // public methods
 
-  virtual void generate_path(double start_time, const Stg::Pose& curPose, occupancy_grid::occupancyGrid2D<double, int>* map);
+  virtual void generate_path(double start_time, occupancy_grid::occupancyGrid2D<double, int>* map);
 
   virtual ~MI_levyWalk_planner() {}
 };

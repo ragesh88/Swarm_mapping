@@ -247,12 +247,10 @@ double MI_levyWalk_planner::compute_beam_MI(occupancy_grid::occupancyGrid2D<doub
 }
 
 
-void MI_levyWalk_planner::generate_path(double start_time, const Stg::Pose& curPose,
-                                        occupancy_grid::occupancyGrid2D<double, int>* map)
+void MI_levyWalk_planner::generate_path(double start_time, occupancy_grid::occupancyGrid2D<double, int>* map)
 /**
  * The virtual method of generating the direction the robot should move to increase information gain
  * @param start_time : the start time when the robot start to plan
- * @param curPose : the pose at which the robot start
  * @param map : the pointer to the map object for ray tracing
  */
 {
@@ -264,19 +262,21 @@ void MI_levyWalk_planner::generate_path(double start_time, const Stg::Pose& curP
 
   double levy_travel_time = levy_dis/std::fabs(get_velocity()->x);
 
+  const Stg::Pose* curPose = get_startPose();
+
 
   std::map<double, std::vector<radians>> dir_MI; // store the compute MI and associated direction
 
   // path set generation for the robots initialize with current orientation of the robot(global coordinates)
-  std::vector<radians> path_directions{curPose.a};
+  std::vector<radians> path_directions{curPose->a};
   // adding directions to the left(anti-clockwise) of the robot(global coordinates)
   for(int i = 0; i < (no_path_each_side-1); i++){
     radians new_dir = (i+1)*max_ang/no_path_each_side;
     // adjust the angles to [-M_PI M_PI] when it goes above 180 degree
-    if (curPose.a + new_dir > M_PI){
-      path_directions.push_back(curPose.a + new_dir -  (2*M_PI));
+    if (curPose->a + new_dir > M_PI){
+      path_directions.push_back(curPose->a + new_dir -  (2*M_PI));
     } else {
-      path_directions.push_back(curPose.a+new_dir);
+      path_directions.push_back(curPose->a+new_dir);
     }
   }
 
@@ -284,10 +284,10 @@ void MI_levyWalk_planner::generate_path(double start_time, const Stg::Pose& curP
   for(int i=0; i < (no_path_each_side-1); i++){
     radians new_dir = (i+1)*min_ang/no_path_each_side;
     // adjust the angles the [-M_PI M_PI] when it below -180 degree
-    if (curPose.a - new_dir < -M_PI){
-      path_directions.push_back(curPose.a + new_dir + 2*M_PI);
+    if (curPose->a - new_dir < -M_PI){
+      path_directions.push_back(curPose->a + new_dir + 2*M_PI);
     }else{
-      path_directions.push_back(curPose.a - new_dir);
+      path_directions.push_back(curPose->a - new_dir);
     }
   }
 
@@ -296,7 +296,7 @@ void MI_levyWalk_planner::generate_path(double start_time, const Stg::Pose& curP
   for(const auto& path_dir : path_directions){
     double curr_MI=0.0; // store the mutual information value of the current path
     std::queue<Stg::Pose> dir_via_point; // variable to store via point
-    Stg::Pose startPose{curPose.x, curPose.y, curPose.z, curPose.a + path_dir}; // start pose of the path
+    Stg::Pose startPose{curPose->x, curPose->y, curPose->z, curPose->a + path_dir}; // start pose of the path
 
     // generate the via points for the path with this start pose
     generate_dir_via_point(startPose, levy_dis, dir_via_point);
@@ -335,10 +335,10 @@ void MI_levyWalk_planner::generate_path(double start_time, const Stg::Pose& curP
 
   radians des_dir{2*M_PI};
 
-  // pick the direction with minimum turning required, if there multiple ones are present
+  // pick the direction with minimum turning, if there multiple ones are present
   if(max_MI_dirs.size() > 1){
     for (const auto& dir : max_MI_dirs){
-      if (des_dir < std::fabs(dir - curPose.a)){
+      if (des_dir < std::fabs(dir - curPose->a)){
         des_dir = dir;
       }
     }
@@ -346,7 +346,76 @@ void MI_levyWalk_planner::generate_path(double start_time, const Stg::Pose& curP
     des_dir = max_MI_dirs[0];
   }
 
-  // TODO push the rotation angle and translation point to the path
+  // Pushing the translation motion and rotation motion in to the path
+
+  via_points point;
+
+  // first point in the path
+  point.modes = MOTION_MODES::ROTATION_Z;
+  point.des_pose = Stg::Pose(0.0, 0.0, 0.0, des_dir);
+  point.computed_desPose = false;
+
+  const Stg::radians_t &cur_dir = get_startPose()->a; // ref to the current direction
+  const auto& w = std::fabs(get_velocity()->a); // omega in magnitude
+  double rotate_time = 0;
+
+
+  // find the smallest angle to rotate, to find the right \omega
+  // case 1 : when both of them are ++ or --
+  if (des_dir * cur_dir >= 0) {
+    // time to complete the motion
+    rotate_time = std::fabs(des_dir - cur_dir) / std::fabs(w);
+    if (des_dir > cur_dir) {
+      // rotate in anticlockwise direction(left turn)
+      point.vel_control = Stg::Velocity(0.0, 0.0, 0.0, std::fabs(w));
+    } else {
+      // rotate in clockwise direction(right turn)
+      point.vel_control = Stg::Velocity(0.0, 0.0, 0.0, -std::fabs(w));
+    }
+  }
+  // case 2 : when cur_dir is positive and des_dir is negative
+  if (cur_dir > 0 && des_dir < 0) {
+    // find the smallest angle between the current and the desired directions
+    if (std::fabs(cur_dir - des_dir) < std::fabs(M_PI - cur_dir) + std::fabs(-M_PI - des_dir)) {
+      // rotate in clockwise direction(right turn)
+      point.vel_control = Stg::Velocity(0.0, 0.0, 0.0, -std::fabs(w));
+      // time to complete the motion
+      rotate_time = std::fabs(cur_dir - des_dir) / std::fabs(w);
+    } else {
+      // rotate in anticlockwise direction(left turn)
+      point.vel_control = Stg::Velocity(0.0, 0.0, 0.0, std::fabs(w));
+      // time to complete the motion
+      rotate_time = (std::fabs(M_PI - cur_dir) + std::fabs(-M_PI - des_dir)) / std::fabs(w);
+    }
+  }
+  // case 3 : when cur_dir is negative and des_dir is positive
+  if (cur_dir < 0 && des_dir > 0) {
+    // find the smallest angle between the current and desired directions
+    if (std::fabs(cur_dir - des_dir) < std::fabs(-M_PI - cur_dir) + std::fabs(M_PI - des_dir)) {
+      // rotate in anticlockwise direction(left turn)
+      point.vel_control = Stg::Velocity(0.0, 0.0, 0.0, std::fabs(w));
+      // time to complete the motion
+      rotate_time = std::fabs(cur_dir - des_dir) / std::fabs(w);
+    } else {
+      // rotate in clockwise direction(right turn)
+      point.vel_control = Stg::Velocity(0.0, 0.0, 0.0, -std::fabs(w));
+      // time to complete the motion
+      rotate_time = (std::fabs(-M_PI - cur_dir) + std::fabs(M_PI - des_dir)) / std::fabs(w);
+    }
+  }
+
+  point.motion_end_time+=rotate_time;
+
+  path.push(point); //  pushed the rotation point
+
+  // second point in the path
+  point.modes = MOTION_MODES::TRANSLATION_X;
+  point.motion_end_time += levy_travel_time;
+  point.vel_control.x = get_velocity()->x;
+  point.des_pose = Stg::Pose(0.0, 0.0, 0.0, 0.0);
+  point.computed_desPose = false;
+
+  path.push(point); // pushed the translation point
 
 
 }
