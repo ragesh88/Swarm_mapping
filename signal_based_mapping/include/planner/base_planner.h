@@ -236,13 +236,13 @@ struct F_S_M_parameters{
    * for mutual information computation
    */
    /// The maximum distance that a sensor can detect
-   meters z_max;
+   meters z_max{2};
    /// The variance of the sensor along the radial direction when modelled as Gaussian
-   meters sigma;
+   meters sigma{0.01};
    /// The minimum angle of the laser range sensor wrt to the robot base
-   radians min_angle;
+   radians min_angle{-M_PI/2};
    /// The maximum angle of the laser range sensor wrt to the robot base
-   radians max_angle;
+   radians max_angle{M_PI/2};
 };
 
 
@@ -271,6 +271,8 @@ class MI_levyWalk_planner : public base_planner {
   int no_path_each_side{3}; // better to keep it odd
   /// number of beams consider for computing the mutual information
   int no_beams_beam_set{8};
+  /// store the directions of various beams wrt robot(local coordinates)
+  std::vector<radians> beam_dir;
 
   // private methods
   /// the method to generate the distance to move according to the levy distribution
@@ -306,6 +308,15 @@ class MI_levyWalk_planner : public base_planner {
    * @param dis_btw_path_via_ : the distance adjacent via points in a path
    */
   {
+
+
+    beam_dir.push_back(fsm.min_angle);
+    // generate the directions of the beams to compute MI from [fsm.min_angle fsm.max_angle]
+    radians incre_angle = (fsm.max_angle-fsm.min_angle)/(no_beams_beam_set - 1);
+    while(beam_dir.back() <= fsm.max_angle){
+      beam_dir.push_back(beam_dir.back() + incre_angle);
+    }
+
 
   }
 

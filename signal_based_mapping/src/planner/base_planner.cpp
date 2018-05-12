@@ -242,6 +242,7 @@ double MI_levyWalk_planner::compute_beam_MI(occupancy_grid::occupancyGrid2D<doub
   map->ray_trace_path(px, py, p_theta, fsm.z_max, traced_grids);
 
   // TODO compute the Cauchy Schwarz Mutual Information for the beam
+  return 0;
 
 }
 
@@ -262,6 +263,7 @@ void MI_levyWalk_planner::generate_path(double start_time, const Stg::Pose& curP
   assert(get_velocity()->x);
 
   double levy_travel_time = levy_dis/std::fabs(get_velocity()->x);
+
 
   std::map<double, std::vector<radians>> dir_MI; // store the compute MI and associated direction
 
@@ -292,8 +294,34 @@ void MI_levyWalk_planner::generate_path(double start_time, const Stg::Pose& curP
   // generate via points for each path dir in path_directions vector
   // and compute mutual information for each path and store in the map dir_MI
   for(const auto& path_dir : path_directions){
+    double curr_MI=0.0; // store the mutual information value of the current path
     std::queue<Stg::Pose> dir_via_point; // variable to store via point
-    // TODO do the rest
+    Stg::Pose startPose{curPose.x, curPose.y, curPose.z, curPose.a + path_dir}; // start pose of the path
+
+    // generate the via points for the path with this start pose
+    generate_dir_via_point(startPose, levy_dis, dir_via_point);
+
+    // iterate through various via points in the path
+    while(!dir_via_point.empty()){
+      Stg::Pose& via_point = dir_via_point.front(); // reference to a via point
+
+      // iterate through various beams for that via point
+      // compute the mutual information for each beam and add it to the MI of the path
+      for(const auto& beam : beam_dir){
+        curr_MI += compute_beam_MI(map, via_point.x, via_point.y, via_point.a + beam);
+      }
+
+      dir_via_point.pop();
+
+    }
+
+    // the mutual information value and the directions with this value in to the map data structure
+
+    // check 
+
+
+
+
   }
 
 
