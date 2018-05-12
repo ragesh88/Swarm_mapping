@@ -317,12 +317,36 @@ void MI_levyWalk_planner::generate_path(double start_time, const Stg::Pose& curP
 
     // the mutual information value and the directions with this value in to the map data structure
 
-    // check 
+    // check if this mutual information value already exist in the map
+    auto loc = dir_MI.find(curr_MI); // location of the key curr_MI
+    if( loc != dir_MI.end()){
+      loc->second.push_back(path_dir); // update vector if the key is already present
+    } else { // insert a key value pair in to the map
 
+      dir_MI.emplace(curr_MI, std::vector<radians>{path_dir});
 
-
+      }
 
   }
+
+  // find the path directions with maximum mutual information
+
+  std::vector<radians>& max_MI_dirs = dir_MI.rbegin()->second;
+
+  radians des_dir{2*M_PI};
+
+  // pick the direction with minimum turning required, if there multiple ones are present
+  if(max_MI_dirs.size() > 1){
+    for (const auto& dir : max_MI_dirs){
+      if (des_dir < std::fabs(dir - curPose.a)){
+        des_dir = dir;
+      }
+    }
+  } else {
+    des_dir = max_MI_dirs[0];
+  }
+
+  // TODO push the rotation angle and translation point to the path
 
 
 }
