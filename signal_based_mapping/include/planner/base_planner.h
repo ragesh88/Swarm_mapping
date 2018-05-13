@@ -327,6 +327,13 @@ class MI_levyWalk_planner : public base_planner {
   virtual ~MI_levyWalk_planner() {}
 };
 
+// Defining new namespaces for brevity
+namespace b_const = boost::math::constants;
+
+inline double gaussian1D(double x, double mu, double sigma) {
+  /// Value of the one dimensional Gaussian function
+  return exp(-0.5 * (x - mu) * (x - mu) / (sigma * sigma)) / (sigma * 2*b_const::root_two_pi<double>());
+}
 
 }
 

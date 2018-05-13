@@ -241,7 +241,27 @@ double MI_levyWalk_planner::compute_beam_MI(occupancy_grid::occupancyGrid2D<doub
   std::map<std::vector<int>, double, occupancy_grid::vec_path_comp_class<int>> traced_grids;
   map->ray_trace_path(px, py, p_theta, fsm.z_max, traced_grids);
 
-  // TODO compute the Cauchy Schwarz Mutual Information for the beam
+  int delta = 3; // the number of significant cells to compute the double summation
+
+  // compute MI for the ray traced grid cells by the beam
+
+  // pre-compute certain terms to speed up the computation
+
+  // number of beam traced grid cells
+  auto no_traced_grid = traced_grids.size();
+  // store the probability that the i^{cell} is occupied,
+  // by convection prob_0_cell_occ means non of the cells are occupied
+  std::vector<double> prob_i_cell_occ(no_traced_grid+1);
+  std::vector<double> occ_unocc(no_traced_grid+1);
+  std::vector<double> w(no_traced_grid+1);
+
+  // TODO start here
+
+
+  // compute the first term in the MI information computation
+
+
+
   return 0;
 
 }
@@ -404,7 +424,7 @@ void MI_levyWalk_planner::generate_path(double start_time, occupancy_grid::occup
     }
   }
 
-  point.motion_end_time+=rotate_time;
+  point.motion_end_time = rotate_time + start_time;
 
   path.push(point); //  pushed the rotation point
 
