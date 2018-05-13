@@ -251,11 +251,46 @@ double MI_levyWalk_planner::compute_beam_MI(occupancy_grid::occupancyGrid2D<doub
   auto no_traced_grid = traced_grids.size();
   // store the probability that the i^{cell} is occupied,
   // by convection prob_0_cell_occ means non of the cells are occupied
-  std::vector<double> prob_i_cell_occ(no_traced_grid+1);
+  std::vector<double> prob_i_cell_occ(no_traced_grid+1,1);
   std::vector<double> occ_unocc(no_traced_grid+1);
   std::vector<double> w(no_traced_grid+1);
 
-  // TODO start here
+  // computing the probability that i^{th} cell is the first free cell
+  for(int i=0; i<prob_i_cell_occ.size(); i++){
+    if (i == 0){ // probability that all cells are unoccupied
+      for(const auto& it : traced_grids){
+        prob_i_cell_occ[i] *= (1-it.second);
+      }
+    } else{
+      // compute the probability that i^{th} cell is the first free cell
+      int j = 1; // cell count
+      for(const auto& it : traced_grids){
+        if(j<i){ // all i-1 cells are free
+          prob_i_cell_occ[i] *= it.second;
+        }else{
+          // the i^{th} cell is occupied
+          prob_i_cell_occ[i] *= (1-it.second);
+          break;
+        }
+        j++;
+      }
+    }
+  }
+
+  // pre-computing the vector occu_unocc
+  int cell_count = 1;
+  for(auto it=traced_grids.begin(); it!=traced_grids.end(); it++){
+    occ_unocc[cell_count] =  (it->second*it->second + (1-it->second)*(1-it->second));
+    cell_count++;
+  }
+
+  // pre-computing the vector w
+  for (int i=0; i<w.size(); i++){
+    w[i] = prob_i_cell_occ[i]*prob_i_cell_occ[i];
+    w[i] = std::accumulate(occ_unocc.begin() + i +1, occ_unocc.end(), w[i], std::multiplies<>());
+  }
+
+
 
 
   // compute the first term in the MI information computation

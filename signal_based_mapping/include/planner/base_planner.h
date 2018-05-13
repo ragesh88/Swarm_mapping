@@ -6,6 +6,10 @@
 #ifndef STAGE_CTRL_PLUGIN_BASE_PLANNER_H
 #define STAGE_CTRL_PLUGIN_BASE_PLANNER_H
 
+// C++ header files
+#include <functional>
+#include <numeric>
+
 #include "occupancy_grid/occupancyGrid.h"
 
 // stage header file added for some functions
