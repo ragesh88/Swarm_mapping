@@ -279,8 +279,8 @@ double MI_levyWalk_planner::compute_beam_MI(occupancy_grid::occupancyGrid2D<doub
 
   // pre-computing the vector occu_unocc
   int cell_count = 1;
-  for(auto it=traced_grids.begin(); it!=traced_grids.end(); it++){
-    occ_unocc[cell_count] =  (it->second*it->second + (1-it->second)*(1-it->second));
+  for(const auto& it : traced_grids){
+    occ_unocc[cell_count] =  (it.second*it.second + (1-it.second)*(1-it.second));
     cell_count++;
   }
 
@@ -291,9 +291,9 @@ double MI_levyWalk_planner::compute_beam_MI(occupancy_grid::occupancyGrid2D<doub
   }
 
 
+  // compute the first term in the MI  computation
 
-
-  // compute the first term in the MI information computation
+  // TODO Start MI computation
 
 
 
