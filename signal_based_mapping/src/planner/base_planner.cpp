@@ -314,6 +314,47 @@ double MI_levyWalk_planner::compute_beam_KLDMI(occupancy_grid::occupancyGrid2D<d
  * @return : the KL Diverence Mutual Information for a single beam
  */
 {
+  // finding the grids and its occupancy probability range traced by the beam
+  std::map<std::vector<int>, std::pair<double , double>, occupancy_grid::vec_path_comp_class<int>> traced_grids;
+  map->ray_trace_path(px, py, p_theta, fsm.z_max, traced_grids);
+
+  // compute MI for the ray traced grid cells by the beam
+
+  // pre-compute certain terms to speed up the computation
+
+  // number of beam traced grid cells
+  auto no_traced_grid = traced_grids.size();
+  // store the probability that the i^{cell} is occupied,
+  // by convection prob_0_cell_occ means non of the cells are occupied
+  std::vector<double> prob_i_cell_occ(no_traced_grid+1,1);
+
+
+  // computing the probability that i^{th} cell is the first free cell
+  for(int i=0; i<prob_i_cell_occ.size(); i++){
+    if (i == 0){ // probability that all cells are unoccupied
+      for(const auto& it : traced_grids){
+        prob_i_cell_occ[i] *= (1-it.second.first);
+      }
+    } else{
+      // compute the probability that i^{th} cell is the first free cell
+      int j = 1; // cell count
+      for(const auto& it : traced_grids){
+        if(j<i){ // all i-1 cells are free
+          prob_i_cell_occ[i] *= it.second.first;
+        }else{
+          // the i^{th} cell is occupied
+          prob_i_cell_occ[i] *= (1-it.second.first);
+          break;
+        }
+        j++;
+      }
+    }
+  }
+
+  // pre-compute probability of a measurement range given the sequence of cell P(z_i| e_k) as a map
+  std::vector<std::vector<int>> prob_range_seq(no_traced_grid+1);
+
+  
 
 }
 
