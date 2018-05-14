@@ -150,7 +150,8 @@ class occupancyGrid2D {
                      std::map<real_t, cv::Vec<int_t, 2>> &all_range_pos);
 
   void ray_trace_path(real_t px, real_t py, real_t p_theta, real_t max_range,
-                      std::map<std::vector<int_t>, real_t, vec_path_comp_class<int_t>> &all_range_pos);
+                      std::map<std::vector<int_t>, std::pair<real_t, real_t>,
+                          vec_path_comp_class<int_t>> &all_range_pos);
 
   // Writing as an image is at least 20 times faster than writing to an text file
 
@@ -356,10 +357,11 @@ void occupancyGrid2D<real_t, int_t>::ray_trace_all(real_t px, real_t py, real_t 
 
 template<typename real_t, typename int_t>
 void occupancyGrid2D<real_t, int_t>::ray_trace_path(real_t px, real_t py, real_t p_theta, real_t max_range,
-                                                   std::map<std::vector<int_t>, real_t, vec_path_comp_class<int_t>> &all_range_pos)
+                                                   std::map<std::vector<int_t>, std::pair<real_t, real_t>,
+                                                       vec_path_comp_class<int_t>> &all_range_pos)
 /**
- *  The method performs a ray trace operation and send all the grid coordinates and associated occupancy probability
- *  as a map object
+ *  The method performs a ray trace operation and send all the grid coordinates and associated occupancy probability,
+ *  range pair as a map object
  */
 
 
@@ -400,13 +402,20 @@ void occupancyGrid2D<real_t, int_t>::ray_trace_path(real_t px, real_t py, real_t
 
     }
 
-    real_t prob = static_cast<real_t>(get(i,j))/ static_cast<real_t>(OCCUPIED);
+    real_t prob;
+
+    if (get(i,j) == OCCUPIED){
+      prob = 0.5;
+    } else{
+      prob = static_cast<real_t>(get(i,j))/ static_cast<real_t>(OCCUPIED);
+    }
+
+
 
     // inserting the elements in to the map data structure
     std::vector<int_t> grid_coord{i, j}; // value to the map object
 
-    all_range_pos.emplace(grid_coord, prob);
-
+    all_range_pos.emplace(grid_coord, std::pair<real_t, real_t>(prob, range));
   }
 
 }

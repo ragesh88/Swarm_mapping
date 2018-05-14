@@ -76,7 +76,7 @@ Stg::radians_t levyWalk_planner::generate_random_direction() {
   return distribution(generator);
 }
 
-void levyWalk_planner::generate_path(double start_time) {
+void levyWalk_planner::generate_path(double start_time, occupancy_grid::occupancyGrid2D<double, int>*) {
   /**
    * The function generates a path for the robot to perform levy walk in an unbounded domain
    */
@@ -224,7 +224,7 @@ void MI_levyWalk_planner::generate_dir_via_point(const Stg::Pose &start_pos,
 }
 
 
-double MI_levyWalk_planner::compute_beam_MI(occupancy_grid::occupancyGrid2D<double, int>* map,
+double MI_levyWalk_planner::compute_beam_CSQMI(occupancy_grid::occupancyGrid2D<double, int>* map,
                                             double px,
                                             double py,
                                             double p_theta)
@@ -237,8 +237,8 @@ double MI_levyWalk_planner::compute_beam_MI(occupancy_grid::occupancyGrid2D<doub
  * @return : the Cauchy Schwarz Mutual Information for a single beam
  */
 {
-  // finding the grids and its occupancy probability traced by the beam
-  std::map<std::vector<int>, double, occupancy_grid::vec_path_comp_class<int>> traced_grids;
+  // finding the grids and its occupancy probability range traced by the beam
+  std::map<std::vector<int>, std::pair<double , double>, occupancy_grid::vec_path_comp_class<int>> traced_grids;
   map->ray_trace_path(px, py, p_theta, fsm.z_max, traced_grids);
 
   int delta = 3; // the number of significant cells to compute the double summation
@@ -259,17 +259,17 @@ double MI_levyWalk_planner::compute_beam_MI(occupancy_grid::occupancyGrid2D<doub
   for(int i=0; i<prob_i_cell_occ.size(); i++){
     if (i == 0){ // probability that all cells are unoccupied
       for(const auto& it : traced_grids){
-        prob_i_cell_occ[i] *= (1-it.second);
+        prob_i_cell_occ[i] *= (1-it.second.first);
       }
     } else{
       // compute the probability that i^{th} cell is the first free cell
       int j = 1; // cell count
       for(const auto& it : traced_grids){
         if(j<i){ // all i-1 cells are free
-          prob_i_cell_occ[i] *= it.second;
+          prob_i_cell_occ[i] *= it.second.first;
         }else{
           // the i^{th} cell is occupied
-          prob_i_cell_occ[i] *= (1-it.second);
+          prob_i_cell_occ[i] *= (1-it.second.first);
           break;
         }
         j++;
@@ -280,7 +280,7 @@ double MI_levyWalk_planner::compute_beam_MI(occupancy_grid::occupancyGrid2D<doub
   // pre-computing the vector occu_unocc
   int cell_count = 1;
   for(const auto& it : traced_grids){
-    occ_unocc[cell_count] =  (it.second*it.second + (1-it.second)*(1-it.second));
+    occ_unocc[cell_count] =  (it.second.first*it.second.first + (1-it.second.first)*(1-it.second.first));
     cell_count++;
   }
 
@@ -293,13 +293,30 @@ double MI_levyWalk_planner::compute_beam_MI(occupancy_grid::occupancyGrid2D<doub
 
   // compute the first term in the MI  computation
 
-  // TODO Start MI computation
+  // TODO compute CSQMI computation
 
 
 
   return 0;
 
 }
+
+double MI_levyWalk_planner::compute_beam_KLDMI(occupancy_grid::occupancyGrid2D<double, int>* map,
+                                               double px,
+                                               double py,
+                                               double p_theta)
+/**
+ *
+ * @param map : a pointer to the map object for ray tracing operations
+ * @param px : the x coordinate of the beam base in global frame
+ * @param py : the y coordinate of the beam base in global frame
+ * @param p_theta : the orientation of the beam in global frame
+ * @return : the KL Diverence Mutual Information for a single beam
+ */
+{
+
+}
+
 
 
 void MI_levyWalk_planner::generate_path(double start_time, occupancy_grid::occupancyGrid2D<double, int>* map)
@@ -363,7 +380,7 @@ void MI_levyWalk_planner::generate_path(double start_time, occupancy_grid::occup
       // iterate through various beams for that via point
       // compute the mutual information for each beam and add it to the MI of the path
       for(const auto& beam : beam_dir){
-        curr_MI += compute_beam_MI(map, via_point.x, via_point.y, via_point.a + beam);
+        curr_MI += compute_beam_KLDMI(map, via_point.x, via_point.y, via_point.a + beam);
       }
 
       dir_via_point.pop();

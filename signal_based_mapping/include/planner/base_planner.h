@@ -224,7 +224,7 @@ class levyWalk_planner : public base_planner {
 
   Stg::radians_t generate_random_direction();
 
-  virtual void generate_path(double start_time);
+  virtual void generate_path(double start_time, occupancy_grid::occupancyGrid2D<double, int>* map);
 
   virtual ~levyWalk_planner() {}
 };
@@ -283,8 +283,12 @@ class MI_levyWalk_planner : public base_planner {
   meters generate_levy_dist();
   /// the method to generate the intermediate via points as poses for a given direction in the starting pos
   void generate_dir_via_point(const Stg::Pose& start_pos, const meters& plan_len, std::queue<Stg::Pose>& dir_via_point);
-  /// the method to compute the mutual information of a beam based on the forward sensor model
-  double compute_beam_MI(occupancy_grid::occupancyGrid2D<double, int>* map, double px, double py, double p_theta);
+  /// the method to compute the Cauchy Schwarz mutual information of a beam based on
+  /// radial Gaussian noise forward range sensor model
+  double compute_beam_CSQMI(occupancy_grid::occupancyGrid2D<double, int>* map, double px, double py, double p_theta);
+  /// the method to compute the KL divergence mutual information of a beam based on
+  /// radial Gaussian noise forward range sensor model
+  double compute_beam_KLDMI(occupancy_grid::occupancyGrid2D<double, int>* map, double px, double py, double p_theta);
 
  public:
 
