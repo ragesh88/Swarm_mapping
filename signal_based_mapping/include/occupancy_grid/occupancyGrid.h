@@ -157,7 +157,7 @@ class occupancyGrid2D {
 
   void map_write(const std::string &filename, int no_of_robots = 1);
 
-  void map_txt_write(const std::string &filename, int no_of_robots = 1);
+  void map_txt_write(const std::string &filename, int no_of_robots = 1, bool raw = false);
 
   cv::Point2i xy2rc(const cv::Vec<real_t, 2> &xy) const {
     /// the function converts the \f$(x,y)\f$ coordinates to corresponding
@@ -457,7 +457,7 @@ void occupancyGrid2D<real_t, int_t>::map_write(const std::string &filename, int 
 
 
 template<typename real_t, typename int_t>
-void occupancyGrid2D<real_t, int_t>::map_txt_write(const std::string &filename, int no_of_robots)
+void occupancyGrid2D<real_t, int_t>::map_txt_write(const std::string &filename, int no_of_robots, bool raw)
 {
   // check if the filename have an extension of .csv if not put it
   auto pos = filename.find_last_of('.');
@@ -482,7 +482,7 @@ void occupancyGrid2D<real_t, int_t>::map_txt_write(const std::string &filename, 
   std::ofstream f_out(new_filename);
 
   if(!f_out) {
-    std::cout<<"Files not opened \n";
+    std::cout<<"File not opened \n";
     return;
   }
 
@@ -490,7 +490,7 @@ void occupancyGrid2D<real_t, int_t>::map_txt_write(const std::string &filename, 
   for (int row =0; row < og_.rows; ++row){
     uchar* p = og_.ptr(row);
     for (int col=0; col<og_.cols; ++col){
-      if (*p == OCCUPIED){
+      if (*p == OCCUPIED && (!raw)){
         f_out<< std::to_string(static_cast<uint8_t>(UNKNOWN))<<",";
       }else{
         f_out<< std::to_string(static_cast<uint8_t>(*p))<<",";

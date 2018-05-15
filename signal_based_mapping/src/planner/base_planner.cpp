@@ -286,14 +286,17 @@ double MI_levyWalk_planner::compute_beam_CSQMI(occupancy_grid::occupancyGrid2D<d
 
   // pre-computing the vector w
   for (int i=0; i<w.size(); i++){
-    w[i] = prob_i_cell_occ[i]*prob_i_cell_occ[i];
-    w[i] = std::accumulate(occ_unocc.begin() + i +1, occ_unocc.end(), w[i], std::multiplies<>());
+    w[i] = std::accumulate(occ_unocc.begin() + i +1, occ_unocc.end(),
+                           prob_i_cell_occ[i]*prob_i_cell_occ[i], std::multiplies<>());
   }
 
 
   // compute the first term in the MI  computation
 
-  // TODO compute CSQMI computation
+  // compute the first term
+  double MI_term1;
+
+  
 
 
 
@@ -354,10 +357,37 @@ double MI_levyWalk_planner::compute_beam_KLDMI(occupancy_grid::occupancyGrid2D<d
   // pre-compute probability of a measurement range given the sequence of cell P(z_i| e_k) as a map
   std::vector<std::vector<int>> prob_range_seq(no_traced_grid+1);
 
-  
+  // TODO compute KLDMI
+
+
 
 }
 
+
+double MI_levyWalk_planner::compute_beam_Entropy(occupancy_grid::occupancyGrid2D<double, int>* map,
+                                               double px,
+                                               double py,
+                                               double p_theta)
+/**
+ *
+ * @param map : a pointer to the map object for ray tracing operations
+ * @param px : the x coordinate of the beam base in global frame
+ * @param py : the y coordinate of the beam base in global frame
+ * @param p_theta : the orientation of the beam in global frame
+ * @return : entropy of the cells traced by a single beam
+ */
+{
+  // finding the grids and its occupancy probability range traced by the beam
+  std::map<std::vector<int>, std::pair<double , double>, occupancy_grid::vec_path_comp_class<int>> traced_grids;
+  map->ray_trace_path(px, py, p_theta, fsm.z_max, traced_grids);
+
+  double entropy=0;
+
+  for (const auto& it : traced_grids){
+    entropy += (-it.second.first*std::log(it.second.first) - (1-it.second.first)*std::log(1-it.second.first));
+  }
+  return entropy;
+}
 
 
 void MI_levyWalk_planner::generate_path(double start_time, occupancy_grid::occupancyGrid2D<double, int>* map)
@@ -421,7 +451,10 @@ void MI_levyWalk_planner::generate_path(double start_time, occupancy_grid::occup
       // iterate through various beams for that via point
       // compute the mutual information for each beam and add it to the MI of the path
       for(const auto& beam : beam_dir){
+        // uncomment the line below to do KLDMI
         curr_MI += compute_beam_KLDMI(map, via_point.x, via_point.y, via_point.a + beam);
+        // uncomment the line below to do CSQMI
+        //curr_MI += compute_beam_CSQMI(map, via_point.x, via_point.y, via_point.a + beam);
       }
 
       dir_via_point.pop();

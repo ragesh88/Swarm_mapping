@@ -289,6 +289,8 @@ class MI_levyWalk_planner : public base_planner {
   /// the method to compute the KL divergence mutual information of a beam based on
   /// radial Gaussian noise forward range sensor model
   double compute_beam_KLDMI(occupancy_grid::occupancyGrid2D<double, int>* map, double px, double py, double p_theta);
+  /// the method to compute the entropy of the cells traced by a beam
+  double compute_beam_Entropy(occupancy_grid::occupancyGrid2D<double, int>* map, double px, double py, double p_theta);
 
  public:
 
