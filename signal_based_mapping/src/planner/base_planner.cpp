@@ -295,6 +295,7 @@ double MI_levyWalk_planner::compute_beam_CSQMI(occupancy_grid::occupancyGrid2D<d
 
   // compute the first term
   double MI_term1;
+  // TODO compute CSQMI
 
 
 
@@ -354,13 +355,70 @@ double MI_levyWalk_planner::compute_beam_KLDMI(occupancy_grid::occupancyGrid2D<d
     }
   }
 
-  // pre-compute probability of a measurement range given the sequence of cell P(z_i| e_k) as a map
-  std::vector<std::vector<int>> prob_range_seq(no_traced_grid+1);
+  // the ranges for which the probability P(z_i) is computed (numerical approximation of integral)
+  std::vector<double> discrete_ranges;
 
-  // TODO compute KLDMI
-  return 0;
+  // copy the ranges to the discrete_ranges
+  for (const auto& it : traced_grids){
+    discrete_ranges.push_back(it.second.second);
+  }
 
 
+  // pre-compute probability of a measurement range given the sequence of cell P(z_i| e_k) as a vector of vectors
+  // the index set (i,j) represents the value P(z_i|e_j)
+  std::vector<std::vector<double>> prob_range_seq(discrete_ranges.size(), prob_i_cell_occ);
+
+  // computing P(z_i| e_k) in index (i,j)
+  for (int i =0; i<prob_range_seq.size(); i++){
+    for (int j=0; j<prob_range_seq[i].size(); j++){
+      if (j==0){
+        // case e_0 none of the cells are occupied
+        prob_range_seq[i][j] = gaussian1D(discrete_ranges[i], discrete_ranges.back(), fsm.sigma);
+      }
+      else{
+        prob_range_seq[i][j] = gaussian1D(discrete_ranges[i], discrete_ranges[j-1], fsm.sigma);
+      }
+    }
+  }
+
+  // compute and store P(z_i)
+  std::vector<double> Prob_range(discrete_ranges.size(),0);
+  // also need to find the minimum non zero and index of the zero locations
+
+  double non_zero_min=1e6;
+  std::vector<int> zero_index;
+
+  for (int i =0; i<Prob_range.size(); i++){
+    for(int j=0; j<prob_i_cell_occ.size(); j++){
+      // compute \sigma_j P(z_i|e_j)*P(e_j) which P(z_i)
+      Prob_range[i] += prob_range_seq[i][j] * prob_i_cell_occ[j];
+    }
+    if (std::fabs(Prob_range[i]) <= 2*std::numeric_limits<double>::epsilon() ){ // check if it is zero
+      zero_index.push_back(i);
+    }else {
+      non_zero_min = std::min(non_zero_min, Prob_range[i]);
+    }
+  }
+
+  // assign the min value to zero probabilities
+  for (const auto& i : zero_index){
+    Prob_range[i] = non_zero_min;
+  }
+
+  // normalize the probability of ranges
+  double sum = std::accumulate(Prob_range.begin(), Prob_range.end(), 0.0);
+
+  for (auto& it : Prob_range){
+    it /= sum;
+  }
+
+  // comment the line below after debugging checking if Prob_range add up to zero
+  printf("\n the sum of Prob_range is %f", std::accumulate(Prob_range.begin(), Prob_range.end(), 0.0));
+
+  auto lambda = [&](double a, double b){return a - b*std::log(b);};
+
+  // compute and return the MI value
+  return std::accumulate(Prob_range.begin(), Prob_range.end(), 0.0, lambda);
 
 }
 

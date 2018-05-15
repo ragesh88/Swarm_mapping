@@ -8,6 +8,7 @@
 
 // C++ header files
 #include <functional>
+#include <limits>
 #include <numeric>
 
 #include "occupancy_grid/occupancyGrid.h"
