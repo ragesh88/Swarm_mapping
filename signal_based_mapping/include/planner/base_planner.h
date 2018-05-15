@@ -249,6 +249,15 @@ struct F_S_M_parameters{
    radians max_angle{M_PI/2};
 };
 
+enum REWARD{
+  /**
+   * enum data type to specify different reward objective to be maximized
+   */
+   KLDMI,
+   CSQMI,
+   ENTROPY
+};
+
 
 class MI_levyWalk_planner : public base_planner {
   /**
@@ -261,6 +270,8 @@ class MI_levyWalk_planner : public base_planner {
 
   /// to store the forward sensor model parameters of the sensor
   F_S_M_parameters fsm;
+  /// the reward function to be maximized
+  REWARD reward;
   /// the minimum angle for the Levy walk
   radians min_ang;
   /// the maximum angle for the Levy walk
@@ -296,11 +307,12 @@ class MI_levyWalk_planner : public base_planner {
 
   // constructor
 
-  MI_levyWalk_planner(double pSTime, Stg::Pose P, Stg::Velocity V, F_S_M_parameters fsm_,
+  MI_levyWalk_planner(double pSTime, Stg::Pose P, Stg::Velocity V, F_S_M_parameters fsm_, REWARD reward_=KLDMI,
                       radians min = -M_PI, radians max = M_PI, double a = 1.5,
                       meters l_min = 3.0, meters dis_btw_path_via_=2):
                       base_planner{0, pSTime, P, V},
                       fsm{fsm_},
+                      reward(reward_),
                       min_ang{min},
                       max_ang{max},
                       alpha{a},

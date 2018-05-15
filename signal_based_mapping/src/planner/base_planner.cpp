@@ -296,7 +296,7 @@ double MI_levyWalk_planner::compute_beam_CSQMI(occupancy_grid::occupancyGrid2D<d
   // compute the first term
   double MI_term1;
 
-  
+
 
 
 
@@ -358,6 +358,7 @@ double MI_levyWalk_planner::compute_beam_KLDMI(occupancy_grid::occupancyGrid2D<d
   std::vector<std::vector<int>> prob_range_seq(no_traced_grid+1);
 
   // TODO compute KLDMI
+  return 0;
 
 
 
@@ -451,10 +452,13 @@ void MI_levyWalk_planner::generate_path(double start_time, occupancy_grid::occup
       // iterate through various beams for that via point
       // compute the mutual information for each beam and add it to the MI of the path
       for(const auto& beam : beam_dir){
-        // uncomment the line below to do KLDMI
-        curr_MI += compute_beam_KLDMI(map, via_point.x, via_point.y, via_point.a + beam);
-        // uncomment the line below to do CSQMI
-        //curr_MI += compute_beam_CSQMI(map, via_point.x, via_point.y, via_point.a + beam);
+        switch (reward){
+          case KLDMI: curr_MI += compute_beam_KLDMI(map, via_point.x, via_point.y, via_point.a + beam);
+            break;
+          case CSQMI: curr_MI += compute_beam_CSQMI(map, via_point.x, via_point.y, via_point.a + beam);
+            break;
+          case ENTROPY: curr_MI += compute_beam_Entropy(map, via_point.x, via_point.y, via_point.a + beam);
+        }
       }
 
       dir_via_point.pop();
