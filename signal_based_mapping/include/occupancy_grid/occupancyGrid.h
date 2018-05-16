@@ -149,7 +149,7 @@ class occupancyGrid2D {
   void ray_trace_all(real_t px, real_t py, real_t p_theta, real_t max_range,
                      std::map<real_t, cv::Vec<int_t, 2>> &all_range_pos);
 
-  void ray_trace_path(real_t px, real_t py, real_t p_theta, real_t max_range,
+  bool ray_trace_path(real_t px, real_t py, real_t p_theta, real_t max_range,
                       std::map<std::vector<int_t>, std::pair<real_t, real_t>,
                           vec_path_comp_class<int_t>> &all_range_pos);
 
@@ -356,16 +356,18 @@ void occupancyGrid2D<real_t, int_t>::ray_trace_all(real_t px, real_t py, real_t 
 }
 
 template<typename real_t, typename int_t>
-void occupancyGrid2D<real_t, int_t>::ray_trace_path(real_t px, real_t py, real_t p_theta, real_t max_range,
+bool occupancyGrid2D<real_t, int_t>::ray_trace_path(real_t px, real_t py, real_t p_theta, real_t max_range,
                                                    std::map<std::vector<int_t>, std::pair<real_t, real_t>,
                                                        vec_path_comp_class<int_t>> &all_range_pos)
 /**
  *  The method performs a ray trace operation and send all the grid coordinates and associated occupancy probability,
- *  range pair as a map object
+ *  range pair as a map object.
+ *  return the success of path tracing
  */
 
 
 {
+
   real_t dx = std::cos(p_theta);
   real_t dy = std::sin(p_theta);
 
@@ -379,12 +381,23 @@ void occupancyGrid2D<real_t, int_t>::ray_trace_path(real_t px, real_t py, real_t
   int max_size_x = og_.size[0];
   int max_size_y = og_.size[1];
 
+  // grid the coordinates (i,j) as std::pair
+  int i = ray_trace_it->first;
+  int j = ray_trace_it->second;
+
+  // check if the coordinates are in bounds and is occupied
+  if (i < 0 || j < 0 || i >= max_size_x || j >= max_size_y) {
+
+    return false;
+
+  }
+
   // iterate using the ray trace iterate object
   for (; n > 0; n--, ray_trace_it++) {
 
     // grid the coordinates (i,j) as std::pair
-    int i = ray_trace_it->first;
-    int j = ray_trace_it->second;
+     i = ray_trace_it->first;
+     j = ray_trace_it->second;
 
     const std::pair<real_t, real_t> &pos_pair = ray_trace_it.real_position();
     auto range = std::sqrt((pos_pair.first - px) * (pos_pair.first - px) +
@@ -406,6 +419,7 @@ void occupancyGrid2D<real_t, int_t>::ray_trace_path(real_t px, real_t py, real_t
 
     if (get(i,j) == OCCUPIED){
       prob = 0.5;
+      //prob = 1.0;
     } else{
       prob = static_cast<real_t>(get(i,j))/ static_cast<real_t>(OCCUPIED);
     }
@@ -417,6 +431,8 @@ void occupancyGrid2D<real_t, int_t>::ray_trace_path(real_t px, real_t py, real_t
 
     all_range_pos.emplace(grid_coord, std::pair<real_t, real_t>(prob, range));
   }
+
+  return true;
 
 }
 

@@ -320,7 +320,11 @@ double MI_levyWalk_planner::compute_beam_KLDMI(occupancy_grid::occupancyGrid2D<d
 {
   // finding the grids and its occupancy probability range traced by the beam
   std::map<std::vector<int>, std::pair<double , double>, occupancy_grid::vec_path_comp_class<int>> traced_grids;
-  map->ray_trace_path(px, py, p_theta, fsm.z_max, traced_grids);
+  bool success = map->ray_trace_path(px, py, p_theta, fsm.z_max, traced_grids);
+
+  if(!success){
+    return 0.0;
+  }
 
   // compute MI for the ray traced grid cells by the beam
 
@@ -407,14 +411,18 @@ double MI_levyWalk_planner::compute_beam_KLDMI(occupancy_grid::occupancyGrid2D<d
   // normalize the probability of ranges
   double sum = std::accumulate(Prob_range.begin(), Prob_range.end(), 0.0);
 
-  for (auto& it : Prob_range){
-    it /= sum;
+
+  if (!int(sum*10000) == 0){
+    for (auto& it : Prob_range){
+      it /= sum;
+    }
   }
 
+
   // comment the line below after debugging checking if Prob_range add up to zero
-  double temp =std::accumulate(Prob_range.begin(), Prob_range.end(), 0.0);
-  if (!std::fabs(temp-1.0)<std::numeric_limits<double>::epsilon())
-    printf("\n the sum of Prob_range is %f", temp);
+//  double temp =std::accumulate(Prob_range.begin(), Prob_range.end(), 0.0);
+//  if (int(temp*100) == 0)
+//    printf("\n the sum of Prob_range is %f", temp);
 
   // lambda function to compute the MI
   auto lambda = [&](double a, double b){return a - b*std::log(b);};
@@ -440,14 +448,19 @@ double MI_levyWalk_planner::compute_beam_Entropy(occupancy_grid::occupancyGrid2D
 {
   // finding the grids and its occupancy probability range traced by the beam
   std::map<std::vector<int>, std::pair<double , double>, occupancy_grid::vec_path_comp_class<int>> traced_grids;
-  map->ray_trace_path(px, py, p_theta, fsm.z_max, traced_grids);
+  bool success = map->ray_trace_path(px, py, p_theta, fsm.z_max, traced_grids);
 
-  double entropy=0;
+  if(success){
+    double entropy=0;
 
-  for (const auto& it : traced_grids){
-    entropy += (-it.second.first*std::log(it.second.first) - (1-it.second.first)*std::log(1-it.second.first));
+    for (const auto& it : traced_grids){
+      entropy += (-it.second.first*std::log(it.second.first) - (1-it.second.first)*std::log(1-it.second.first));
+    }
+    return entropy;
   }
-  return entropy;
+
+  return 0.0;
+
 }
 
 
@@ -458,6 +471,7 @@ void MI_levyWalk_planner::generate_path(double start_time, occupancy_grid::occup
  * @param map : the pointer to the map object for ray tracing
  */
 {
+  bool verbose = false;
   // generate the levy distance that the robot should move
   meters levy_dis = generate_levy_dist();
 
@@ -486,7 +500,7 @@ void MI_levyWalk_planner::generate_path(double start_time, occupancy_grid::occup
 
   // adding directions to the right(clockwise) of robot (global coordinates)
   for(int i=0; i < (no_path_each_side-1); i++){
-    radians new_dir = (i+1)*min_ang/no_path_each_side;
+    radians new_dir = (i+1)*std::fabs(min_ang)/no_path_each_side;
     // adjust the angles the [-M_PI M_PI] when it below -180 degree
     if (curPose->a - new_dir < -M_PI){
       path_directions.push_back(curPose->a + new_dir + 2*M_PI);
@@ -494,6 +508,17 @@ void MI_levyWalk_planner::generate_path(double start_time, occupancy_grid::occup
       path_directions.push_back(curPose->a - new_dir);
     }
   }
+
+
+  // print for debugging
+  if (verbose){
+    std::cout<<"\n Path directions"<<std::endl;
+
+    for (const auto& iter : path_directions){
+      std::cout<<iter*(180/M_PI)<<std::endl;
+    }
+  }
+
 
   // generate via points for each path dir in path_directions vector
   // and compute mutual information for each path and store in the map dir_MI
@@ -561,6 +586,15 @@ void MI_levyWalk_planner::generate_path(double start_time, occupancy_grid::occup
   via_points point;
 
   // first point in the path
+  point.modes = MOTION_MODES::TRANSLATION_X;
+  point.motion_end_time = levy_travel_time/2 + start_time;
+  point.vel_control.x = get_velocity()->x;
+  point.des_pose = Stg::Pose(0.0, 0.0, 0.0, 0.0);
+  point.computed_desPose = false;
+
+  path.push(point); // pushed the translation point
+
+  // second point in the path
   point.modes = MOTION_MODES::ROTATION_Z;
   point.des_pose = Stg::Pose(0.0, 0.0, 0.0, des_dir);
   point.computed_desPose = false;
@@ -614,11 +648,11 @@ void MI_levyWalk_planner::generate_path(double start_time, occupancy_grid::occup
     }
   }
 
-  point.motion_end_time = rotate_time + start_time;
+  point.motion_end_time += rotate_time;
 
   path.push(point); //  pushed the rotation point
 
-  // second point in the path
+  // third point in the path
   point.modes = MOTION_MODES::TRANSLATION_X;
   point.motion_end_time += levy_travel_time;
   point.vel_control.x = get_velocity()->x;

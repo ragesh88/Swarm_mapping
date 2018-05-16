@@ -2,6 +2,7 @@
 # listing the plugins required for compilation
 SET( PLUGINS
   mylevyWalker
+  myMILevywalker
 )
 
 

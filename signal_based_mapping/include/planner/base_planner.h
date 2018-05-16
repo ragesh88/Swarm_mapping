@@ -309,8 +309,8 @@ class MI_levyWalk_planner : public base_planner {
   // constructor
 
   MI_levyWalk_planner(double pSTime, Stg::Pose P, Stg::Velocity V, F_S_M_parameters fsm_, REWARD reward_=KLDMI,
-                      radians min = -M_PI, radians max = M_PI, double a = 1.5,
-                      meters l_min = 3.0, meters dis_btw_path_via_=2):
+                      meters l_min = 3.0, radians min = -M_PI, radians max = M_PI, double a = 1.5,
+                       meters dis_btw_path_via_=2):
                       base_planner{0, pSTime, P, V},
                       fsm{fsm_},
                       reward(reward_),

@@ -60,16 +60,6 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
   robot->set_current_pose(pose.x, pose.y, pose.z, pose.a);
   robot->position->Subscribe(); // starts the position updates
 
-  // forward sensor model parameter
-  myPlanner::F_S_M_parameters fsm{};
-
-  // Setting up the Mutual information based planner
-  auto* MIlevyWalkPlanner = new myPlanner::MI_levyWalk_planner(0, pose, Stg::Velocity(cruisesSpeed, 0, 0, turnSpeed));
-
-  if (levyWalkPlanner == NULL)
-    printf("NO Planner generated");
-
-  robot->set_planner(levyWalkPlanner);
 
   // The parameters for map object
   const double min_x = -8; // in meters
@@ -120,6 +110,19 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
   robot->laser->AddCallback(Model::CB_UPDATE, model_callback_t(newLaserUpdate), robot);
   robot->laser->Subscribe(); // starts the ranger updates
 
+  // forward sensor model parameter
+  myPlanner::F_S_M_parameters fsm;
+  fsm.sigma = std::sqrt(robot->laser->GetSensors()[0].range_noise_const);
+
+  // Setting up the Mutual information based planner
+  auto* MIlevyWalkPlanner = new myPlanner::MI_levyWalk_planner(0, pose, Stg::Velocity(cruisesSpeed, 0, 0, turnSpeed),
+                                                               fsm, myPlanner::KLDMI, 4);
+
+  if (MIlevyWalkPlanner == NULL)
+    printf("NO Planner generated");
+
+  robot->set_planner(MIlevyWalkPlanner);
+
   // Looking for fiducial sensors in the model.
   // This required for sharing map among robots using consensus
   printf(" \n  looking for a suitable fiducial sensor for \"%s\" ... ", robot->position->Token());
@@ -136,5 +139,45 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
   robot->fiducial_sensor->Subscribe(); // starts the fiducial sensor update
 
   printf("\n************************Process completed************************");
+  return 0;
+}
+
+// inspect the ranger data and decide what to do
+int8_t newLaserUpdate(Model *, myRobot::robot *robot) {
+  robot->build_map();
+  try {
+    robot->move();
+  } catch (const char *a) {
+    std::cerr << a << std::endl;
+  }
+
+  if ((robot->world->Paused() || record_maps)) {
+    //printf("\n Paused");
+    //printf("\n Writing the map");
+    if (robot->get_robot_id() == 1 || robot->get_robot_id() == 3)
+      robot->write_map();
+  }
+
+  return 0;
+}
+
+// inspect the fiducial id of the observed robot and decide what to do
+int8_t newFiducialUpdate(Model *, myRobot::robot *robot) {
+
+  if (robot->verbose) { // displaying the output of fiducial sensor for debugging
+    const auto &fiducials = robot->fiducial_sensor->GetFiducials();
+    std::cout << "\n The number of robots detected is : " << fiducials.size() << std::endl;
+    if (fiducials.size()) {
+      std::cout << "\nThe data of the fiducial sensor of " << robot->get_robot_name();
+      std::cout << "\nThe field of view of the fiducial sensor is : " << robot->fiducial_sensor->fov << std::endl;
+      std::cout << "\nThe heading of the fiducial sensor is : " << robot->fiducial_sensor->heading << std::endl;
+      printf("\n The %s sees the robot with fiducial id %d\n", robot->get_robot_name().c_str(), fiducials[0].id);
+    }
+  }
+
+  // merge the map
+  //robot->merge_map(robots_pointer);
+  robot->merge_map();
+
   return 0;
 }

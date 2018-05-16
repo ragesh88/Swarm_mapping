@@ -166,7 +166,11 @@ void robot::move() {
       }
       if (planner->get_path()->front().computed_desPose) {
         // Move until the stage robot has reached the desired orientation up to a tolerance
-        if (std::fabs(planner->get_path()->front().des_pose.a - position->GetPose().a) < rad_tol) {
+        if ((std::fabs(planner->get_path()->front().des_pose.a - position->GetPose().a) < rad_tol &&
+            planner->get_path()->front().modes==MOTION_MODES::ROTATION_Z) ||
+            (std::fabs(planner->get_path()->front().des_pose.x - position->GetPose().x) +
+                std::fabs(planner->get_path()->front().des_pose.y - position->GetPose().y) < 2*rad_tol &&
+                planner->get_path()->front().modes==MOTION_MODES::TRANSLATION_X)) {
           planner->get_path()->pop();
         }
       } else {
@@ -175,7 +179,7 @@ void robot::move() {
           std::cout << "\n Motion end time is : " << planner->get_path()->front().motion_end_time << std::endl;
           std::cout << "\n Sim time is : " << world->SimTimeNow() / 1000000.0 << std::endl;
         }
-        if (std::fabs(planner->get_path()->front().motion_end_time - world->SimTimeNow() / 1000000.0) < time_tol) {
+        if (std::fabs(planner->get_path()->front().motion_end_time < (world->SimTimeNow() / 1000000.0))) {
           planner->get_path()->pop();
         }
       }
@@ -185,7 +189,7 @@ void robot::move() {
       planner->set_startPose(position->GetPose());
       try {
         // try to generate a new path
-        planner->generate_path(world->SimTimeNow() / 1000000.0);
+        planner->generate_path(world->SimTimeNow() / 1000000.0, occ_grid_map);
       }
       catch (const char *error) {
         std::cerr << error << std::endl;
@@ -225,7 +229,7 @@ void robot::build_map() {
     occ_grid_map->ray_trace_all(laserSensor.pose.x + base_pose.x, laserSensor.pose.y + base_pose.y,
                                 laserSensor.bearings[i] + base_pose.a, laserSensor.ranges[i],
                                 passed_grids_ranges);
-    if (verbose) {
+    if (verbose&&0) {
       for (auto it = passed_grids_ranges.begin(); it != passed_grids_ranges.end(); ++it) {
         if (i == 0) { // for debugging
           printf("\n (%d,%d) is at a distance of %f from the first point", it->second[0], it->second[1], it->first);
