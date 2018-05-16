@@ -262,14 +262,14 @@ double MI_levyWalk_planner::compute_beam_CSQMI(occupancy_grid::occupancyGrid2D<d
         prob_i_cell_occ[i] *= (1-it.second.first);
       }
     } else{
-      // compute the probability that i^{th} cell is the first free cell
+      // compute the probability that i^{th} cell is the first occupied cell
       int j = 1; // cell count
       for(const auto& it : traced_grids){
         if(j<i){ // all i-1 cells are free
-          prob_i_cell_occ[i] *= it.second.first;
+          prob_i_cell_occ[i] *= (1-it.second.first);
         }else{
           // the i^{th} cell is occupied
-          prob_i_cell_occ[i] *= (1-it.second.first);
+          prob_i_cell_occ[i] *= it.second.first;
           break;
         }
         j++;
@@ -340,14 +340,14 @@ double MI_levyWalk_planner::compute_beam_KLDMI(occupancy_grid::occupancyGrid2D<d
         prob_i_cell_occ[i] *= (1-it.second.first);
       }
     } else{
-      // compute the probability that i^{th} cell is the first free cell
+      // compute the probability that i^{th} cell is the first occupied cell
       int j = 1; // cell count
       for(const auto& it : traced_grids){
         if(j<i){ // all i-1 cells are free
-          prob_i_cell_occ[i] *= it.second.first;
+          prob_i_cell_occ[i] *= (1-it.second.first);
         }else{
           // the i^{th} cell is occupied
-          prob_i_cell_occ[i] *= (1-it.second.first);
+          prob_i_cell_occ[i] *= it.second.first;
           break;
         }
         j++;
@@ -384,7 +384,6 @@ double MI_levyWalk_planner::compute_beam_KLDMI(occupancy_grid::occupancyGrid2D<d
   // compute and store P(z_i)
   std::vector<double> Prob_range(discrete_ranges.size(),0);
   // also need to find the minimum non zero and index of the zero locations
-
   double non_zero_min=1e6;
   std::vector<int> zero_index;
 
@@ -413,8 +412,11 @@ double MI_levyWalk_planner::compute_beam_KLDMI(occupancy_grid::occupancyGrid2D<d
   }
 
   // comment the line below after debugging checking if Prob_range add up to zero
-  printf("\n the sum of Prob_range is %f", std::accumulate(Prob_range.begin(), Prob_range.end(), 0.0));
+  double temp =std::accumulate(Prob_range.begin(), Prob_range.end(), 0.0);
+  if (!std::fabs(temp-1.0)<std::numeric_limits<double>::epsilon())
+    printf("\n the sum of Prob_range is %f", temp);
 
+  // lambda function to compute the MI
   auto lambda = [&](double a, double b){return a - b*std::log(b);};
 
   // compute and return the MI value
