@@ -8,7 +8,6 @@
  protocol.
 **/
 
-// TODO : Exploration based on information need to be added
 
 #include "robot/robot.h"
 
