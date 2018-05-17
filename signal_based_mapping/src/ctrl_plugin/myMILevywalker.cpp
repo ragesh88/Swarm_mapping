@@ -26,8 +26,8 @@ static const bool debug = false;
 static const bool record_maps = false;
 
 // some flags for computation
-bool compute_entropy=false;
-bool compute_coverage=false;
+bool compute_entropy=true;
+bool compute_coverage=true;
 
 
 int8_t newLaserUpdate(Model *mod, myRobot::robot *robot);
@@ -121,7 +121,7 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
 
   // Setting up the Mutual information based planner
   auto* MIlevyWalkPlanner = new myPlanner::MI_levyWalk_planner(0, pose, Stg::Velocity(cruisesSpeed, 0, 0, turnSpeed),
-                                                               fsm, myPlanner::KLDMI, 5);
+                                                               fsm, myPlanner::CSQMI, 5);
 
   if (MIlevyWalkPlanner == NULL)
     printf("NO Planner generated");

@@ -239,7 +239,11 @@ double MI_levyWalk_planner::compute_beam_CSQMI(occupancy_grid::occupancyGrid2D<d
 {
   // finding the grids and its occupancy probability range traced by the beam
   std::map<std::vector<int>, std::pair<double , double>, occupancy_grid::vec_path_comp_class<int>> traced_grids;
-  map->ray_trace_path(px, py, p_theta, fsm.z_max, traced_grids);
+  bool success = map->ray_trace_path(px, py, p_theta, fsm.z_max, traced_grids);
+
+  if(!success){
+    return 0.0;
+  }
 
   int delta = 3; // the number of significant cells to compute the double summation
 
@@ -301,6 +305,7 @@ double MI_levyWalk_planner::compute_beam_CSQMI(occupancy_grid::occupancyGrid2D<d
   }else{
     MI_term1 = 0.0;
   }
+
 
   // compute second term
   double MI_term2=std::accumulate(occ_unocc.begin(), occ_unocc.end(), 0.0);
@@ -383,7 +388,6 @@ double MI_levyWalk_planner::compute_beam_CSQMI(occupancy_grid::occupancyGrid2D<d
   }
 
   // return CSQMI
-
   return (MI_term1+MI_term2+MI_term3);
 
 
