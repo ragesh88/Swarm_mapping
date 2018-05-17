@@ -26,8 +26,8 @@ static const bool debug = false;
 static const bool record_maps = false;
 
 // some flags for computation
-bool compute_entropy=true;
-bool compute_coverage=true;
+bool compute_entropy=false;
+bool compute_coverage=false;
 
 
 int8_t newLaserUpdate(Model *mod, myRobot::robot *robot);
@@ -172,6 +172,9 @@ int8_t newLaserUpdate(Model *, myRobot::robot *robot) {
       robot->write_map();
       std::cout << "\n The map percentage coverage is : " << robot->occ_grid_map->compute_map_coverage();
       std::cout << "\n The entropy of the map is : " << robot->occ_grid_map->compute_map_entropy();
+      std::string path{"./robot"};
+      robot->write_map_entropy(path + std::to_string(robot->get_robot_id()) + "/");
+      robot->write_map_coverage(path + std::to_string(robot->get_robot_id()) + "/");
       std::cout << std::endl;
     }
   }

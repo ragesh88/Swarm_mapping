@@ -538,9 +538,31 @@ double occupancyGrid2D<real_t, int_t>::compute_map_entropy()
  */
 {
   // a lambda function to compute the entropy of the map
-  auto lambda = [&](double a, uint8_t b){ double b_; if(b==OCCUPIED){b_=0.5;} else{b_= static_cast<double>(b)/OCCUPIED;}
-                                         if (b > 0){return (a -b_*std::log(b_)-(1-b_)*std::log(1-b_));} return a;};
-  return std::accumulate(og_.begin<uint8_t>(), og_.end<uint8_t>(), 0.0, lambda);
+//  auto lambda = [&](double a, uint8_t b){ double b_; if(b==OCCUPIED){b_=0.5;} else{b_= static_cast<double>(b)/OCCUPIED;}
+//                                         if (b > 0){return (a -b_*std::log(b_)-(1-b_)*std::log(1-b_));} return a;};
+//  return std::accumulate(og_.begin<uint8_t>(), og_.end<uint8_t>(), 0.0, lambda);
+
+  // compute with out using lambda functions
+  double entropy=0;
+  double b_;
+  for (int row =0; row < og_.rows; ++row){
+    uchar* p = og_.ptr(row);
+    for (int col=0; col<og_.cols; ++col){
+      if (*p == OCCUPIED ){
+        entropy -= std::log(0.5);
+      }else{
+        b_= static_cast<double>(*p)/OCCUPIED;
+        if(b_>0){
+          entropy -= b_*std::log(b_)-(1-b_)*std::log(1-b_);
+        }
+      }
+      p++;
+    }
+
+  }
+
+  return entropy;
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -555,9 +577,22 @@ double occupancyGrid2D<real_t, int_t>::compute_map_coverage()
  */
 {
   // a lambda function to count the number of the cells covered
-  auto lambda = [&](uint a, uint8_t b){ return a + uint(b/OCCUPIED);};
-  uint temp = static_cast<double>(std::accumulate(og_.begin<uint8_t>(),og_.end<uint8_t>(), 0, lambda));
-  return (100.0*(1- static_cast<double>(temp)/(og_.rows*og_.cols)));
+//  auto lambda = [&](uint a, uint8_t b){ return a + uint(b/OCCUPIED);};
+//  uint count = static_cast<double>(std::accumulate(og_.begin<uint8_t>(),og_.end<uint8_t>(), 0, lambda));
+//  return (100.0*(1- static_cast<double>(count)/(og_.rows*og_.cols)));
+
+  double count = 0;
+  for (int row =0; row < og_.rows; ++row){
+    const uchar* p = og_.ptr(row);
+    for (int col=0; col<og_.cols; ++col){
+      if (*p == OCCUPIED ){
+        count++;
+      }
+      p++;
+    }
+
+  }
+  return (100.0*(1-(count)/(og_.rows*og_.cols)));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
