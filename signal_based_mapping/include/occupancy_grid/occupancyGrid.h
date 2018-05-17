@@ -159,6 +159,10 @@ class occupancyGrid2D {
 
   void map_txt_write(const std::string &filename, int no_of_robots = 1, bool raw = false);
 
+  double compute_map_entropy();
+
+  double compute_map_coverage();
+
   cv::Point2i xy2rc(const cv::Vec<real_t, 2> &xy) const {
     /// the function converts the \f$(x,y)\f$ coordinates to corresponding
     /// row and col coordinates of the grid map
@@ -519,8 +523,41 @@ void occupancyGrid2D<real_t, int_t>::map_txt_write(const std::string &filename, 
   // closing the file stream
   f_out.close();
 
+}
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template<typename real_t, typename int_t>
+double occupancyGrid2D<real_t, int_t>::compute_map_entropy()
+
+/**
+ * compute the entropy of the map
+ * @tparam real_t : template type for real type data
+ * @tparam int_t : template type for integer type data
+ * @return the entropy of the map
+ */
+{
+  // a lambda function to compute the entropy of the map
+  auto lambda = [&](double a, uint8_t b){ double b_; if(b==OCCUPIED){b_=0.5;} else{b_= static_cast<double>(b)/OCCUPIED;}
+                                         if (b > 0){return (a -b_*std::log(b_)-(1-b_)*std::log(1-b_));} return a;};
+  return std::accumulate(og_.begin<uint8_t>(), og_.end<uint8_t>(), 0.0, lambda);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<typename real_t, typename int_t>
+double occupancyGrid2D<real_t, int_t>::compute_map_coverage()
+/**
+ * compute the percentage coverage of the map by the robot
+ * @tparam real_t : template type for real type data
+ * @tparam int_t : template type for integer type data
+ * @return : the percentage coverage
+ */
+{
+  // a lambda function to count the number of the cells covered
+  auto lambda = [&](uint a, uint8_t b){ return a + uint(b/OCCUPIED);};
+  uint temp = static_cast<double>(std::accumulate(og_.begin<uint8_t>(),og_.end<uint8_t>(), 0, lambda));
+  return (100.0*(1- static_cast<double>(temp)/(og_.rows*og_.cols)));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -72,6 +72,13 @@ class robot {
   /// The pointer to the planner
   myPlanner::base_planner *planner{NULL};
 
+
+  // variables to store entropy and coverage
+  /// a list to store the entropy at various times
+  std::list<std::pair<double, double>> map_entropy;
+  /// a list to store the coverage at various times
+  std::list<std::pair<double, double>> map_coverage;
+
  public:
 
   //Static variables
@@ -338,6 +345,14 @@ class robot {
   void merge_map(const std::vector<myRobot::robot *> &swarm);
 
   void merge_map();
+
+  void add_map_entropy();
+
+  void add_map_coverage();
+
+  void write_map_entropy(std::string path, std::string prefix="");
+
+  void write_map_coverage(std::string path, std::string prefix="");
 
 };
 

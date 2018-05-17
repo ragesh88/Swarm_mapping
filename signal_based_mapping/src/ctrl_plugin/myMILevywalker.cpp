@@ -20,9 +20,14 @@ using namespace Stg;
 // Some global variables as parameters
 static const double cruisesSpeed = 0.4;
 static const double turnSpeed = 0.2;
+double quit_time = 900*1000000; // denoting 900 seconds
 static const bool verbose = true;
 static const bool debug = false;
 static const bool record_maps = false;
+
+// some flags for computation
+bool compute_entropy=true;
+bool compute_coverage=true;
 
 
 int8_t newLaserUpdate(Model *mod, myRobot::robot *robot);
@@ -116,7 +121,7 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
 
   // Setting up the Mutual information based planner
   auto* MIlevyWalkPlanner = new myPlanner::MI_levyWalk_planner(0, pose, Stg::Velocity(cruisesSpeed, 0, 0, turnSpeed),
-                                                               fsm, myPlanner::KLDMI, 4);
+                                                               fsm, myPlanner::KLDMI, 5);
 
   if (MIlevyWalkPlanner == NULL)
     printf("NO Planner generated");
@@ -145,6 +150,14 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
 // inspect the ranger data and decide what to do
 int8_t newLaserUpdate(Model *, myRobot::robot *robot) {
   robot->build_map();
+  // the compute the map entropy at that instant
+  if(compute_entropy){
+    robot->add_map_entropy();
+  }
+  // the compute the percentage of the map covered till that instant
+  if(compute_coverage){
+    robot->add_map_coverage();
+  }
   try {
     robot->move();
   } catch (const char *a) {
@@ -154,8 +167,28 @@ int8_t newLaserUpdate(Model *, myRobot::robot *robot) {
   if ((robot->world->Paused() || record_maps)) {
     //printf("\n Paused");
     //printf("\n Writing the map");
-    if (robot->get_robot_id() == 1 || robot->get_robot_id() == 3)
+    if (robot->get_robot_id() == 1 || robot->get_robot_id() == 3) {
+      std::cout<<" \nData from robot "<<robot->get_robot_id()<<std::endl;
       robot->write_map();
+      std::cout << "\n The map percentage coverage is : " << robot->occ_grid_map->compute_map_coverage();
+      std::cout << "\n The entropy of the map is : " << robot->occ_grid_map->compute_map_entropy();
+      std::cout << std::endl;
+    }
+  }
+
+  if (std::fabs(robot->world->SimTimeNow() - quit_time) < robot->world->sim_interval ){
+    std::cout<<"\n sim time :"<<robot->world->SimTimeNow()/ 1000000.0;
+    std::cout<<"\nsimulation finished\n";
+    if (robot->get_robot_id() == 1 || robot->get_robot_id() == 3) {
+      std::cout<<" \n Data from robot "<<robot->get_robot_id()<<std::endl;
+      //robot->write_map();
+      std::cout << "\n The map percentage coverage is : " << robot->occ_grid_map->compute_map_coverage();
+      std::cout << "\n The entropy of the map is : " << robot->occ_grid_map->compute_map_entropy();
+      std::string path{"./robot"};
+      robot->write_map_entropy(path + std::to_string(robot->get_robot_id()) + "/");
+      robot->write_map_coverage(path + std::to_string(robot->get_robot_id()) + "/");
+      std::cout << std::endl;
+    }
   }
 
   return 0;

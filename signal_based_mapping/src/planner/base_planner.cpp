@@ -412,10 +412,12 @@ double MI_levyWalk_planner::compute_beam_KLDMI(occupancy_grid::occupancyGrid2D<d
   double sum = std::accumulate(Prob_range.begin(), Prob_range.end(), 0.0);
 
 
-  if (!int(sum*10000) == 0){
+  if (sum > 0){
     for (auto& it : Prob_range){
       it /= sum;
     }
+  } else{
+    return 0.0;
   }
 
 
@@ -425,7 +427,7 @@ double MI_levyWalk_planner::compute_beam_KLDMI(occupancy_grid::occupancyGrid2D<d
 //    printf("\n the sum of Prob_range is %f", temp);
 
   // lambda function to compute the MI
-  auto lambda = [&](double a, double b){return a - b*std::log(b);};
+  auto lambda = [&](double a, double b){if(b>0){return (a - b*std::log(b));} return a;};
 
   // compute and return the MI value
   return std::accumulate(Prob_range.begin(), Prob_range.end(), 0.0, lambda);
@@ -454,7 +456,13 @@ double MI_levyWalk_planner::compute_beam_Entropy(occupancy_grid::occupancyGrid2D
     double entropy=0;
 
     for (const auto& it : traced_grids){
-      entropy += (-it.second.first*std::log(it.second.first) - (1-it.second.first)*std::log(1-it.second.first));
+      if (it.second.first > 0 && it.second.first < 1){
+        entropy += (-it.second.first*std::log(it.second.first) - (1-it.second.first)*std::log(1-it.second.first));
+      }
+      if (int(it.second.first*10)/10 == 1){
+        entropy +=  - 2*(0.5)*std::log(0.5);
+      }
+
     }
     return entropy;
   }
@@ -472,6 +480,7 @@ void MI_levyWalk_planner::generate_path(double start_time, occupancy_grid::occup
  */
 {
   bool verbose = false;
+  bool debug = false;
   // generate the levy distance that the robot should move
   meters levy_dis = generate_levy_dist();
 
@@ -581,6 +590,19 @@ void MI_levyWalk_planner::generate_path(double start_time, occupancy_grid::occup
     des_dir = max_MI_dirs[0];
   }
 
+  // Printing the MI value for debugging
+  if (debug){
+    std::cout<<"\nPrinting the MI values and directions\n";
+    for(const auto& it:dir_MI){
+      std::cout<<"["<<it.first<<" : ";
+      for (const auto& vec : it.second){
+        std::cout<<vec*(180/M_PI)<<", ";
+      }
+      std::cout<<std::endl;
+    }
+    std::cout<<"desired direction picked is : "<<des_dir*(180/M_PI)<<std::endl;
+  }
+
   // Pushing the translation motion and rotation motion in to the path
 
   via_points point;
@@ -602,6 +624,11 @@ void MI_levyWalk_planner::generate_path(double start_time, occupancy_grid::occup
   const Stg::radians_t &cur_dir = get_startPose()->a; // ref to the current direction
   const auto& w = std::fabs(get_velocity()->a); // omega in magnitude
   double rotate_time = 0;
+
+  // Printing the current direction for debugging
+  if (debug){
+    std::cout<<"\n The current orientation of the robot is : "<<cur_dir*(180/M_PI)<<std::endl;
+  }
 
 
   // find the smallest angle to rotate, to find the right \omega

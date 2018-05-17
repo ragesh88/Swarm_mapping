@@ -75,7 +75,8 @@ pioneer2dx
   name "pio1"
   # for identification using fiducial sensor
   fiducial_return 1
-  pose [ -5.946 -5.1 0.000 0.002 ] 
+  #pose [ -5.946 -5.1 0.000 0.002 ] 
+  pose [ 0 0 0.000 0.00 ] 
 
   # pioneer2dx's sonars	will be ranger:0 and the laser will be ranger:1
   sicklaser( 
@@ -108,42 +109,5 @@ pioneer2dx
 )
 
 
-pioneer2dx
-(		  
-  # can refer to the robot by this name
-  name "pio2"
-  # for identification using fiducial sensor
-  fiducial_return 2
-  pose [ -4.946 -5.1 0.000 0.002 ] 
-
-  # pioneer2dx's sonars	will be ranger:0 and the laser will be ranger:1
-  sicklaser( 
-		pose [ 0.000 0.000 0.000 0.000 ] 
-		#noise [ 0.01 0.02 0.03 ]
-		#ctrl "lasernoise"
-		alwayson 1 # don't wait for a subscriber
-	) 
-  fiducial
-  (
-    pose [ 0 0 0 0 ]
-    range_max 2
-    range_max_id 2
-    fov 360
-  ) 
-  #SICK_noisy
-  #( 
-    #alwayson 1 # don't wait for a subscriber
-  #) 
-  # demonstrate a plugin controller, implemented in examples/ctrl/wander.cc
-  # you probably should comment this out when using simple.cfg with Player
-  ctrl "myMILevywalker"
-
-  # report error-free position in world coordinates
-  localization "gps"
-  localization_origin [ 0 0 0 0 ]
-
-  #trail_length 400
-    
-)
 
 
