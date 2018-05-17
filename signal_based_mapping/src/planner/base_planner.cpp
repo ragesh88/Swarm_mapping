@@ -294,14 +294,98 @@ double MI_levyWalk_planner::compute_beam_CSQMI(occupancy_grid::occupancyGrid2D<d
   // compute the first term in the MI  computation
 
   // compute the first term
-  double MI_term1;
-  // TODO compute CSQMI
+  double MI_term1 = gaussian1D(0,0,2*fsm.sigma*fsm.sigma);
+  MI_term1 *= std::accumulate(w.begin(), w.end(), 0.0);
+  if (MI_term1 > 0){
+    MI_term1 = std::log(MI_term1);
+  }else{
+    MI_term1 = 0.0;
+  }
+
+  // compute second term
+  double MI_term2=std::accumulate(occ_unocc.begin(), occ_unocc.end(), 0.0);
+
+  std::vector<double> discrete_ranges;
+
+  // copy the ranges to the discrete_ranges
+  for (const auto& it : traced_grids){
+    discrete_ranges.push_back(it.second.second);
+  }
+
+  double sum = 0.0;
+  for (int j =0; j < prob_i_cell_occ.size(); j++){
+    // compute the lower and upper limit for the inner loop
+    int lower = j-delta;
+    int upper = j+delta;
+    if (lower < 0){ // make sure the indices are in bounds
+      lower = 0;
+    }
+    if(upper >= prob_i_cell_occ.size()){
+      upper = prob_i_cell_occ.size() -1;
+    }
+    for (int l = lower;l<=upper; l++){
+      if (j==0){
+        if (l == 0){
+          sum += prob_i_cell_occ[j]*prob_i_cell_occ[l]*gaussian1D(0,0,2*fsm.sigma*fsm.sigma);
+        }
+        sum += prob_i_cell_occ[j]*prob_i_cell_occ[l]*gaussian1D(discrete_ranges[l-1],
+                                                                discrete_ranges.back(),2*fsm.sigma*fsm.sigma);
+      } else{
+        sum += prob_i_cell_occ[j]*prob_i_cell_occ[l]*gaussian1D(discrete_ranges[l-1],
+                                                                discrete_ranges[j-1],2*fsm.sigma*fsm.sigma);
+      }
+
+    }
+  }
+
+  MI_term2 *= sum;
+
+  if(MI_term2 > 0){
+    MI_term2 = std::log(MI_term2);
+  } else{
+    MI_term2 = 0;
+  }
 
 
+  // compute third term
+  double MI_term3=0.0;
 
 
+  for (int j =0; j < prob_i_cell_occ.size(); j++){
+    // compute the lower and upper limit for the inner loop
+    int lower = j-delta;
+    int upper = j+delta;
+    if (lower < 0){ // make sure the indices are in bounds
+      lower = 0;
+    }
+    if(upper >= prob_i_cell_occ.size()){
+      upper = prob_i_cell_occ.size() -1;
+    }
+    for (int l = lower;l<=upper; l++){
+      if (j==0){
+        if (l == 0){
+          MI_term3 += prob_i_cell_occ[j]*w[l]*gaussian1D(0,0,2*fsm.sigma*fsm.sigma);
+        }
+        MI_term3 += prob_i_cell_occ[j]*w[l]*gaussian1D(discrete_ranges[l-1],
+                                                       discrete_ranges.back(),2*fsm.sigma*fsm.sigma);
+      } else{
+        MI_term3 += prob_i_cell_occ[j]*w[l]*gaussian1D(discrete_ranges[l-1],
+                                                       discrete_ranges[j-1],2*fsm.sigma*fsm.sigma);
+      }
 
-  return 0;
+    }
+  }
+
+  if(MI_term3 > 0){
+    MI_term3 = -2*std::log(MI_term3);
+  } else{
+    MI_term3 = 0;
+  }
+
+  // return CSQMI
+
+  return (MI_term1+MI_term2+MI_term3);
+
 
 }
 
