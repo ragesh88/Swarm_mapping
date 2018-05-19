@@ -427,7 +427,7 @@ void robot::write_map_entropy(std::string path, std::string prefix)
  * @param prefix : any prefix to be added to the file name
  */
 {
-  if (map_entropy.size()==0){
+  if (map_entropy.empty()){
     std::cout<<"\nEntropy is not computed\n";
     return;
   }
@@ -461,7 +461,7 @@ void robot::write_map_coverage(std::string path, std::string prefix)
  * @param prefix : any prefix to be added to the file name
  */
 {
-  if (map_coverage.size()==0){
+  if (map_coverage.empty()){    
     std::cout<<"\nCoverage is not computed\n";
     return;
   }

@@ -26,8 +26,10 @@ link_directories(~/stg/lib)
 # Find the Open CV package
 find_package( OpenCV REQUIRED core imgproc highgui)
 
+
 # The OpenCV packages used here
 SET(OpenCV_USED_LIBS opencv_core opencv_imgproc opencv_highgui)
+
 
 # Find the Boost package
 find_package( Boost COMPONENTS date_time filesystem system program_options REQUIRED)

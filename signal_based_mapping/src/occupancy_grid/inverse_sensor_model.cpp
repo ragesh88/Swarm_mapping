@@ -69,7 +69,7 @@ void occupancy_grid::log_odds_map_given_measurement_pose(const occupancy_grid::L
   // reflectance occurred if the range of the ray less than
   // max range - 2*sqrt(range_noise_const)
   bool reflectance = false;
-  const double noise_variance = std::sqrt(sensor.range_noise_const);
+  const double noise_variance = sensor.range_noise_const;
   if (sensor.ranges[ray_index] < (sensor.range.max - 2 * std::sqrt(noise_variance))) {
     reflectance = true;
   }
@@ -109,7 +109,7 @@ void occupancy_grid::probability_map_given_measurement_pose(const occupancy_grid
   // reflectance occurred if the range of the ray less than
   // max range - 2*sqrt(range_noise_const)
   bool reflectance = false;
-  const double noise_variance = std::sqrt(sensor.range_noise_const);
+  const double noise_variance = sensor.range_noise_const;
   if (sensor.ranges[ray_index] < (sensor.range.max - 2 * std::sqrt(noise_variance))) {
     reflectance = true;
   }
