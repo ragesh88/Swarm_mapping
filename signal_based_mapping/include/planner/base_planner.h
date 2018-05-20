@@ -83,6 +83,8 @@ class base_planner {
  protected:
 
   Path path;
+  /// check if the planner is using map
+  bool USING_MAP;
 
  public:
 
@@ -99,7 +101,8 @@ class base_planner {
       planTime{pTime},
       planStartTime{pSTime},
       startPose(P.x, P.y, P.z, P.a),
-      robotTwist(V.x, V.y, V.z, V.a) {
+      robotTwist(V.x, V.y, V.z, V.a),
+      USING_MAP{false}{
     /**
      * constructor with parameters
      * \param pTime : the time for which motion has to be planned
@@ -129,6 +132,11 @@ class base_planner {
 
   Path *get_path() {
     return &path;
+  }
+
+  bool is_using_map(){
+    /// check if the planner is using a map for planning
+    return USING_MAP;
   }
 
   // set functions
@@ -209,7 +217,8 @@ class levyWalk_planner : public base_planner {
       min_ang{min},
       max_ang{max},
       alpha{a},
-      levy_min{l_min} {
+      levy_min{l_min}
+        {
     /**
      * \brief The constructor with parameters
      * In Levy walk the time for the walk is generated from
@@ -225,7 +234,7 @@ class levyWalk_planner : public base_planner {
 
   Stg::radians_t generate_random_direction();
 
-  virtual void generate_path(double start_time, occupancy_grid::occupancyGrid2D<double, int>* map);
+  virtual void generate_path(double start_time);
 
   virtual ~levyWalk_planner() {}
 };
@@ -319,6 +328,7 @@ class MI_levyWalk_planner : public base_planner {
                       alpha{a},
                       levy_min{l_min},
                       dist_btw_path_via{dis_btw_path_via_}
+
   /**
    * The constructor with parameters for the class
    * @param pSTime : start time for planning
@@ -339,6 +349,9 @@ class MI_levyWalk_planner : public base_planner {
     while(beam_dir.back() <= fsm.max_angle){
       beam_dir.push_back(beam_dir.back() + incre_angle);
     }
+
+    /// setting the flag to indicate that the planner uses map
+    USING_MAP = true;
 
 
   }

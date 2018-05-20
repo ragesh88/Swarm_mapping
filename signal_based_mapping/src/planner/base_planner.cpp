@@ -76,7 +76,7 @@ Stg::radians_t levyWalk_planner::generate_random_direction() {
   return distribution(generator);
 }
 
-void levyWalk_planner::generate_path(double start_time, occupancy_grid::occupancyGrid2D<double, int>*) {
+void levyWalk_planner::generate_path(double start_time) {
   /**
    * The function generates a path for the robot to perform levy walk in an unbounded domain
    */
@@ -85,6 +85,7 @@ void levyWalk_planner::generate_path(double start_time, occupancy_grid::occupanc
 
   set_planStartTime(start_time);
 
+  //std::cout<<"\n not using map\n";
 
   // computing first point in the path
   point.modes = MOTION_MODES::TRANSLATION_X;
@@ -567,6 +568,7 @@ void MI_levyWalk_planner::generate_path(double start_time, occupancy_grid::occup
  * @param map : the pointer to the map object for ray tracing
  */
 {
+  //std::cout<<"\nusing map\n";
   bool verbose = false;
   bool debug = false;
   // generate the levy distance that the robot should move

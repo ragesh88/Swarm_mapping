@@ -189,7 +189,13 @@ void robot::move() {
       planner->set_startPose(position->GetPose());
       try {
         // try to generate a new path
-        planner->generate_path(world->SimTimeNow() / 1000000.0, occ_grid_map);
+        if (planner->is_using_map()){ // call methods based if the planner uses map or not
+          planner->generate_path(world->SimTimeNow() / 1000000.0, occ_grid_map);
+        } else{
+          planner->generate_path(world->SimTimeNow() / 1000000.0);
+          //std::cout<<"\nnot using map\n";
+          }
+
       }
       catch (const char *error) {
         std::cerr << error << std::endl;
@@ -461,7 +467,7 @@ void robot::write_map_coverage(std::string path, std::string prefix)
  * @param prefix : any prefix to be added to the file name
  */
 {
-  if (map_coverage.empty()){    
+  if (map_coverage.empty()){
     std::cout<<"\nCoverage is not computed\n";
     return;
   }

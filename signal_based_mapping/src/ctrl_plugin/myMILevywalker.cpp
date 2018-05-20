@@ -48,7 +48,7 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
   myRobot::robot::swarm_update(robot);
 
 
-  printf("\n\n**************Ragesh Levy walk controller assignment*************");
+  printf("\n\n**************Ragesh MI Levy walk controller assignment*************");
   robot->set_current_velocity(cruisesSpeed, 0, turnSpeed);
   robot->world = mod->GetWorld();
   robot->avoidCount = 0;
@@ -88,7 +88,7 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
 
   ModelRanger *laser = nullptr;
 
-  printf("\n  Ragesh Levy walk controller assignment for robot %s initiated \n", robot->position->Token());
+  printf("\n  Ragesh MI Levy walk controller assignment for robot %s initiated \n", robot->position->Token());
   for (int i = 0; i < 16; i++) {
 
     char name[32];
@@ -143,7 +143,7 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
   robot->fiducial_sensor->AddCallback(Model::CB_UPDATE, model_callback_t(newFiducialUpdate), robot);
   robot->fiducial_sensor->Subscribe(); // starts the fiducial sensor update
 
-  printf("\n************************Process completed************************");
+  printf("\n*************************Process completed**************************");
   return 0;
 }
 
