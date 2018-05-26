@@ -340,7 +340,9 @@ class robot {
 
   void build_map();
 
-  void write_map();
+  void write_map(std::string prefix="");
+
+  void write_map_txt(std::string prefix="");
 
   void merge_map(const std::vector<myRobot::robot *> &swarm);
 

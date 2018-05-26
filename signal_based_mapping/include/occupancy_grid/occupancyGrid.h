@@ -485,12 +485,12 @@ void occupancyGrid2D<real_t, int_t>::map_txt_write(const std::string &filename, 
   std::string ext = ".txt";
   if(pos == std::string::npos){
     // no extension in the file name
-    // then add .csv to file name
+    // then add .txt to file name
     new_filename += ext;
   } else {
-    // check if the extension is .csv
+    // check if the extension is .txt
     if(filename.substr(pos + 1).compare(ext)){
-      // if the extension is not .csv make it .csv
+      // if the extension is not .csv make it .txt
       new_filename = filename.substr(0, pos) + ext;
     }
   }

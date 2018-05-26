@@ -31,6 +31,7 @@ void robot::swarm_update(myRobot::robot* member)
   if (member->get_robot_id() == 1) {
     myRobot::robot::swarm[0] = member;
   } else {
+
     myRobot::robot::swarm.push_back(member);
   }
 
@@ -320,7 +321,7 @@ void robot::merge_map(const std::vector<myRobot::robot *> &swarm)
 
 {
   // Check if robot found any other robot on its fiducial sensor
-  if (fiducial_sensor->GetFiducials().size() > 0) {
+  if (!fiducial_sensor->GetFiducials().empty()) {
     const auto &fiducials = fiducial_sensor->GetFiducials(); // create a const reference to the sensor output vector
     // iterate through each fiducial in fiducials for merging the map with the robot found in the fidicual sensor
     for (auto fid : fiducials) {
@@ -375,23 +376,20 @@ void robot::merge_map()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void robot::write_map()
+void robot::write_map(std::string prefix)
 /**
- *
+ * write the map stored in the robot as an image
  */
 {
   std::string count = std::to_string(image_count);
   count = std::string(9 - count.length(), '0') + count;
-  std::string filename = img_path + robot_name + "_" + count + img_type;
+  std::string filename = img_path + prefix + "_" +robot_name + "_" + count + img_type;
   //std::cout<<"\n writing map as "<<filename<<std::endl;
   try {
-    // Writing as an image is at least 20 times faster than writing to an text file
     //auto start = clock();
     occ_grid_map->map_write(filename, myRobot::robot::gen_id);
     //auto stop = clock();
     //std::cout<<"\n the time for image writing is : "<<(stop-start)/double(CLOCKS_PER_SEC)*1000 <<std::endl;
-
-    //occ_grid_map->map_txt_write(filename,myRobot::robot::gen_id);
 
     image_count++;
   } catch (std::runtime_error &ex) {
@@ -399,6 +397,23 @@ void robot::write_map()
 
   }
 
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void robot::write_map_txt(std::string prefix)
+/**
+ * write the map stored in the robot to a text file
+ */
+{
+  static unsigned long image_txt_count = 0;
+  std::string count = std::to_string(image_txt_count);
+  count = std::string(9 - count.length(), '0') + count;
+  std::string filename = img_path + prefix + "_" +robot_name + "_" + count + ".txt";
+
+  // Writing as an image is at least 20 times faster than writing to an text file
+  occ_grid_map->map_txt_write(filename,myRobot::robot::gen_id);
+  image_txt_count++;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////

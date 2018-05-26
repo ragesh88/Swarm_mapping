@@ -20,14 +20,15 @@ using namespace Stg;
 // Some global variables as parameters
 static const double cruisesSpeed = 0.4;
 static const double turnSpeed = 0.2;
-double quit_time = 900*1000000; // denoting 900 seconds
+double quit_time = 1000; // denoting 7200 seconds
 static const bool verbose = true;
 static const bool debug = false;
 static const bool record_maps = false;
 
 // some flags for computation
-bool compute_entropy=true;
-bool compute_coverage=true;
+bool control_verbose=false;
+bool compute_entropy=false;
+bool compute_coverage=false;
 
 
 int8_t newLaserUpdate(Model *mod, myRobot::robot *robot);
@@ -38,7 +39,16 @@ int8_t newFiducialUpdate(Model *, myRobot::robot *robot);
 
 
 // Stage calls this when the model starts up
-extern "C" int Init(Model *mod, CtrlArgs *) {
+extern "C" int Init(Model *mod, CtrlArgs * args) {
+
+
+  // local arguments
+    printf( "\nMI Levy walk controller controller initialised with:\n"
+      "\tworldfile string \"%s\"\n"
+      "\tcmdline string \"%s\"",
+      args->worldfile.c_str(),
+      args->cmdline.c_str() );
+
 
 
   auto*robot = new myRobot::robot();
@@ -51,6 +61,13 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
   printf("\n\n**************Ragesh MI Levy walk controller assignment*************");
   robot->set_current_velocity(cruisesSpeed, 0, turnSpeed);
   robot->world = mod->GetWorld();
+  std::cout<<"\n  The fiducial return is : "<<mod->GetFiducialReturn();
+  std::cout<<"\n  The robot id is :"<<robot->get_robot_id()<<std::endl;
+  // check if fiducial return is same and robot id
+  if(mod->GetFiducialReturn() != robot->get_robot_id()){
+    std::cerr<<"robot id and fiducial return not same"<<std::endl;
+    exit(0);
+  }
   robot->avoidCount = 0;
   robot->randCount = 0;
   robot->position = dynamic_cast<ModelPosition *>(mod);
@@ -66,13 +83,21 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
   robot->position->Subscribe(); // starts the position updates
 
 
-  // The parameters for map object
+  // The parameters for map object (cave map)
   const double min_x = -8; // in meters
   const double min_y = -8; // in meters
   const double cell_size_x = 0.02; // in meters
   const double cell_size_y = 0.02; // in meters
   const int n_cell_x = 800; // no of cells along x
   const int n_cell_y = 800; // no of cells along y
+
+  // The parameters for map object (frieburg map)
+//  const double min_x = -20; // in meters
+//  const double min_y = -20; // in meters
+//  const double cell_size_x = 0.02; // in meters
+//  const double cell_size_y = 0.02; // in meters
+//  const int n_cell_x = 2000; // no of cells along x
+//  const int n_cell_y = 2000; // no of cells along y
 
   // Setting up the map object
   auto *occ_grid = new occupancy_grid::occupancyGrid2D<double, int>(min_x, min_y,
@@ -121,12 +146,17 @@ extern "C" int Init(Model *mod, CtrlArgs *) {
 
   // Setting up the Mutual information based planner
   auto* MIlevyWalkPlanner = new myPlanner::MI_levyWalk_planner(0, pose, Stg::Velocity(cruisesSpeed, 0, 0, turnSpeed),
-                                                               fsm, myPlanner::CSQMI, 5);
+                                                               fsm, myPlanner::KLDMI, 5);
 
   if (MIlevyWalkPlanner == NULL)
     printf("NO Planner generated");
 
   robot->set_planner(MIlevyWalkPlanner);
+
+  // Setting a planner
+  //auto* planner = new myPlanner::base_planner(50, 0, Stg::Pose{0.0, 0.0, 0.0, 0.0}, Stg::Velocity(cruisesSpeed, 0, 0, turnSpeed));
+
+  //robot->set_planner(planner);
 
   // Looking for fiducial sensors in the model.
   // This required for sharing map among robots using consensus
@@ -168,28 +198,33 @@ int8_t newLaserUpdate(Model *, myRobot::robot *robot) {
     //printf("\n Paused");
     //printf("\n Writing the map");
     if (robot->get_robot_id() == 1 || robot->get_robot_id() == 3) {
-      std::cout<<" \nData from robot "<<robot->get_robot_id()<<std::endl;
+      //std::cout<<" \nData from robot "<<robot->get_robot_id()<<std::endl;
       robot->write_map();
-      std::cout << "\n The map percentage coverage is : " << robot->occ_grid_map->compute_map_coverage();
-      std::cout << "\n The entropy of the map is : " << robot->occ_grid_map->compute_map_entropy();
-      std::string path{"./robot"};
-      robot->write_map_entropy(path + std::to_string(robot->get_robot_id()) + "/");
-      robot->write_map_coverage(path + std::to_string(robot->get_robot_id()) + "/");
-      std::cout << std::endl;
+//      std::cout << "\n The map percentage coverage is : " << robot->occ_grid_map->compute_map_coverage();
+//      std::cout << "\n The entropy of the map is : " << robot->occ_grid_map->compute_map_entropy();
+//      std::string path{"./robot"};
+//      robot->write_map_entropy(path + std::to_string(robot->get_robot_id()) + "/");
+//      robot->write_map_coverage(path + std::to_string(robot->get_robot_id()) + "/");
+//      std::cout << std::endl;
     }
   }
 
-  if (std::fabs(robot->world->SimTimeNow() - quit_time) < robot->world->sim_interval ){
+  if (std::fabs(robot->world->SimTimeNow()/ 1000000.0 - quit_time) < robot->world->sim_interval/ 1000000.0 ){
     std::cout<<"\n sim time :"<<robot->world->SimTimeNow()/ 1000000.0;
     std::cout<<"\nsimulation finished\n";
-    if (robot->get_robot_id() == 1 || robot->get_robot_id() == 3) {
+    if (robot->get_robot_id() == 1 || robot->get_robot_id() == 3 || 1) {
       std::cout<<" \n Data from robot "<<robot->get_robot_id()<<std::endl;
-      //robot->write_map();
-      std::cout << "\n The map percentage coverage is : " << robot->occ_grid_map->compute_map_coverage();
-      std::cout << "\n The entropy of the map is : " << robot->occ_grid_map->compute_map_entropy();
       std::string path{"./robot"};
-      robot->write_map_entropy(path + std::to_string(robot->get_robot_id()) + "/");
-      robot->write_map_coverage(path + std::to_string(robot->get_robot_id()) + "/");
+      robot->write_map();
+      if (compute_coverage){
+        std::cout << "\n The map percentage coverage is : " << robot->occ_grid_map->compute_map_coverage();
+        robot->write_map_coverage(path + std::to_string(robot->get_robot_id()) + "/");
+      }
+      if(compute_entropy){
+        std::cout << "\n The entropy of the map is : " << robot->occ_grid_map->compute_map_entropy();
+        robot->write_map_entropy(path + std::to_string(robot->get_robot_id()) + "/");
+      }
+
       std::cout << std::endl;
     }
   }

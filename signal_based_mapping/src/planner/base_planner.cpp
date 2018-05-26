@@ -579,7 +579,10 @@ void MI_levyWalk_planner::generate_path(double start_time, occupancy_grid::occup
 
   double levy_travel_time = levy_dis/std::fabs(get_velocity()->x);
 
-  const Stg::Pose* curPose = get_startPose();
+  const Stg::Pose* curPose_t = get_startPose();
+  const Stg::Pose* curPose = new Stg::Pose{curPose_t->x + levy_dis*std::cos(curPose_t->a)/2,
+                                       curPose_t->y + levy_dis*std::sin(curPose_t->a)/2,
+                                       curPose_t->z, curPose_t->a};
 
 
   std::map<double, std::vector<radians>> dir_MI; // store the compute MI and associated direction

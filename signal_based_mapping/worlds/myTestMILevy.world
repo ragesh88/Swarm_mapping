@@ -8,8 +8,8 @@ include "mySick.inc"
 
 # time to pause (in GUI mode) or quit (in headless mode (-g)) the simulation
 #quit_time 3600 # 3600 seconds of simulated time
-quit_time 900 # 900 seconds of simulated time
-#quit_time 0.1 # 900 seconds of simulated time
+#quit_time 900 # 900 seconds of simulated time
+quit_time 0.1 # 900 seconds of simulated time
 
 # threads may speed things up here depending on available CPU cores & workload  
 threads 8
@@ -47,25 +47,6 @@ floorplan
   bitmap "../bitmaps/plain.png"
 )
 
-define SICK_noisy ranger
-(
-	color "blue"
-  	size [ 0.156 0.155 0.19 ] # dimensions from LMS200 data sheet
-  		
-	sensor
-	(				
-	  # factory settings for LMS200	
-	  range [ 0.0 2.0 ]
-	  pose [ 0 0 0.0 0 ]
-	  fov 180
-	  #samples 180
-	  #samples 90 # still useful but much faster to compute
-	  samples 40 # still useful but much faster to compute
-	  color_rgba [0 0 1 0.15]
-	  noise [ 0.01 0.00 0.00 ] # in the order range_noise_const, range, angle_noise
-	)
-)
-
 
 
 
@@ -91,11 +72,8 @@ pioneer2dx
     range_max 2
     range_max_id 2
     fov 360
-  ) 
-  #SICK_noisy
-  #( 
-    #alwayson 1 # don't wait for a subscriber
-  #) 
+  )
+  
   # demonstrate a plugin controller, implemented in examples/ctrl/wander.cc
   # you probably should comment this out when using simple.cfg with Player
   ctrl "myMILevywalker"
