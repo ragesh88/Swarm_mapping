@@ -151,6 +151,14 @@ class robot {
     img_path = img_path + std::to_string(robot_id) + "/";
   }
 
+  robot(Stg::Model *mod) {
+    /// constructor with no arguments with the model from Stg
+    robot_id =  mod->GetFiducialReturn();// generate id for each robot
+    ++gen_id;
+    robot_name = robot_name + std::to_string(robot_id);
+    img_path = img_path + std::to_string(robot_id) + "/";
+  }
+
   ~robot() {
     /// Destructor of robot class
     //write_map();
@@ -217,6 +225,7 @@ class robot {
      */
     robot_name = name;
   }
+
 
   void set_current_pose(Stg::meters_t x, Stg::meters_t y, Stg::meters_t z, Stg::radians_t a) {
     /// Set the current pose of the robot using all the parameters

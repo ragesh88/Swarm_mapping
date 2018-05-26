@@ -51,7 +51,7 @@ extern "C" int Init(Model *mod, CtrlArgs * args) {
 
 
 
-  auto*robot = new myRobot::robot();
+  auto*robot = new myRobot::robot(mod);
 
   // Storing the pointer of the dynamically allocated object in a vector
   // This is done that other robots can access the robot data to mimic communication.
@@ -65,7 +65,7 @@ extern "C" int Init(Model *mod, CtrlArgs * args) {
   std::cout<<"\n  The robot id is :"<<robot->get_robot_id()<<std::endl;
   // check if fiducial return is same and robot id
   if(mod->GetFiducialReturn() != robot->get_robot_id()){
-    std::cerr<<"robot id and fiducial return not same"<<std::endl;
+    std::cout<<"robot id and fiducial return not same"<<std::endl;
     exit(0);
   }
   robot->avoidCount = 0;

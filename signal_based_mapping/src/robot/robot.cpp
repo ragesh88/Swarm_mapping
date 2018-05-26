@@ -31,10 +31,11 @@ void robot::swarm_update(myRobot::robot* member)
   if (member->get_robot_id() == 1) {
     myRobot::robot::swarm[0] = member;
   } else {
-
-    myRobot::robot::swarm.push_back(member);
+    if (myRobot::robot::swarm.size() < member->get_robot_id()){
+      myRobot::robot::swarm.resize(static_cast<long unsigned>(member->get_robot_id()));
+    }
+    myRobot::robot::swarm[member->get_robot_id()-1] = member;
   }
-
 }
 
 void robot::move() {

@@ -16,7 +16,7 @@ threads 8
 
 
 # start the simulation in pause
-paused 0
+paused 1
 
 # spatial resolution of the underlying occupancy grid. Default is 0.02m.
 resolution 0.02
@@ -35,7 +35,7 @@ window
   			
   show_data 1              # 1=on 0=off
   # turn on taking screen shots
-  screenshots 1
+  screenshots 0
 )
 
 # load an environment bitmap
