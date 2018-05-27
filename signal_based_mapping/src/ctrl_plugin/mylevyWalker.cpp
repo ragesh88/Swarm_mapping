@@ -10,6 +10,8 @@
 
 
 #include "robot/robot.h"
+#include <boost/algorithm/string.hpp>
+#include "json/json.hpp"
 
 using namespace Stg;
 
@@ -26,7 +28,7 @@ int PositionUpdate(Model *mod, myRobot::robot *robot);
 
 int8_t newFiducialUpdate(Model *, myRobot::robot *robot);
 
-double generateGaussianNoise(double variance);
+
 
 // Stage calls this when the model starts up
 extern "C" int Init(Model *mod, CtrlArgs *) {
@@ -184,25 +186,25 @@ int8_t newFiducialUpdate(Model *, myRobot::robot *robot) {
   return 0;
 }
 
-double generateGaussianNoise(double variance) {
-  static bool haveSpare = false;
-  static double rand1, rand2;
-
-  if (haveSpare) {
-    haveSpare = false;
-    return sqrt(variance * rand1) * sin(rand2);
-  }
-
-  haveSpare = true;
-
-  rand1 = rand() / ((double) RAND_MAX);
-  if (rand1 < 1e-100)
-    rand1 = 1e-100;
-  rand1 = -2 * log(rand1);
-  rand2 = (rand() / ((double) RAND_MAX)) * M_PI * 2;
-
-  return sqrt(variance * rand1) * cos(rand2);
-}
+//double generateGaussianNoise(double variance) {
+//  static bool haveSpare = false;
+//  static double rand1, rand2;
+//
+//  if (haveSpare) {
+//    haveSpare = false;
+//    return sqrt(variance * rand1) * sin(rand2);
+//  }
+//
+//  haveSpare = true;
+//
+//  rand1 = rand() / ((double) RAND_MAX);
+//  if (rand1 < 1e-100)
+//    rand1 = 1e-100;
+//  rand1 = -2 * log(rand1);
+//  rand2 = (rand() / ((double) RAND_MAX)) * M_PI * 2;
+//
+//  return sqrt(variance * rand1) * cos(rand2);
+//}
 
 int PositionUpdate(Model *, myRobot::robot *robot) {
 

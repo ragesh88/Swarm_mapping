@@ -20,12 +20,13 @@
 
 using namespace Stg;
 using json = nlohmann::json;
+
 // Some global variables as parameters
 static const double cruisesSpeed = 0.4;
 static const double turnSpeed = 0.2;
 double quit_time = 1000; // denoting 7200 seconds
 uint no_of_robots=0;
-std::string trail{""};
+std::string trail;
 static const bool verbose = true;
 static const bool debug = false;
 static bool record_maps = false;
