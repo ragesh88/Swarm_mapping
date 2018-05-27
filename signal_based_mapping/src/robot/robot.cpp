@@ -466,7 +466,9 @@ void robot::write_map_entropy(std::string path, std::string prefix)
     return;
   }
   std::string filename{path + prefix + "robot_" + std::to_string(robot_id) + "_entropy.txt"};
-  std::cout<<"\n Writing to : "<<filename<<std::endl;
+  if(verbose){
+    std::cout<<"\n Writing to : "<<filename<<std::endl;
+  }
 
   // write the list to a text file
 
@@ -500,7 +502,10 @@ void robot::write_map_coverage(std::string path, std::string prefix)
     return;
   }
   std::string filename{path + prefix + "robot_" + std::to_string(robot_id) + "_coverage.txt"};
-  std::cout<<"\n Writing to : "<<filename<<std::endl;
+  if(verbose){
+    std::cout<<"\n Writing to : "<<filename<<std::endl;
+  }
+
 
   // write the list to a text file
 

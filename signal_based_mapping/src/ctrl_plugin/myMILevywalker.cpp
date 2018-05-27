@@ -35,13 +35,13 @@ bool control_verbose=true;
 bool compute_entropy=false;
 bool compute_coverage=false;
 bool write_txt_map=false;
-bool write_img_map=false;
+bool write_img_map=true;
 
 // paths for storing data
-std::string data_path_entropy{""};
-std::string data_path_coverage{""};
-std::string data_path_img_map{""};
-std::string data_path_txt_map{""};
+std::string data_path_entropy;
+std::string data_path_coverage;
+std::string data_path_img_map;
+std::string data_path_txt_map;
 
 
 int8_t newLaserUpdate(Model *mod, myRobot::robot *robot);
@@ -56,11 +56,11 @@ extern "C" int Init(Model *mod, CtrlArgs * args) {
 
 
   // local arguments
-    printf( "\nMI Levy walk controller controller initialised with:\n"
-      "\tworldfile string \"%s\"\n"
-      "\tcmdline string \"%s\"",
-      args->worldfile.c_str(),
-      args->cmdline.c_str() );
+//    printf( "\nMI Levy walk controller controller initialised with:\n"
+//      "\tworldfile string \"%s\"\n"
+//      "\tcmdline string \"%s\"",
+//      args->worldfile.c_str(),
+//      args->cmdline.c_str() );
 
 
   // The parameters for map object (cave map)
@@ -78,6 +78,13 @@ extern "C" int Init(Model *mod, CtrlArgs * args) {
 //  const double cell_size_y = 0.02; // in meters
 //  const int n_cell_x = 2000; // no of cells along x
 //  const int n_cell_y = 2000; // no of cells along y
+
+  // create a robot object as a dynamic one
+  auto*robot = new myRobot::robot(mod);
+
+  // Storing the pointer of the dynamically allocated object in a vector
+  // This is done that other robots can access the robot data to mimic communication.
+  myRobot::robot::swarm_update(robot);
 
 
 
@@ -104,6 +111,7 @@ extern "C" int Init(Model *mod, CtrlArgs * args) {
       quit_time = j_obj["quit_time"];
       no_of_robots = j_obj["no_of_robots"];
       control_verbose = static_cast<bool>(j_obj["control_verbose"]);
+      robot->verbose=control_verbose;
       record_maps = static_cast<bool>(j_obj["record_maps"]);
       compute_entropy = static_cast<bool>(j_obj["compute_entropy"]);
       compute_coverage = static_cast<bool>(j_obj["compute_coverage"]);
@@ -133,15 +141,6 @@ extern "C" int Init(Model *mod, CtrlArgs * args) {
   }
   ///////////////////////////////////////////////////////////
 
-
-
-
-
-  auto*robot = new myRobot::robot(mod);
-
-  // Storing the pointer of the dynamically allocated object in a vector
-  // This is done that other robots can access the robot data to mimic communication.
-  myRobot::robot::swarm_update(robot);
 
 
 
@@ -262,6 +261,8 @@ extern "C" int Init(Model *mod, CtrlArgs * args) {
     printf("\n*************************Process completed**************************");
   }
 
+
+
   return 0;
 }
 
@@ -298,25 +299,98 @@ int8_t newLaserUpdate(Model *, myRobot::robot *robot) {
   }
 
   if (std::fabs(robot->world->SimTimeNow()/ 1000000.0 - quit_time) < robot->world->sim_interval/ 1000000.0 ){
-    std::cout<<"\n sim time :"<<robot->world->SimTimeNow()/ 1000000.0;
-    std::cout<<"\nsimulation finished\n";
-    if (robot->get_robot_id() == 1 || robot->get_robot_id() == 3 || 1) {
+    if(control_verbose){
+      std::cout<<"\n sim time :"<<robot->world->SimTimeNow()/ 1000000.0;
+      std::cout<<"\nsimulation finished\n";
       std::cout<<" \n Data from robot "<<robot->get_robot_id()<<std::endl;
-      std::string path{"./robot"};
-      robot->write_map();
-      if (compute_coverage){
-        std::cout << "\n The map percentage coverage is : " << robot->occ_grid_map->compute_map_coverage();
-        robot->write_map_coverage(path + std::to_string(robot->get_robot_id()) + "/");
+    }
+    std::string path{"./robot"};
+    std::string prefix{"_Qt_" + std::to_string(uint(quit_time)) + "_Rs_" + std::to_string(no_of_robots)};
+    if(trail.length()){
+      prefix += "_Tr_" + trail + "_";
+    }
+    // write the map as an image
+    if(write_img_map){
+      if(data_path_img_map.length()){
+        if(trail.length()){
+          robot->write_map(data_path_img_map, prefix);
+        } else{
+          robot->write_map(data_path_img_map);
+        }
+      } else{
+        if(trail.length()){
+          robot->write_map(path + std::to_string(robot->get_robot_id()) + "/", prefix);
+        } else{
+          robot->write_map(path + std::to_string(robot->get_robot_id()) + "/");
+        }
       }
-      if(compute_entropy){
-        std::cout << "\n The entropy of the map is : " << robot->occ_grid_map->compute_map_entropy();
-        robot->write_map_entropy(path + std::to_string(robot->get_robot_id()) + "/");
+      //robot->write_map();
+    }
+    // write the map as a text file
+    if(write_txt_map){
+      if(data_path_txt_map.length()){
+        if(trail.length()){
+          robot->write_map_txt(data_path_txt_map, prefix);
+        } else{
+          robot->write_map_txt(data_path_txt_map);
+        }
+      } else{
+        if(trail.length()){
+          robot->write_map_txt(path + std::to_string(robot->get_robot_id()) + "/", prefix);
+        } else{
+          robot->write_map_txt(path + std::to_string(robot->get_robot_id()) + "/");
+        }
       }
+      //robot->write_map_txt();
+    }
 
+    if (compute_coverage){
+      if(control_verbose){
+        std::cout << "\n The map percentage coverage is : " << robot->occ_grid_map->compute_map_coverage();
+      }
+      // write the percentage of coverage at various times
+      if(data_path_coverage.length()){
+        if(trail.length()){
+          robot->write_map_coverage(data_path_coverage, prefix);
+        }else{
+          robot->write_map_coverage(data_path_coverage);
+        }
+      } else{
+        if(trail.length()){
+          robot->write_map_coverage(path + std::to_string(robot->get_robot_id()) + "/", prefix);
+        } else{
+          robot->write_map_coverage(path + std::to_string(robot->get_robot_id()) + "/");
+        }
+      }
+      //robot->write_map_coverage(path + std::to_string(robot->get_robot_id()) + "/");
+    }
+
+    if(compute_entropy){
+      if(control_verbose){
+        std::cout << "\n The entropy of the map is : " << robot->occ_grid_map->compute_map_entropy();
+      }
+      // write the entropy of map at various times
+      if(data_path_entropy.length()){
+        if(trail.length()){
+          robot->write_map_entropy(data_path_entropy, prefix);
+        }else{
+          robot->write_map_entropy(data_path_entropy);
+        }
+      } else{
+        if(trail.length()){
+          robot->write_map_entropy(path + std::to_string(robot->get_robot_id()) + "/", prefix);
+        } else{
+          robot->write_map_entropy(path + std::to_string(robot->get_robot_id()) + "/");
+        }
+      }
+      //robot->write_map_entropy(path + std::to_string(robot->get_robot_id()) + "/");
+    }
+
+    if(control_verbose){
       std::cout << std::endl;
     }
-  }
 
+  }
   return 0;
 }
 
@@ -326,7 +400,7 @@ int8_t newFiducialUpdate(Model *, myRobot::robot *robot) {
   if (robot->verbose) { // displaying the output of fiducial sensor for debugging
     const auto &fiducials = robot->fiducial_sensor->GetFiducials();
     std::cout << "\n The number of robots detected is : " << fiducials.size() << std::endl;
-    if (fiducials.size()) {
+    if (!fiducials.empty()) {
       std::cout << "\nThe data of the fiducial sensor of " << robot->get_robot_name();
       std::cout << "\nThe field of view of the fiducial sensor is : " << robot->fiducial_sensor->fov << std::endl;
       std::cout << "\nThe heading of the fiducial sensor is : " << robot->fiducial_sensor->heading << std::endl;
