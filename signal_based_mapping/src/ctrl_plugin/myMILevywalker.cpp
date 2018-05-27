@@ -228,7 +228,7 @@ extern "C" int Init(Model *mod, CtrlArgs * args) {
   auto* MIlevyWalkPlanner = new myPlanner::MI_levyWalk_planner(0, pose, Stg::Velocity(cruisesSpeed, 0, 0, turnSpeed),
                                                                fsm, myPlanner::KLDMI, 5);
 
-  if (MIlevyWalkPlanner == NULL)
+  if (MIlevyWalkPlanner == nullptr)
     printf("NO Planner generated");
 
   robot->set_planner(MIlevyWalkPlanner);
