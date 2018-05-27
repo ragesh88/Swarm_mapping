@@ -377,14 +377,20 @@ void robot::merge_map()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void robot::write_map(std::string prefix)
+void robot::write_map(std::string path, std::string prefix)
 /**
  * write the map stored in the robot as an image
  */
 {
   std::string count = std::to_string(image_count);
   count = std::string(9 - count.length(), '0') + count;
-  std::string filename = img_path + prefix + "_" +robot_name + "_" + count + img_type;
+  std::string filename;
+  if (path.length() == 0){
+     filename = img_path + prefix + "_" +robot_name + "_" + count + img_type;
+  } else{
+     filename = path + prefix + "_" +robot_name + "_" + count + img_type;
+  }
+
   //std::cout<<"\n writing map as "<<filename<<std::endl;
   try {
     //auto start = clock();
@@ -402,7 +408,7 @@ void robot::write_map(std::string prefix)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void robot::write_map_txt(std::string prefix)
+void robot::write_map_txt(std::string path, std::string prefix)
 /**
  * write the map stored in the robot to a text file
  */
@@ -410,7 +416,13 @@ void robot::write_map_txt(std::string prefix)
   static unsigned long image_txt_count = 0;
   std::string count = std::to_string(image_txt_count);
   count = std::string(9 - count.length(), '0') + count;
-  std::string filename = img_path + prefix + "_" +robot_name + "_" + count + ".txt";
+  std::string filename;
+  if (path.length() == 0){
+    filename = img_path + prefix + "_" +robot_name + "_" + count + ".txt";
+  } else{
+    filename = path + prefix + "_" +robot_name + "_" + count + ".txt";
+  }
+
 
   // Writing as an image is at least 20 times faster than writing to an text file
   occ_grid_map->map_txt_write(filename,myRobot::robot::gen_id);

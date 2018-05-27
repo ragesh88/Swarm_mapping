@@ -15,20 +15,33 @@
 **/
 
 #include "robot/robot.h"
+#include <boost/algorithm/string.hpp>
+#include "json/json.hpp"
 
 using namespace Stg;
+using json = nlohmann::json;
 // Some global variables as parameters
 static const double cruisesSpeed = 0.4;
 static const double turnSpeed = 0.2;
 double quit_time = 1000; // denoting 7200 seconds
+uint no_of_robots=0;
+std::string trail{""};
 static const bool verbose = true;
 static const bool debug = false;
-static const bool record_maps = false;
+static bool record_maps = false;
 
 // some flags for computation
-bool control_verbose=false;
+bool control_verbose=true;
 bool compute_entropy=false;
 bool compute_coverage=false;
+bool write_txt_map=false;
+bool write_img_map=false;
+
+// paths for storing data
+std::string data_path_entropy{""};
+std::string data_path_coverage{""};
+std::string data_path_img_map{""};
+std::string data_path_txt_map{""};
 
 
 int8_t newLaserUpdate(Model *mod, myRobot::robot *robot);
@@ -50,6 +63,79 @@ extern "C" int Init(Model *mod, CtrlArgs * args) {
       args->cmdline.c_str() );
 
 
+  // The parameters for map object (cave map)
+  double min_x = -8; // in meters
+  double min_y = -8; // in meters
+  double cell_size_x = 0.02; // in meters
+  double cell_size_y = 0.02; // in meters
+  int n_cell_x = 800; // no of cells along x
+  int n_cell_y = 800; // no of cells along y
+
+  // The parameters for map object (frieburg map)
+//  const double min_x = -20; // in meters
+//  const double min_y = -20; // in meters
+//  const double cell_size_x = 0.02; // in meters
+//  const double cell_size_y = 0.02; // in meters
+//  const int n_cell_x = 2000; // no of cells along x
+//  const int n_cell_y = 2000; // no of cells along y
+
+
+
+  // parse the data from the json file if it exist
+  ///////////////////////////////////////////////////////////
+  if (args->cmdline.length()){
+    std::vector<std::string> results;
+    boost::split(results, args->cmdline, [](char c){ return c==' ';});
+    std::string json_file; // json file
+    auto j = find(results.begin(), results.end(), "-j");
+    auto t = find(results.begin(), results.end(), "-t");
+    // found a trial option
+    if(t != results.end()){
+      trail = *(t+1);
+    }
+    // found a json file parse the data
+    if(j != results.end()){
+      json_file = *(j+1);
+      // parsing the data
+      std::ifstream jread(json_file);
+      json j_obj;
+      jread >> j_obj;
+      // setting up the parameter based on the parameter json file
+      quit_time = j_obj["quit_time"];
+      no_of_robots = j_obj["no_of_robots"];
+      control_verbose = static_cast<bool>(j_obj["control_verbose"]);
+      record_maps = static_cast<bool>(j_obj["record_maps"]);
+      compute_entropy = static_cast<bool>(j_obj["compute_entropy"]);
+      compute_coverage = static_cast<bool>(j_obj["compute_coverage"]);
+      write_img_map = static_cast<bool>(j_obj["write_img_map"]);
+      write_txt_map = static_cast<bool>(j_obj["write_txt_map"]);
+      if(compute_entropy){
+        data_path_entropy = j_obj["data_path_entropy"];
+      }
+      if(compute_coverage){
+        data_path_coverage = j_obj["data_path_coverage"];
+      }
+      if(write_img_map){
+        data_path_img_map = j_obj["data_path_img_map"];
+      }
+      if(write_txt_map){
+        data_path_txt_map = j_obj["data_path_txt_map"];
+      }
+      // setting up the map settings from the file
+      min_x = j_obj["floorplan"]["min_x"];
+      min_y = j_obj["floorplan"]["min_y"];
+      cell_size_x = j_obj["floorplan"]["cell_size_x"];
+      cell_size_y = j_obj["floorplan"]["cell_size_y"];
+      n_cell_x = j_obj["floorplan"]["n_cell_x"];
+      n_cell_y = j_obj["floorplan"]["n_cell_y"];
+    }
+
+  }
+  ///////////////////////////////////////////////////////////
+
+
+
+
 
   auto*robot = new myRobot::robot(mod);
 
@@ -58,11 +144,15 @@ extern "C" int Init(Model *mod, CtrlArgs * args) {
   myRobot::robot::swarm_update(robot);
 
 
-  printf("\n\n**************Ragesh MI Levy walk controller assignment*************");
+
   robot->set_current_velocity(cruisesSpeed, 0, turnSpeed);
   robot->world = mod->GetWorld();
-  std::cout<<"\n  The fiducial return is : "<<mod->GetFiducialReturn();
-  std::cout<<"\n  The robot id is :"<<robot->get_robot_id()<<std::endl;
+  if(control_verbose){
+    printf("\n\n**************Ragesh MI Levy walk controller assignment*************");
+    std::cout<<"\n  The fiducial return is : "<<mod->GetFiducialReturn();
+    std::cout<<"\n  The robot id is :"<<robot->get_robot_id()<<std::endl;
+  }
+
   // check if fiducial return is same and robot id
   if(mod->GetFiducialReturn() != robot->get_robot_id()){
     std::cout<<"robot id and fiducial return not same"<<std::endl;
@@ -83,21 +173,6 @@ extern "C" int Init(Model *mod, CtrlArgs * args) {
   robot->position->Subscribe(); // starts the position updates
 
 
-  // The parameters for map object (cave map)
-  const double min_x = -8; // in meters
-  const double min_y = -8; // in meters
-  const double cell_size_x = 0.02; // in meters
-  const double cell_size_y = 0.02; // in meters
-  const int n_cell_x = 800; // no of cells along x
-  const int n_cell_y = 800; // no of cells along y
-
-  // The parameters for map object (frieburg map)
-//  const double min_x = -20; // in meters
-//  const double min_y = -20; // in meters
-//  const double cell_size_x = 0.02; // in meters
-//  const double cell_size_y = 0.02; // in meters
-//  const int n_cell_x = 2000; // no of cells along x
-//  const int n_cell_y = 2000; // no of cells along y
 
   // Setting up the map object
   auto *occ_grid = new occupancy_grid::occupancyGrid2D<double, int>(min_x, min_y,
@@ -113,18 +188,23 @@ extern "C" int Init(Model *mod, CtrlArgs * args) {
 
   ModelRanger *laser = nullptr;
 
-  printf("\n  Ragesh MI Levy walk controller assignment for robot %s initiated \n", robot->position->Token());
+  if(control_verbose){
+    printf("\n  Ragesh MI Levy walk controller assignment for robot %s initiated \n", robot->position->Token());
+  }
+
   for (int i = 0; i < 16; i++) {
 
     char name[32];
     snprintf(name, 32, "ranger:%d", i); // generate sequence of model names
-
-    printf("  looking for a suitable ranger at \"%s:%s\" ... ", robot->position->Token(), name);
+    if (control_verbose){
+      printf("  looking for a suitable ranger at \"%s:%s\" ... ", robot->position->Token(), name);
+    }
     laser = dynamic_cast<ModelRanger *>(robot->position->GetChild(name));
 
     if (laser && laser->GetSensors()[0].sample_count > 8) {
-
-      printf("yes.");
+      if(control_verbose){
+        printf("yes.");
+      }
       break;
     }
 
@@ -160,7 +240,9 @@ extern "C" int Init(Model *mod, CtrlArgs * args) {
 
   // Looking for fiducial sensors in the model.
   // This required for sharing map among robots using consensus
-  printf(" \n  looking for a suitable fiducial sensor for \"%s\" ... ", robot->position->Token());
+  if(control_verbose){
+    printf(" \n  looking for a suitable fiducial sensor for \"%s\" ... ", robot->position->Token());
+  }
   ModelFiducial *fiducial_sensor = nullptr;
   fiducial_sensor = dynamic_cast<ModelFiducial *>(robot->position->GetChild("fiducial:0"));
   if (fiducial_sensor == nullptr) {
@@ -168,12 +250,18 @@ extern "C" int Init(Model *mod, CtrlArgs * args) {
     exit(2);
 
   }
-  printf("found one");
+  if(control_verbose){
+    printf("found one");
+  }
+
   robot->fiducial_sensor = fiducial_sensor;
   robot->fiducial_sensor->AddCallback(Model::CB_UPDATE, model_callback_t(newFiducialUpdate), robot);
   robot->fiducial_sensor->Subscribe(); // starts the fiducial sensor update
 
-  printf("\n*************************Process completed**************************");
+  if (control_verbose){
+    printf("\n*************************Process completed**************************");
+  }
+
   return 0;
 }
 
