@@ -6,7 +6,12 @@
 
 using namespace myPlanner;
 
-void base_planner::generate_path(double start_time) {
+void base_planner::generate_path(double start_time)
+/**
+ * generate the path from the given start time
+ * @param start_time : start time of path generation
+ */
+{
   via_points point;
 
   set_planStartTime(start_time);
@@ -76,10 +81,12 @@ Stg::radians_t levyWalk_planner::generate_random_direction() {
   return distribution(generator);
 }
 
-void levyWalk_planner::generate_path(double start_time) {
-  /**
-   * The function generates a path for the robot to perform levy walk in an unbounded domain
-   */
+void levyWalk_planner::generate_path(double start_time)
+/**
+ * The function generates a path for the robot to perform levy walk in an unbounded domain
+ * @param start_time : start time to generate the path
+ */
+{
 
   via_points point;
 
@@ -202,9 +209,9 @@ void MI_levyWalk_planner::generate_dir_via_point(const Stg::Pose &start_pos,
                                                  const myPlanner::meters& plan_len,
                                                  std::queue<Stg::Pose> &dir_via_point)
 /**
- *
+ * generate the via points in a particular direction
  * @param start_pos : The start pose of the path whose via points need to be created
- * @param plan_dis : The length of the path
+ * @param plan_len : The length of the path
  * @param dir_via_point : The set of via points as a queue
  */
 {
@@ -230,7 +237,7 @@ double MI_levyWalk_planner::compute_beam_CSQMI(occupancy_grid::occupancyGrid2D<d
                                             double py,
                                             double p_theta)
 /**
- *
+ * compute CSQMI of the beam
  * @param map : a pointer to the map object for ray tracing operations
  * @param px : the x coordinate of the beam base in global frame
  * @param py : the y coordinate of the beam base in global frame
@@ -399,7 +406,7 @@ double MI_levyWalk_planner::compute_beam_KLDMI(occupancy_grid::occupancyGrid2D<d
                                                double py,
                                                double p_theta)
 /**
- *
+ * compute KLDMI of the beam
  * @param map : a pointer to the map object for ray tracing operations
  * @param px : the x coordinate of the beam base in global frame
  * @param py : the y coordinate of the beam base in global frame
@@ -529,7 +536,7 @@ double MI_levyWalk_planner::compute_beam_Entropy(occupancy_grid::occupancyGrid2D
                                                double py,
                                                double p_theta)
 /**
- *
+ * compute entropy of the beam
  * @param map : a pointer to the map object for ray tracing operations
  * @param px : the x coordinate of the beam base in global frame
  * @param py : the y coordinate of the beam base in global frame

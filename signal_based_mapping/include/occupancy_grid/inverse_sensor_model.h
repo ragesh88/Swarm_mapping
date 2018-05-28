@@ -19,6 +19,7 @@
 
 namespace occupancy_grid {
 
+/// a typedef type to handle laser range sensor
 typedef Stg::ModelRanger::Sensor LaserSensor;
 
 void log_odds_map_given_measurement_pose(const LaserSensor &sensor,

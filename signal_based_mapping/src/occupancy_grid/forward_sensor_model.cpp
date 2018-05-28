@@ -19,12 +19,12 @@ double log_odds_observations_given_map_pose(const Observation2D &observation,
 /**
  * The function returns log odds of the observation given the map and pose of
  * the robot.
- * @param observation
- * @param map
- * @param expected_range
- * @return
+ * @param observation : object of observation2D
+ * @param map : occupancy grid map
+ * @param expected_range : the expected range of the observation
+ * @return : log odd
  */
-{  //TODO : complete the parameter descriptions above
+{
 
   double total_angle = observation.p_theta;
   cv::Vec2d direction{std::cos(total_angle), sin(total_angle)};
@@ -56,13 +56,12 @@ double probability_observations_given_map_pose(const Observation2D &observation,
 /**
  * The function returns log odds of the observation given the map and pose of
  * the robot.
- * @param observation
- * @param map
- * @param expected_range
- * @return
+ * @param observation : object of observation2D
+ * @param map : occupancy grid map
+ * @param expected_range : the expected range of the observation
+ * @return : probability
  */
-{  //TODO : complete the parameter descriptions above
-
+{
   double total_angle = observation.p_theta;
   cv::Vec2d direction{std::cos(total_angle), sin(total_angle)};
   cv::Vec2d position{observation.px, observation.py};

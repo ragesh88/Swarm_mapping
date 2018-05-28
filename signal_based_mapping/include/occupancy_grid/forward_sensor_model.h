@@ -27,22 +27,40 @@ const double LASER_MAX_RANGE = 2.0;
 /// The Noise variance of the laser along the radial axis
 const double NOISE_VARIANCE = 0.05;
 
-template<typename real_t>
-class Gen_observation2D {
-  /**
+ /**
    * Gen_observation2D is a template class for storing range measurements
    *
    */
+template<typename real_t>
+class Gen_observation2D {
+
  public:
-  real_t px, py, p_theta, range;
+  /// x-coordinates of the start point
+  real_t px;
+  /// y-coordinate of the start point
+  real_t py;
+  /// direction of the beam
+  real_t p_theta;
+  /// range of the beam
+  real_t range;
   // Constructors
-  Gen_observation2D() {}
+  Gen_observation2D()
+  /// Default constructor
+  {}
 
   Gen_observation2D(real_t px, real_t py, real_t p_theta, real_t range) : px{px}, py{py}, p_theta{p_theta},
-                                                                          range{range} {}
+                                                                          range{range}
+  /**
+   * constructor
+   * @param px : x-coordinate of the start point
+   * @param py : y-coordinate of the start point
+   * @param p_theta : direction of the beam
+   * @param range : range of the beam
+   */
+   {}
 };
 
-/// Defined the new class with template specification
+/// a typedef type for Gen_observation2D template class
 typedef Gen_observation2D<double> Observation2D;
 
 double log_odds_observations_given_map_pose(const Observation2D &observation,

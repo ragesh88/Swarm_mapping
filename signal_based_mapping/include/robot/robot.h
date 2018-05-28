@@ -96,7 +96,10 @@ class robot {
   /// Access the fiducial sensor model using the Stage library
   Stg::ModelFiducial *fiducial_sensor{NULL};
   /// Obstacle avoidance variable
-  long int avoidCount{0}, randCount{0};
+  long int avoidCount{0};
+  /// Obstacle avoidance variable
+  long int randCount{0};
+  /// a public attribute to store previous pose mostly for testing
   Stg::Pose previous_pose;
   /// The pointer to the world object
   Stg::World *world{NULL};
@@ -131,7 +134,7 @@ class robot {
      * \param i_pose : Initial pose of the robot of as Stg::Pose object
      * \param i_vel : Initial velocity of the robot of as Stg::Velocity object
      * \param plan_gen : The pointer to the planner object
-     * \param occ_grid_map : The pointer to the occupancy map object
+     * \param map : The pointer to the occupancy map object
      */
 
     robot_id = ++gen_id; // generate id for each robot

@@ -25,42 +25,41 @@
 
 namespace myPlanner {
 
+/**
+  * \brief The enum structure MOTION_MODES enumerates the various modes
+  * of motion encoded in a via point of a motion path.
+ */
 enum MOTION_MODES {
 
-  /**
-   * \brief The enum structure MOTION_MODES enumerates the various modes
-   * of motion encoded in a via point of a motion path.
-   *
-   * \param START : the via point with no velocity
-   * \param ROTATION_Z : the via point with only rotational velocity along z direction
-   * \param TRANSLATION : the via point with translational velocity
-   * \param TRANSLATION_X : the via point with only translational velocity along the x direction wrt to robot
-   * \param TRANSLATION_Y : the via point with only translational velocity along the y direction wrt to robot
-   * \param ALL : the via point with all the velocities
-   */
-
-      START,
+  /// the via point with no velocity
+  START,
+  /// the via point with only rotational velocity along z direction
   ROTATION_Z,
+  /// the via point with translational velocity
   TRANSLATION,
+  /// the via point with only translational velocity along the x direction wrt to robot
   TRANSLATION_X,
+  ///  the via point with only translational velocity along the y direction wrt to robot
   TRANSLATION_Y,
+  /// the via point with all the velocities
   ALL
 };
 
-struct via_points {
-  /**
+ /**
    * \brief The via points structure is used to store each via point in the planned
    *
-   * \param modes : the motion mode corresponding to the via point
-   * \param motion_end_time : the time till the current control action to be done
-   * \param vel_control : the control action for the current via point
-   * \param des_pose : the desired pose for the via point
-   * \param computed_desPose : flag to check whether the desired pose is computed
    */
+struct via_points {
+
+  /// the motion mode corresponding to the via point
   MOTION_MODES modes = START;
+  /// the time till the current control action to be done
   double motion_end_time = 0;
+  /// the control action for the current via point
   Stg::Velocity vel_control{0.0, 0.0, 0.0, 0.0};
+  /// the desired pose for the via point
   Stg::Pose des_pose{0.0, 0.0, 0.0, 0.0};
+  /// flag to check whether the desired pose is computed
   bool computed_desPose = false;
 };
 
@@ -68,20 +67,18 @@ struct via_points {
 typedef std::queue<via_points> Path;
 
 class base_planner {
-  /**
-   * \param planTime : the time for which motion has to be planned
-   * \param planStartTime : the start time of the planner
-   * \param startPose : the pose of the robot at the start of planning
-   * \param robotTwist : the velocity of the robot for planning
-   * \param path : the planned path
-   */
+
+  /// the time for which motion has to be planned
   double planTime = 0;
+  /// the start time of the planner
   double planStartTime = 0;
+  /// the pose of the robot at the start of planning
   Stg::Pose startPose = Stg::Pose(0.0, 0.0, 0.0, 0.0);
+  /// the velocity of the robot for planning
   Stg::Velocity robotTwist = Stg::Velocity(0.0, 0.0, 0.0, 0.0);
 
  protected:
-
+  /// planned path
   Path path;
   /// check if the planner is using map
   bool USING_MAP;
@@ -108,55 +105,105 @@ class base_planner {
      * \param pTime : the time for which motion has to be planned
      * \param pSTime : the start time of the planner
      * \param P : the pose of the robot at the start of planning
+     * \param V : the velocity of the robot
      */
 
   }
 
   // get functions
 
-  double get_planTime() const {
+  double get_planTime() const
+  /**
+   *
+   * @return : planning time
+   */
+  {
     return planTime;
   }
 
-  double get_planStartTime() const {
+  double get_planStartTime() const
+  /**
+   *
+   * @return : planning start time
+   */
+  {
     return planStartTime;
   }
 
-  const Stg::Pose *get_startPose() const {
+  const Stg::Pose *get_startPose() const
+  /**
+   *
+   * @return : const pointer to the start Pose
+   */
+  {
     return &startPose;
   }
 
-  const Stg::Velocity *get_velocity() const {
+  const Stg::Velocity *get_velocity() const
+  /**
+   *
+   * @return : const pointer to the velocity object
+   */
+  {
     return &robotTwist;
   }
 
-  Path *get_path() {
+  Path *get_path()
+  /**
+   *
+   * @return : pointer to the generated path
+   */
+  {
     return &path;
   }
 
-  bool is_using_map(){
-    /// check if the planner is using a map for planning
+  bool is_using_map()
+  /**
+   * check if the planner is using a map for planning
+   * @return : whether the planner is using a map or not
+   */
+  {
     return USING_MAP;
   }
 
   // set functions
 
-  void set_planTime(double time) {
+  void set_planTime(double time)
+  /**
+   * setting the planning time
+   * @param time : duration of the path to be planned
+   */
+  {
     planTime = time;
   }
 
-  void set_planStartTime(double time) {
+  void set_planStartTime(double time)
+  /**
+   * setting the start time for planning
+   * @param time : the start time for planning
+   */
+  {
     planStartTime = time;
   }
 
-  void set_startPose(const Stg::Pose &P) {
+  void set_startPose(const Stg::Pose &P)
+  /**
+   * setting the start pose
+   * @param P : start pose
+   */
+  {
     startPose.x = P.x;
     startPose.y = P.y;
     startPose.z = P.z;
     startPose.a = P.a;
   }
 
-  void set_robotTwist(const Stg::Velocity &V) {
+  void set_robotTwist(const Stg::Velocity &V)
+  /**
+   * setting the velocity vector
+   * @param V : velocity vector object
+   */
+  {
     robotTwist.x = V.x;
     robotTwist.y = V.y;
     robotTwist.z = V.z;
@@ -182,25 +229,21 @@ class base_planner {
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-
-class levyWalk_planner : public base_planner {
-
-  /**
+/**
    * \brief The class the implements the path generation based on
    * a Levy Walk motion. The class inherits from the base planner class
    *
-   * The class requires the following extra attributes.
-   *
-   * \param min_ang : the minimum angle for the Levy walk
-   * \param max_ang : the maximum angle for the Levy walk
-   * \param alpha : alpha value for the levy walk
-   * \param levy_min : minimum distance for the levy walk in meters
-   *
    */
+class levyWalk_planner : public base_planner {
 
+
+  /// the minimum angle for the Levy walk
   Stg::radians_t min_ang = -M_PI;
+  /// the maximum angle for the Levy walk
   Stg::radians_t max_ang = M_PI;
+  /// alpha value for the levy walk
   double alpha = 1.5;
+  /// minimum distance for the levy walk in meters
   Stg::meters_t levy_min = Stg::meters_t{3.0};
 
  public:
@@ -218,15 +261,21 @@ class levyWalk_planner : public base_planner {
       max_ang{max},
       alpha{a},
       levy_min{l_min}
-        {
-    /**
-     * \brief The constructor with parameters
-     * In Levy walk the time for the walk is generated from
-     * a probability distribution.
-     *
-     */
+  /**
+    * \brief The constructor with parameters
+    * In Levy walk the time for the walk is generated from
+    * a probability distribution.
+    * @param pSTime : start time
+    * @param P : start pose of the robot
+    * @param V : velocity of the robot
+    * @param min : min angle
+    * @param max : max angle
+    * @param a : exponent of the Levy walk
+    * @param l_min : minimum levy distance
+    */
+ {
 
-  }
+ }
 
   // other functions
 
@@ -240,15 +289,17 @@ class levyWalk_planner : public base_planner {
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-
+/// declaration type for angle variables
 typedef double radians;
+/// declaration type for distance variables
 typedef double meters;
 
-struct F_S_M_parameters{
-  /**
+ /**
    * The structure stores the parameters for the forward sensor
    * for mutual information computation
    */
+struct F_S_M_parameters{
+
    /// The maximum distance that a sensor can detect
    meters z_max{2};
    /// The variance of the sensor along the radial direction when modelled as Gaussian
@@ -259,24 +310,27 @@ struct F_S_M_parameters{
    radians max_angle{M_PI/2};
 };
 
-enum REWARD{
-  /**
+ /**
    * enum data type to specify different reward objective to be maximized
    */
+enum REWARD{
+   /// KL divergence Mutual information based reward computation
    KLDMI,
+   /// Cauchy Schwarz mutual information based reward computation
    CSQMI,
+   /// Entropy based reward computation
    ENTROPY
 };
 
-
-class MI_levyWalk_planner : public base_planner {
-  /**
+ /**
    * @brief The class implements the path generation for a robot by combining levy walk with
    * the Mutual Information between the sensor model and the map. The basic idea behind the planning
    * is instead of choosing a random direction like in the levy walk setting choose a direction
    * that maximizes the information gain based the mutual information.
    *
    */
+class MI_levyWalk_planner : public base_planner {
+
 
   /// to store the forward sensor model parameters of the sensor
   F_S_M_parameters fsm;
@@ -339,6 +393,8 @@ class MI_levyWalk_planner : public base_planner {
    * @param a : the alpha value of the levy distribution
    * @param l_min : the min distance that robot should move
    * @param dis_btw_path_via_ : the distance adjacent via points in a path
+   * @param fsm_ : forward sensor model of parameters
+   * @param reward_ : the kind of reward function to be evaluated
    */
   {
 
@@ -350,7 +406,7 @@ class MI_levyWalk_planner : public base_planner {
       beam_dir.push_back(beam_dir.back() + incre_angle);
     }
 
-    /// setting the flag to indicate that the planner uses map
+    // setting the flag to indicate that the planner uses map
     USING_MAP = true;
 
 
