@@ -35,6 +35,8 @@ static bool record_maps = false;
 bool control_verbose=true;
 bool compute_entropy=false;
 bool compute_coverage=false;
+bool display_final_entropy=false;
+bool display_final_coverage=false;
 bool write_txt_map=false;
 bool write_img_map=true;
 
@@ -116,6 +118,8 @@ extern "C" int Init(Model *mod, CtrlArgs * args) {
       record_maps = static_cast<bool>(j_obj["record_maps"]);
       compute_entropy = static_cast<bool>(j_obj["compute_entropy"]);
       compute_coverage = static_cast<bool>(j_obj["compute_coverage"]);
+      display_final_coverage = static_cast<bool>(j_obj["display_final_coverage"]);
+      display_final_entropy = static_cast<bool>(j_obj["display_final_entropy"]);
       write_img_map = static_cast<bool>(j_obj["write_img_map"]);
       write_txt_map = static_cast<bool>(j_obj["write_txt_map"]);
       if(compute_entropy){
@@ -345,6 +349,10 @@ int8_t newLaserUpdate(Model *, myRobot::robot *robot) {
       //robot->write_map_txt();
     }
 
+    if (display_final_coverage){
+      printf("\n %f %f", quit_time, robot->occ_grid_map->compute_map_coverage());
+    }
+
     if (compute_coverage){
       if(control_verbose){
         std::cout << "\n The map percentage coverage is : " << robot->occ_grid_map->compute_map_coverage();
@@ -364,6 +372,10 @@ int8_t newLaserUpdate(Model *, myRobot::robot *robot) {
         }
       }
       //robot->write_map_coverage(path + std::to_string(robot->get_robot_id()) + "/");
+    }
+
+    if (display_final_entropy){
+      printf("\n %f %f", quit_time, robot->occ_grid_map->compute_map_entropy());
     }
 
     if(compute_entropy){

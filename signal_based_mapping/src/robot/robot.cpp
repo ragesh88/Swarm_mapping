@@ -425,7 +425,7 @@ void robot::write_map_txt(std::string path, std::string prefix)
 
 
   // Writing as an image is at least 20 times faster than writing to an text file
-  occ_grid_map->map_txt_write(filename,myRobot::robot::gen_id);
+  occ_grid_map->map_txt_write(filename,myRobot::robot::gen_id, true);
   image_txt_count++;
 }
 

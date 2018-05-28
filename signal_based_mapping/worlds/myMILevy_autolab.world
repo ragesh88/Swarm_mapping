@@ -7,8 +7,8 @@ include "map.inc"
 include "mySick.inc"
 
 # time to pause (in GUI mode) or quit (in headless mode (-g)) the simulation
-quit_time 7200 # 7200 seconds of simulated time
-#quit_time 900 # 900 seconds of simulated time
+#quit_time 7200 # 7200 seconds of simulated time
+quit_time 900 # 900 seconds of simulated time
 #quit_time 0.1 # 900 seconds of simulated time
 
 # threads may speed things up here depending on available CPU cores & workload  
@@ -28,9 +28,9 @@ speedup 0.000
 # configure the GUI window
 window
 (
-  size [ 1840 1640 ] # in pixels
+  size [ 840 640 ] # in pixels
   scale 20   # pixels per meter
-  center [ 0.000  0.00 ]
+  center [ -0.040  -0.274 ]
   rotate [ 0.000  0.000 ]
   			
   show_data 1              # 1=on 0=off
@@ -41,10 +41,10 @@ window
 # load an environment bitmap
 floorplan
 ( 
-  name "frieburg"
-  size [90.000 80.000 0.800]
+  name "autolab"
+  size [40.000 30.000 0.800]
   pose [0.000 0.000 0.000 0.000]
-  bitmap "../bitmaps/frieburg.png"
+  bitmap "../bitmaps/autolab.png"
 )
 
 define SICK_noisy ranger
@@ -75,7 +75,7 @@ pioneer2dx
   name "pio1"
   # for identification using fiducial sensor
   fiducial_return 1
-  pose [ 2.17 -29.45 0.000 0.000 ] 
+  pose [ 3.00 -12.72 0.000 0.000 ] 
 
   # pioneer2dx's sonars	will be ranger:0 and the laser will be ranger:1
   sicklaser( 
@@ -113,8 +113,8 @@ pioneer2dx
   name "pio2"
   # for identification using fiducial sensor
   fiducial_return 2
-  pose [ 5.94 34.39 0 90.000 ] 
-  #pose [ -4.946 -5.947 0 10.000 ] 
+  pose [ 1.85 -6.75 0 90.000 ] 
+  #pose [ 1.85 -6.75 0 10.000 ] 
 
   # pioneer2dx's sonars	will be ranger:0 and the laser will be ranger:1
   sicklaser( 
@@ -149,7 +149,7 @@ pioneer2dx
   name "pio3"
   # for identification using fiducial sensor
   fiducial_return 3
-  pose [ 22.46 -26.81 0 -110.000 ] 
+  pose [ 6.80 -2.85 0 80.000 ] 
   #pose [ -4.946 -5.947 0 10.000 ] 
 
   # pioneer2dx's sonars	will be ranger:0 and the laser will be ranger:1
@@ -184,7 +184,7 @@ pioneer2dx
   name "pio4"
   # for identification using fiducial sensor
   fiducial_return 4
-  pose [ 13.64 -32.72 0 110.000 ] 
+  pose [ 0.00 -3.00 0 110.000 ] 
   #pose [ -4.946 -5.947 0 10.000 ] 
 
   # pioneer2dx's sonars	will be ranger:0 and the laser will be ranger:1
@@ -219,7 +219,7 @@ pioneer2dx
   name "pio5"
   # for identification using fiducial sensor
   fiducial_return 5
-  pose [ -5.37 -24.11 0 60.000 ] 
+  pose [ -3.05 -2.85 0 60.000 ] 
 
   # pioneer2dx's sonars	will be ranger:0 and the laser will be ranger:1
   sicklaser( 
@@ -253,7 +253,7 @@ pioneer2dx
   name "pio6"
   # for identification using fiducial sensor
   fiducial_return 6
-  pose [ 28.57 -23.57 0 80.000 ] 
+  pose [ 2.65 -3.2 0 80.000 ] 
 
   # pioneer2dx's sonars	will be ranger:0 and the laser will be ranger:1
   sicklaser( 
@@ -321,7 +321,7 @@ pioneer2dx
   name "pio8"
   # for identification using fiducial sensor
   fiducial_return 8
-  pose [ 9.00 1.00 0 100.000 ] 
+  pose [ 8.40 -3.15 0 100.000 ] 
 
   # pioneer2dx's sonars	will be ranger:0 and the laser will be ranger:1
   sicklaser( 
@@ -355,7 +355,7 @@ pioneer2dx
   name "pio9"
   # for identification using fiducial sensor
   fiducial_return 9
-  pose [ 5.70 11.60 0 100.000 ] 
+  pose [ 3.55 4.20 0 100.000 ] 
 
   # pioneer2dx's sonars	will be ranger:0 and the laser will be ranger:1
   sicklaser( 
@@ -389,7 +389,7 @@ pioneer2dx
   name "pio10"
   # for identification using fiducial sensor
   fiducial_return 10
-  pose [ -5.30 2.00 0 100.000 ] 
+  pose [ -8.40 5.80 0 100.000 ] 
 
   # pioneer2dx's sonars	will be ranger:0 and the laser will be ranger:1
   sicklaser( 

@@ -1,0 +1,350 @@
+# sim.world - world file for running simulations
+# Authors: Ragesh Kumar R
+
+
+
+
+
+#################################################################################
+
+# Contents from pioneer_modified.inc
+# Desc: Device definitions for Activemedia robots.
+# Author: Richard Vaughan, Andrew Howard,  Luis Riazuelo
+# Date: 10 Jun 2002
+# CVS: $Id: pioneer.inc,v 1.30 2008-01-15 01:25:42 rtv Exp $
+
+# The Pioneer2DX sonar array
+
+#  prototype for p2dx sonar sensors
+define p2dxsonar sensor
+(
+  # define the size of each transducer [xsize ysize zsize] in meters
+  size [0.01 0.05 0.01 ] 
+  # define the range bounds [min max]
+  range [0 5.0]
+  # define the angular field of view in degrees
+  fov 15
+  # define the number of samples spread over the fov
+  samples 1
+)
+
+define p2dx_sonar ranger
+(
+ # 16 transducers spread about the robot as follows
+ p2dxsonar( pose [ 0.075 0.130 0 90 ] )
+ p2dxsonar( pose [ 0.115 0.115 0 50 ] )
+ p2dxsonar( pose [ 0.150 0.080 0 30 ] )
+ p2dxsonar( pose [ 0.170 0.025 0 10 ] )
+ p2dxsonar( pose [ 0.170 -0.025 0 -10 ] )
+ p2dxsonar( pose [ 0.150 -0.080 0 -30 ] )
+ p2dxsonar( pose [ 0.115 -0.115 0 -50 ] )
+ p2dxsonar( pose [ 0.075 -0.130 0 -90 ] )
+ p2dxsonar( pose [ -0.155 -0.130 0 -90 ] )
+ p2dxsonar( pose [ -0.195 -0.115 0 -130 ] )
+ p2dxsonar( pose [ -0.230 -0.080 0 -150 ] )
+ p2dxsonar( pose [ -0.250 -0.025 0 -170 ] )
+ p2dxsonar( pose [ -0.250 0.025 0 170 ] )
+ p2dxsonar( pose [ -0.230 0.080 0 150 ] )
+ p2dxsonar( pose [ -0.195 0.115 0 130 ] )
+ p2dxsonar( pose [ -0.155 0.130 0 90 ]	 )
+)
+
+
+
+
+define pioneer_base position 
+(
+  color "red"			# Default color.
+  drive "diff"		 	# Differential steering model.
+  gui_nose 1                  	# Draw a nose on the robot so we can see which way it points
+  obstacle_return 0           	# Can hit things.
+  ranger_return 0.5            	# reflects sonar beams
+  blob_return 1               	# Seen by blobfinders  
+  fiducial_return 1           	# Seen as "1" fiducial finders
+
+  localization "gps"         	  
+  localization_origin [0 0 0 0] 	# Start odometry at (0, 0, 0).
+
+  # alternative odometric localization with simple error model
+  # localization "odom"         		# Change to "gps" to have impossibly perfect, global odometry
+  #  odom_error [ 0.05 0.05 0.1 ]   	# Odometry error or slip in X, Y and Theta
+                                   	# (Uniform random distribution)   
+
+  # four DOF kinematics limits
+  # [ xmin xmax ymin ymax zmin zmax amin amax ]				
+  velocity_bounds [-0.5 0.5 0 0 0 0 -90.0 90.0 ]					
+  acceleration_bounds [-0.5 0.5 0 0 0 0 -90 90.0 ]
+)
+
+
+
+define pioneer2dx_base_no_sonar pioneer_base
+(
+  # actual size
+  size [0.44 0.38 0.22] # sizes from MobileRobots' web site
+
+  # the pioneer's center of rotation is offset from its center of area
+  origin [-0.04 0 0 0]
+
+  # draw a nose on the robot so we can see which way it points
+  gui_nose 1
+
+  # estimated mass in KG
+  mass 23.0 
+  # differential steering model
+  drive "diff"
+ )
+
+
+define pioneer2dx_base pioneer2dx_base_no_sonar
+(
+  # use the sonar array defined above with a small vertical offset to
+  # drop the sensors into the robot body
+  # p2dx_sonar( pose [0 0 -0.03 0] ) 
+)
+
+
+
+
+define pioneer2dx pioneer2dx_base
+(  
+  # simplified Body shape:
+  block( 
+    points 8
+    point[0] [-0.2 0.12]
+    point[1] [-0.2 -0.12]
+    point[2] [-0.12 -0.2555 ]
+
+    point[3] [0.12 -0.2555]
+    point[4] [0.2 -0.12]
+    point[5] [0.2 0.12]
+    point[6] [0.12 0.2555]
+    point[7] [-0.12 0.2555]
+    z [0 0.22]
+  )
+)
+
+
+
+#################################################################################
+
+# contents from map.inc
+# map.inc - useful setup for a floorplan bitmap
+# Authors: Richard Vaughan
+# $Id$
+
+define floorplan model
+(
+  # sombre, sensible, artistic
+  color "gray30"
+
+  # most maps will need a bounding box
+  boundary 1
+
+  gui_nose 0
+  gui_grid 0
+  gui_move 0
+  gui_outline 0
+  gripper_return 0
+  fiducial_return 0
+  ranger_return 1
+
+  obstacle_return 0
+)
+
+define zone model
+(
+  color	"orange"
+  size [ 4 4 0.01 ]
+
+  gui_nose 0
+  gui_grid 0
+  gui_move 1
+  gui_outline 0
+
+  # insensible to collision and range sensors
+  obstacle_return 0
+  ranger_return -1  # transparent to range sensors
+)
+
+#################################################################################
+
+define sicksensor sensor 
+(
+	# factory settings for LMS200
+	range [0.0 2.0]
+	pose [ 0 0 0.1 0 ]
+	fov 180
+	samples 90
+	color_rgba [0 0 1 0.15]
+	noise [ 0.01 0.00 0.00 ] # in the order range_noise_const, range, angle_noise
+)
+# contents from mySick.inc
+
+#define sicksensor sensor
+#(				
+  # factory settings for LMS200	
+  #range [ 0.0 2.0 ]
+  #pose [ 0 0 0.1 0 ]
+  #fov 180
+  #samples 180
+  #samples 90 # still useful but much faster to compute
+  #color_rgba [0 0 1 0.15]
+  #noise [ 0.01 0.00 0.00 ] # in the order range_noise_const, range, angle_noise
+#)
+
+define sickcommon ranger
+(
+  color "blue"
+  size [ 0.156 0.155 0.19 ] # dimensions from LMS200 data sheet	
+ )
+
+define sickbase sickcommon
+(
+block( points 4
+       point[0] [0 0]
+       point[1] [0 1]
+       point[2] [1 1]
+       point[3] [1 0]
+       z [0 0.21]
+      )
+)
+
+# extends sicklaser to add nice-looking but relatively expensive geometry
+define fancysickbase sickcommon
+(
+  # bottom
+  block( 
+    points 4
+    point[0] [ -0.02 -0.077 ]
+    point[1] [  0.078 -0.077 ]
+    point[2] [  0.078  0.077 ]
+    point[3] [ -0.02  0.077 ]
+    z [0 0.02 ]
+  )
+
+  # back
+  block(
+    points 4
+    point[0] [ -0.078 -0.077 ]
+    point[1] [ -0.02  -0.077 ]
+    point[2] [ -0.02   0.077 ]
+    point[3] [ -0.078  0.077 ]
+    z [0 0.21 ]
+  )
+
+  # top
+  block( points 4
+    point[0] [ -0.02 -0.077 ]
+    point[1] [  0.078 -0.077 ]
+    point[2] [  0.078  0.077 ]
+    point[3] [ -0.02  0.077 ]
+    z [0.12 0.21 ]  
+  )
+
+  # laser bit
+  block( points 4
+    point[0] [ -0.02 -0.05 ]
+     point[1] [  0.06 -0.05 ]
+     point[2] [  0.06  0.05 ]
+     point[3] [ -0.02  0.05 ]
+     z [0.02 0.12 ]  
+  )
+)
+
+define sicklaser sickbase ( sicksensor() )
+
+define fancysicklaser fancysickbase ( sicksensor() )
+
+
+#################################################################################
+
+
+#################################################################################
+########################MAIN PART STARTS HERE####################################
+#################################################################################
+
+# threads may speed things up here depending on available CPU cores & workload 
+threads 8
+
+# start the simulation in pause
+paused 1
+
+# set the multiple of real time that Stage should try to achieve. Default is 1. 
+# set to 0 to go as fast as possible. 
+speedup 0
+
+# spatial resolution of the underlying occupancy grid. Default is 0.02m. 
+resolution 0.02
+
+# time to pause (in GUI mode) or quit (in headless mode (-g)) the simulation 
+quit_time 2# 2 seconds of simulated time
+
+# configure the GUI window 
+window
+( 
+	size [ 440 840 ]  # in pixels
+	scale 20 # pixels per meter
+	center [ 0.00  0.00 ]
+	rotation [ 0.00  0.00 ]
+	show_data 1
+	screenshots 0
+)
+
+#  load an environment bitmap 
+floorplan
+( 
+	name "uoa_robotics_lab"
+	size [ 20.00 40.00 0.800]
+	pose [0.000 0.000 0.000 0.000]
+	bitmap "../bitmaps/uoa_robotics_lab.png"
+)
+
+#################################################################################
+
+# Adding robot model
+
+define myRobot pioneer2dx 
+(
+	sicklaser( 
+	 pose [ 0.000 0.000 0.000 0.000 ]
+	 alwayson 1 
+	 )
+	ctrl "myMILevywalker" # controller for the robot
+	# report error-free position in world coordinates
+	localization "gps"
+	localization_origin [ 0 0 0 0 ]
+	fiducial
+	(
+		pose [ 0 0 0 0 ]
+		range_max 2
+		range_max_id 2
+		fov 360
+	)
+)
+
+
+#################################################################################
+
+# Adding 20 robots
+
+myRobot( name "pio1" fiducial_return 1 pose [ 2.10 18.33 0.000 0.000 ] )
+myRobot( name "pio2" fiducial_return 2 pose [ 3.45 18.33 0 90.000 ] )
+myRobot( name "pio3" fiducial_return 3 pose [ 5.00 18.5 0 80.000 ] )
+myRobot( name "pio4" fiducial_return 4 pose [ 6.3 18.33 0 110.000 ] )
+myRobot( name "pio5" fiducial_return 5 pose [ 8.02 18.31 0 60.000 ] )
+myRobot( name "pio6" fiducial_return 6 pose [ 1.99 16.35 0 -80.000 ] )
+myRobot( name "pio7" fiducial_return 7 pose [ 3.61 16.36 0 -80.000 ] )
+myRobot( name "pio8" fiducial_return 8 pose [ 5.13 16.36 0 -100.000 ] )
+myRobot( name "pio9" fiducial_return 9 pose [ 6.46 16.22 0 -100.000 ] )
+myRobot( name "pio10" fiducial_return 10 pose [ 7.88 16.22 0 -100.000 ] )
+myRobot( name "pio11" fiducial_return 11 pose [ 1.99 14.35 0 -80.000 ] )
+myRobot( name "pio12" fiducial_return 12 pose [ 3.61 14.36 0 -80.000 ] )
+myRobot( name "pio13" fiducial_return 13 pose [ 5.13 14.36 0 -100.000 ] )
+myRobot( name "pio14" fiducial_return 14 pose [ 6.46 14.22 0 -100.000 ] )
+myRobot( name "pio15" fiducial_return 15 pose [ 7.88 14.22 0 -100.000 ] )
+myRobot( name "pio16" fiducial_return 16 pose [ 1.99 12.35 0 -80.000 ] )
+myRobot( name "pio17" fiducial_return 17 pose [ 3.25 12.36 0 -80.000 ] )
+myRobot( name "pio18" fiducial_return 18 pose [ 5.13 12.36 0 -100.000 ] )
+myRobot( name "pio19" fiducial_return 19 pose [ 6.46 12.50 0 -100.000 ] )
+myRobot( name "pio20" fiducial_return 20 pose [ 7.88 12.50 0 -100.000 ] )
