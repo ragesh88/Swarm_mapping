@@ -66,6 +66,11 @@ struct via_points {
 /// a type defined type path for storing path
 typedef std::queue<via_points> Path;
 
+/**
+ * The class base_planner is a class with basic attributes and methods for path generation.
+ * Any class that has to perform planning should be derive from this class and implement its
+ * virtual method generate_path
+ */
 class base_planner {
 
   /// the time for which motion has to be planned

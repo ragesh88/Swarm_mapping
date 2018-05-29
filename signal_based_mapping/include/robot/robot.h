@@ -35,6 +35,10 @@ const bool SUCCESS = true;
 /// failed flag
 const bool FAILED = false;
 
+/**
+ * The robot class handles and operation of the robot to be simulated in Stage Simulator. The class can be also
+ * be used building codes for experiments
+ */
 class robot {
 
   // Constant Private attributes

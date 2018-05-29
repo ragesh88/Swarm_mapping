@@ -129,7 +129,7 @@ class occupancyGrid2D {
 
   void set(int k, uint8_t value)
   /**
-   * set the value at the \f$ $k^{th}\f$ location
+   * set the value at the \f$ k^{th}\f$ location
    * @param k : index
    * @param value : value
    */
@@ -795,7 +795,7 @@ class Prob_occupancyGrid2D {
   // get functions
 
   int get(int k) const {
-    /// get the value at the \f$k^{the}\f$ location
+    /// get the value at the \f$ k^{the}\f$ location
     int row = k / og_.size[1];
     int col = k % og_.size[1];
     return og_.at<int>(row, col);
@@ -812,7 +812,7 @@ class Prob_occupancyGrid2D {
   // set functions
 
   void set(int k, int value) {
-    /// set the value at the \f$ $k^{th}\f$ location
+    /// set the value at the \f$ k^{th}\f$ location
     int row = k / og_.size[1];
     int col = k % og_.size[1];
     og_.at<int>(row, col) = value;
