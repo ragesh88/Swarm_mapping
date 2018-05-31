@@ -238,9 +238,9 @@ extern "C" int Init(Model *mod, CtrlArgs * args) {
   robot->set_planner(MIlevyWalkPlanner);
 
   // Setting a planner
-  //auto* planner = new myPlanner::base_planner(50, 0, Stg::Pose{0.0, 0.0, 0.0, 0.0}, Stg::Velocity(cruisesSpeed, 0, 0, turnSpeed));
-
-  //robot->set_planner(planner);
+//  auto* planner = new myPlanner::base_planner(50, 0, Stg::Pose{0.0, 0.0, 0.0, 0.0}, Stg::Velocity(cruisesSpeed, 0, 0, turnSpeed));
+//
+//  robot->set_planner(planner);
 
   // Looking for fiducial sensors in the model.
   // This required for sharing map among robots using consensus
