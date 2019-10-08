@@ -23,6 +23,9 @@ link_directories(~/stg/lib)
 # add the generated libraries
 #link_directories(GENERATED_LIB)
 
+# set the Open CV directories
+SET(OpenCV_DIR /opt/ros/kinetic/share/OpenCV-3.3.1-dev)
+
 # Find the Open CV package
 find_package( OpenCV REQUIRED core imgproc highgui)
 
