@@ -29,6 +29,7 @@ static const double turnSpeed = 0.2;
 double quit_time = 1000; // denoting 7200 seconds
 uint no_of_robots=0;
 std::string trail;
+std::string alpha_;
 static const bool verbose = true;
 static const bool debug = false;
 static bool record_maps = false;
@@ -101,9 +102,14 @@ extern "C" int Init(Model *mod, CtrlArgs * args) {
         std::string json_file; // json file
         auto j = find(results.begin(), results.end(), "-j");
         auto t = find(results.begin(), results.end(), "-t");
+        auto a_ = find(results.begin(), results.end(), "-a");
         // found a trial option
         if(t != results.end()){
             trail = *(t+1);
+        }
+        // found the alpha parameter
+        if (a_ != results.end()){
+            alpha_ = *(a_+1);
         }
         // found a json file parse the data
         if(j != results.end()){
@@ -232,7 +238,7 @@ extern "C" int Init(Model *mod, CtrlArgs * args) {
 
     // Setting up the Mutual information based planner
     auto* MIlevyWalkPlanner = new myPlanner::MI_levyWalk_planner(0, pose, Stg::Velocity(cruisesSpeed, 0, 0, turnSpeed),
-                                                                 fsm, myPlanner::KLDMI, 5);
+                                                                 fsm, myPlanner::KLDMI, 5, -M_PI, M_PI, std::stod(alpha_));
 
     if (MIlevyWalkPlanner == nullptr)
         printf("NO Planner generated");
@@ -314,7 +320,8 @@ int8_t newLaserUpdate(Model *, myRobot::robot *robot) {
         std::string path{"./robot"};
         std::string prefix{"_Qt_" + std::to_string(uint(quit_time)) + "_Rs_" + std::to_string(no_of_robots)};
         if(trail.length()){
-            prefix += "_Tr_" + trail + "_";
+            auto alpha_100 = static_cast<int>(std::stod(alpha_)*100);
+            prefix += "_Alpha_" + std::to_string(alpha_100) + "_Tr_" + trail + "_";
         }
         // write the map as an image
         if(write_img_map){
