@@ -4,6 +4,7 @@ SET( PLUGINS
   mylevyWalker
   myMILevywalker
   MIlevywalk_sigma
+  walker
 )
 
 
