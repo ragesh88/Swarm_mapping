@@ -31,6 +31,8 @@ static const double turnSpeed = 0.2;
 double quit_time = 1000; // denoting 7200 seconds
 uint no_of_robots=0;
 std::string trail;
+std::string pose_sg;
+std::string map_name{""};
 static const bool verbose = true;
 static const bool debug = false;
 static bool record_maps = false;
@@ -93,6 +95,9 @@ extern "C" int Init(Model *mod, CtrlArgs * args) {
     // This is done that other robots can access the robot data to mimic communication.
     myRobot::robot::swarm_update(robot);
 
+    // initialize the pose sigma variable to zero
+    double pose_sigma{0.0};
+
 
 
     // parse the data from the json file if it exist
@@ -103,9 +108,15 @@ extern "C" int Init(Model *mod, CtrlArgs * args) {
         std::string json_file; // json file
         auto j = find(results.begin(), results.end(), "-j");
         auto t = find(results.begin(), results.end(), "-t");
+        auto s_ = find(results.begin(), results.end(), "-s");
         // found a trial option
         if(t != results.end()){
             trail = *(t+1);
+        }
+        // found a pose sigma option
+        if (s_ != results.end()){
+            pose_sg = *(s_+1);
+            pose_sigma = std::stod(*(s_+1));
         }
         // found a json file parse the data
         if(j != results.end()){
@@ -118,6 +129,7 @@ extern "C" int Init(Model *mod, CtrlArgs * args) {
             quit_time = j_obj["quit_time"];
             no_of_robots = j_obj["no_of_robots"];
             control_verbose = static_cast<bool>(j_obj["control_verbose"]);
+            map_name = j_obj["Map_name"];
             robot->verbose=control_verbose;
             record_maps = static_cast<bool>(j_obj["record_maps"]);
             compute_entropy = static_cast<bool>(j_obj["compute_entropy"]);
@@ -178,6 +190,7 @@ extern "C" int Init(Model *mod, CtrlArgs * args) {
 
     Pose pose = robot->position->GetPose();
     robot->set_current_pose(pose.x, pose.y, pose.z, pose.a);
+    robot->set_pose_sigma(pose_sigma);
     robot->position->Subscribe(); // starts the position updates
 
 
@@ -314,7 +327,9 @@ int8_t newLaserUpdate(Model *, myRobot::robot *robot) {
             std::cout<<" \n Data from robot "<<robot->get_robot_id()<<std::endl;
         }
         std::string path{"./robot"};
-        std::string prefix{"_Qt_" + std::to_string(uint(quit_time)) + "_Rs_" + std::to_string(no_of_robots)};
+        std::string temp_{map_name + "_Sig100_"};
+        temp_ += std::to_string(static_cast<int>(std::stod(pose_sg)*100));
+        std::string prefix{temp_ + "_Qt_" + std::to_string(uint(quit_time)) + "_Rs_" + std::to_string(no_of_robots)};
         if(trail.length()){
             prefix += "_Tr_" + trail + "_";
         }

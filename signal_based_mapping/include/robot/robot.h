@@ -65,6 +65,8 @@ class robot {
   double current_speed = 0.0;
   /// turn speed
   double turn_speed = 0.0;
+  /// pose standard variation
+  double pose_sigma = 0.0;
   /// pose at previous time step of the robot
   Stg::Pose past_pose{0, 0, 0, 0};
   /// velocity at previous time step of the robot
@@ -74,7 +76,7 @@ class robot {
   /// the robot store their time of encounter with others(seconds)
   std::vector<double> last_communication;
   /// The pointer to the planner
-  myPlanner::base_planner *planner{NULL};
+  myPlanner::base_planner *planner{nullptr};
 
 
   // variables to store entropy and coverage
@@ -94,11 +96,11 @@ class robot {
 
   // Stage simulator variables
   /// Access the position model of the Stage library
-  Stg::ModelPosition *position{NULL};
+  Stg::ModelPosition *position{nullptr};
   /// Access the laser sensor model of the Stage library
-  Stg::ModelRanger *laser{NULL};
+  Stg::ModelRanger *laser{nullptr};
   /// Access the fiducial sensor model using the Stage library
-  Stg::ModelFiducial *fiducial_sensor{NULL};
+  Stg::ModelFiducial *fiducial_sensor{nullptr};
   /// Obstacle avoidance variable
   long int avoidCount{0};
   /// Obstacle avoidance variable
@@ -106,12 +108,12 @@ class robot {
   /// a public attribute to store previous pose mostly for testing
   Stg::Pose previous_pose;
   /// The pointer to the world object
-  Stg::World *world{NULL};
+  Stg::World *world{nullptr};
   /// To display output
   bool verbose = false;
   /// The pointer to occupancy grid map
-  occupancy_grid::occupancyGrid2D<double, int> *occ_grid_map{NULL};
-  //occupancy_grid::Prob_occupancyGrid2D<double, int>* occ_grid_map{NULL};
+  occupancy_grid::occupancyGrid2D<double, int> *occ_grid_map{nullptr};
+  //occupancy_grid::Prob_occupancyGrid2D<double, int>* occ_grid_map{nullptr};
 
 
   // Static member function
@@ -122,14 +124,15 @@ class robot {
 
   // constructor
 
-  robot(std::string name, Stg::Pose i_pose, Stg::Velocity i_vel, myPlanner::base_planner *plan_gen = NULL,
-        occupancy_grid::occupancyGrid2D<double, int> *map = NULL) :
+  robot(std::string name, Stg::Pose i_pose, Stg::Velocity i_vel, myPlanner::base_planner *plan_gen = nullptr,
+        occupancy_grid::occupancyGrid2D<double, int> *map = nullptr, double pose_sigma = 0.0) :
   // invoking attribute constructors
       robot_name{name},
       current_pose{i_pose.x, i_pose.y, i_pose.z, i_pose.a},
       current_velocity{i_vel.x, i_vel.y, i_vel.x, i_vel.a},
       planner{plan_gen},
-      occ_grid_map{map} {
+      occ_grid_map{map},
+      pose_sigma{pose_sigma}{
 
     /// The constructor of the class
 
@@ -194,6 +197,12 @@ class robot {
   Stg::Pose get_past_pose() const {
     /// Returns the past pose as Stg::Pose object
     return past_pose;
+  }
+
+  double get_pose_sigma() const {
+      /// Returns the noise standard deviation of the
+      /// pose simulated noise
+      return pose_sigma;
   }
 
   Stg::Velocity get_current_velocity() const {
@@ -276,6 +285,14 @@ class robot {
      * \param a : a angle in radians
      */
     past_pose = Stg::Pose(x, y, 0, a);
+  }
+
+  void set_pose_sigma(double sigma){
+      /// Set the pose noise standard deviation
+      /**
+       * \param sigma: noise standard deviation
+       */
+       pose_sigma = sigma;
   }
 
   void set_current_velocity(double x, double y, double z, double a) {

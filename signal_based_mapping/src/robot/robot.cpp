@@ -222,7 +222,13 @@ void robot::build_map() {
   //std::cout<<"\n range noise const : "<<laserSensor.range_noise_const;
   //laserSensor.pose.Print("Sensor pose ");
 
-  const Stg::Pose base_pose = position->GetPose();
+  // TODO Complete this
+  // generate a random Gaussian pose
+  std::default_random_engine generator;
+  std::normal_distribution<double> distribution(0.0,pose_sigma);
+  // generate the noise to be added to the pose
+  Stg::Pose noise_pose{distribution(generator), distribution(generator), 0.0, 0.0};
+  const Stg::Pose base_pose = position->GetPose() + noise_pose;
   // uncomment the line below for debugging
   //printf("\n The measurement at a new pose \n");
   //base_pose.Print("base pose ");
