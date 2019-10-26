@@ -326,7 +326,7 @@ int8_t newLaserUpdate(Model *, myRobot::robot *robot) {
     }
 
     if (display_final_coverage){
-      printf("\n %f %f", quit_time, robot->occ_grid_map->compute_map_coverage());
+      printf("\n %f %d %f", quit_time, robot->get_robot_id(), robot->occ_grid_map->compute_map_coverage());
     }
 
     if (compute_coverage){
@@ -351,7 +351,7 @@ int8_t newLaserUpdate(Model *, myRobot::robot *robot) {
     }
 
     if (display_final_entropy){
-      printf("\n %f %f", quit_time, robot->occ_grid_map->compute_map_entropy());
+        printf("\n %f %d %f", quit_time, robot->get_robot_id(), robot->occ_grid_map->compute_map_entropy());
     }
 
     if(compute_entropy){
