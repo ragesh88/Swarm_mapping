@@ -48,11 +48,11 @@ Stg::meters_t levyWalk_planner::generate_levy_dist() {
    * Generate the length from the distribution
    */
   //uniform random number generator
-  std::random_device rd;
-  std::default_random_engine generator(rd());
-  std::uniform_real_distribution<double> distribution(0.0, 1.0);
+//  std::random_device rd;
+//  std::default_random_engine generator(rd());
+//  std::uniform_real_distribution<double> distribution(0.0, 1.0);
   // generate a uniform random number between 0 and 1
-  auto u = distribution(generator);
+//  auto u = distribution(generator);
 
   if (alpha == 0) {
     throw "\nLevy alpha should be non zero\n";
@@ -66,9 +66,26 @@ Stg::meters_t levyWalk_planner::generate_levy_dist() {
     throw "\nSpeed should be non zero\n";
   }
 
-  return levy_min * pow((1 - u), -1 / alpha); // levy walk distance
+  // return levy_min * pow((1 - u), -1 / alpha); // levy walk distance
 
+  /*
+   * Generate levy distribution using second technique
+   * */
+   // generate gaussian random variable
 
+   std::random_device rd;
+   std::default_random_engine generator(rd());
+   std::normal_distribution<double> distribution(0.0, 1.0);
+   // generate a uniform random number between 0 and 1
+   auto u = distribution(generator);
+
+   // transform standard normal to standard levy 0,1
+   auto l = 1/(u*u);
+
+   // scale and shift the levy distribution
+   l = levy_min + alpha * l;
+
+   return l;
 }
 
 Stg::radians_t levyWalk_planner::generate_random_direction() {
