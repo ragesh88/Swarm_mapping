@@ -12,7 +12,8 @@
 #ifndef STAGE_CTRL_PLUGIN_ROBOT_H
 #define STAGE_CTRL_PLUGIN_ROBOT_H
 
-
+// C library header files
+#include <ctime>
 
 // C++ library header files
 
@@ -34,6 +35,10 @@ const bool SUCCESS = true;
 /// failed flag
 const bool FAILED = false;
 
+/**
+ * The robot class handles and operation of the robot to be simulated in Stage Simulator. The class can be also
+ * be used building codes for experiments
+ */
 class robot {
 
   // Constant Private attributes
@@ -71,6 +76,13 @@ class robot {
   /// The pointer to the planner
   myPlanner::base_planner *planner{NULL};
 
+
+  // variables to store entropy and coverage
+  /// a list to store the entropy at various times
+  std::list<std::pair<double, double>> map_entropy;
+  /// a list to store the coverage at various times
+  std::list<std::pair<double, double>> map_coverage;
+
  public:
 
   //Static variables
@@ -88,7 +100,10 @@ class robot {
   /// Access the fiducial sensor model using the Stage library
   Stg::ModelFiducial *fiducial_sensor{NULL};
   /// Obstacle avoidance variable
-  long int avoidCount{0}, randCount{0};
+  long int avoidCount{0};
+  /// Obstacle avoidance variable
+  long int randCount{0};
+  /// a public attribute to store previous pose mostly for testing
   Stg::Pose previous_pose;
   /// The pointer to the world object
   Stg::World *world{NULL};
@@ -123,7 +138,7 @@ class robot {
      * \param i_pose : Initial pose of the robot of as Stg::Pose object
      * \param i_vel : Initial velocity of the robot of as Stg::Velocity object
      * \param plan_gen : The pointer to the planner object
-     * \param occ_grid_map : The pointer to the occupancy map object
+     * \param map : The pointer to the occupancy map object
      */
 
     robot_id = ++gen_id; // generate id for each robot
@@ -139,6 +154,14 @@ class robot {
   robot() {
     /// Default constructor with no arguments
     robot_id = ++gen_id; // generate id for each robot
+    robot_name = robot_name + std::to_string(robot_id);
+    img_path = img_path + std::to_string(robot_id) + "/";
+  }
+
+  robot(Stg::Model *mod) {
+    /// constructor with no arguments with the model from Stg
+    robot_id =  mod->GetFiducialReturn();// generate id for each robot
+    ++gen_id;
     robot_name = robot_name + std::to_string(robot_id);
     img_path = img_path + std::to_string(robot_id) + "/";
   }
@@ -209,6 +232,7 @@ class robot {
      */
     robot_name = name;
   }
+
 
   void set_current_pose(Stg::meters_t x, Stg::meters_t y, Stg::meters_t z, Stg::radians_t a) {
     /// Set the current pose of the robot using all the parameters
@@ -332,11 +356,21 @@ class robot {
 
   void build_map();
 
-  void write_map();
+  void write_map(std::string path="", std::string prefix="");
+
+  void write_map_txt(std::string path="", std::string prefix="");
 
   void merge_map(const std::vector<myRobot::robot *> &swarm);
 
   void merge_map();
+
+  void add_map_entropy();
+
+  void add_map_coverage();
+
+  void write_map_entropy(std::string path, std::string prefix="");
+
+  void write_map_coverage(std::string path, std::string prefix="");
 
 };
 

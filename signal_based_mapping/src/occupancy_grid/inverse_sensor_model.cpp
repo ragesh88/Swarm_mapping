@@ -13,11 +13,11 @@ double occupancy_grid::reflectance_model(double grid_range, Stg::meters_t range,
 /**
  * The function computes probability of occupancy of the grid cell corresponding to grid_range when the
  * ray was reflected.
- * @param grid_range
- * @param range
- * @param max_range
- * @param noise_sd
- * @return
+ * @param grid_range : distance to starting grid
+ * @param range : laser range
+ * @param max_range : max range of the laser
+ * @param noise_sd : standard deviation of the laser noise
+ * @return : probability of occupancy of the grid
  */
 {
   const double start_prob = 0.05;
@@ -35,10 +35,10 @@ double occupancy_grid::non_reflectance_model(double grid_range, double max_range
 /**
  * The function computes probability of occupancy of the grid cell corresponding to the grid_range when the
  * ray wasn't reflected
- * @param grid_range
- * @param max_range
- * @param noise_sd
- * @return
+ * @param grid_range : distance to the starting grid
+ * @param max_range : max range of the laser
+ * @param noise_sd : standard deviation of the laser noise
+ * @return : probability of occupancy of the grid
  */
 {
   const double start_prob = 0.05;
@@ -59,17 +59,17 @@ void occupancy_grid::log_odds_map_given_measurement_pose(const occupancy_grid::L
 /**
  * The function computes the log odds of the map cells whose coordinates are given as values in the map
  * object passed_grids_ranges.
- * @param sensor
- * @param ray_index
- * @param passed_grids_ranges
+ * @param sensor : sensor object for the laser range sensor properties
+ * @param ray_index : index of the ray in the laser range sensor object
+ * @param passed_grids_ranges : map object containing distance and coordinates of ray traced grids
+ * @param log_odds : list of ray traced grids and log odds
  */
-// TODO : explain the parameters of the function
 {
   // find if reflectance occurred with the ray.
   // reflectance occurred if the range of the ray less than
   // max range - 2*sqrt(range_noise_const)
   bool reflectance = false;
-  const double noise_variance = std::sqrt(sensor.range_noise_const);
+  const double noise_variance = sensor.range_noise_const;
   if (sensor.ranges[ray_index] < (sensor.range.max - 2 * std::sqrt(noise_variance))) {
     reflectance = true;
   }
@@ -98,10 +98,10 @@ void occupancy_grid::probability_map_given_measurement_pose(const occupancy_grid
 /**
  * The function computes the probability of the map cells whose coordinates are given as values in the map
  * object passed_grids_ranges.
- * @param sensor
- * @param ray_index
- * @param passed_grids_ranges
- * @param probability
+ * @param sensor : sensor object for the laser range sensor properties
+ * @param ray_index : index of the ray in the laser range sensor object
+ * @param passed_grids_ranges : map object containing distance and coordinates of ray traced grids
+ * @param probability : list of ray traced grids and probabilities
  */
 {
 
@@ -109,7 +109,7 @@ void occupancy_grid::probability_map_given_measurement_pose(const occupancy_grid
   // reflectance occurred if the range of the ray less than
   // max range - 2*sqrt(range_noise_const)
   bool reflectance = false;
-  const double noise_variance = std::sqrt(sensor.range_noise_const);
+  const double noise_variance = sensor.range_noise_const;
   if (sensor.ranges[ray_index] < (sensor.range.max - 2 * std::sqrt(noise_variance))) {
     reflectance = true;
   }

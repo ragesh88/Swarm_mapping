@@ -1,13 +1,18 @@
-/**
- mylevywalker.cpp
+//
+// Created by Ragesh on 5/15/18.
+//
 
- This is a source code for a Levy walk plugin for the stage simulator.
- The plugin enables the robot to perform Levy walk in a bounded domain.
+/**
+ myMILevywalker.cpp
+
+ This is a source code for a plugin for the stage simulator.
+ The plugin enables the robot to perform Levy walk in a bounded domain,
+ which is directed based on a reward function
+ that pick the direction which as maximum information gain.
  The robot can have only one laser sensor and fiducial sensor to identify
  its neighbors. The robots also follow a consensus based map sharing
  protocol.
 **/
-
 
 #include "robot/robot.h"
 #include <boost/algorithm/string.hpp>
@@ -19,7 +24,7 @@ using json = nlohmann::json;
 // Some global variables as parameters
 static const double cruisesSpeed = 0.4;
 static const double turnSpeed = 0.2;
-double quit_time = 900; // denoting 7200 seconds
+double quit_time = 1000; // denoting 7200 seconds
 uint no_of_robots=0;
 std::string trail;
 static const bool verbose = true;
@@ -49,18 +54,17 @@ int PositionUpdate(Model *mod, myRobot::robot *robot);
 int8_t newFiducialUpdate(Model *, myRobot::robot *robot);
 
 
-
 // Stage calls this when the model starts up
-extern "C" int Init(Model *mod, CtrlArgs *args) {
+extern "C" int Init(Model *mod, CtrlArgs * args) {
 
 
   // local arguments
-  /*  printf( "\nWander controller initialised with:\n"
-      "\tworldfile string \"%s\"\n"
-      "\tcmdline string \"%s\"",
-      args->worldfile.c_str(),
-      args->cmdline.c_str() );
-*/
+//    printf( "\nMI Levy walk controller controller initialised with:\n"
+//      "\tworldfile string \"%s\"\n"
+//      "\tcmdline string \"%s\"",
+//      args->worldfile.c_str(),
+//      args->cmdline.c_str() );
+
 
   // The parameters for map object (cave map)
   double min_x = -8; // in meters
@@ -84,6 +88,8 @@ extern "C" int Init(Model *mod, CtrlArgs *args) {
   // Storing the pointer of the dynamically allocated object in a vector
   // This is done that other robots can access the robot data to mimic communication.
   myRobot::robot::swarm_update(robot);
+
+
 
   // parse the data from the json file if it exist
   ///////////////////////////////////////////////////////////
@@ -142,10 +148,11 @@ extern "C" int Init(Model *mod, CtrlArgs *args) {
 
 
 
+
   robot->set_current_velocity(cruisesSpeed, 0, turnSpeed);
   robot->world = mod->GetWorld();
   if(control_verbose){
-    printf("\n\n**************Ragesh Levy walk controller assignment*************");
+    printf("\n\n**************Ragesh MI Levy walk controller assignment*************");
     std::cout<<"\n  The fiducial return is : "<<mod->GetFiducialReturn();
     std::cout<<"\n  The robot id is :"<<robot->get_robot_id()<<std::endl;
   }
@@ -164,19 +171,17 @@ extern "C" int Init(Model *mod, CtrlArgs *args) {
     exit(1);
   }
 
-  // display the position of the robot for debugging
-  if (debug)
-    robot->position->AddCallback(Model::CB_UPDATE, model_callback_t(PositionUpdate), robot);
 
   Pose pose = robot->position->GetPose();
   robot->set_current_pose(pose.x, pose.y, pose.z, pose.a);
   robot->position->Subscribe(); // starts the position updates
 
 
+
   // Setting up the map object
   auto *occ_grid = new occupancy_grid::occupancyGrid2D<double, int>(min_x, min_y,
-                                                                   cell_size_x, cell_size_y,
-                                                                   n_cell_x, n_cell_y);
+                                                                    cell_size_x, cell_size_y,
+                                                                    n_cell_x, n_cell_y);
   if (occ_grid == nullptr)
     printf("No map object created");
 
@@ -187,22 +192,20 @@ extern "C" int Init(Model *mod, CtrlArgs *args) {
 
   ModelRanger *laser = nullptr;
 
-
   if(control_verbose){
-    printf("\n  Ragesh Levy walk controller assignment for robot %s initiated \n", robot->position->Token());
+    printf("\n  Ragesh MI Levy walk controller assignment for robot %s initiated \n", robot->position->Token());
   }
+
   for (int i = 0; i < 16; i++) {
 
     char name[32];
     snprintf(name, 32, "ranger:%d", i); // generate sequence of model names
-
     if (control_verbose){
       printf("  looking for a suitable ranger at \"%s:%s\" ... ", robot->position->Token(), name);
     }
     laser = dynamic_cast<ModelRanger *>(robot->position->GetChild(name));
 
     if (laser && laser->GetSensors()[0].sample_count > 8) {
-
       if(control_verbose){
         printf("yes.");
       }
@@ -221,14 +224,23 @@ extern "C" int Init(Model *mod, CtrlArgs *args) {
   robot->laser->AddCallback(Model::CB_UPDATE, model_callback_t(newLaserUpdate), robot);
   robot->laser->Subscribe(); // starts the ranger updates
 
+  // forward sensor model parameter
+  myPlanner::F_S_M_parameters fsm;
+  fsm.sigma = std::sqrt(robot->laser->GetSensors()[0].range_noise_const);
 
-  // Setting up the planner
-  auto* levyWalkPlanner = new myPlanner::levyWalk_planner(0, pose, Stg::Velocity(cruisesSpeed, 0, 0, turnSpeed));
+  // Setting up the Mutual information based planner
+  auto* MIlevyWalkPlanner = new myPlanner::MI_levyWalk_planner(0, pose, Stg::Velocity(cruisesSpeed, 0, 0, turnSpeed),
+                                                               fsm, myPlanner::KLDMI, 5);
 
-  if (levyWalkPlanner == nullptr)
+  if (MIlevyWalkPlanner == nullptr)
     printf("NO Planner generated");
 
-  robot->set_planner(levyWalkPlanner);
+  robot->set_planner(MIlevyWalkPlanner);
+
+  // Setting a planner
+//  auto* planner = new myPlanner::base_planner(50, 0, Stg::Pose{0.0, 0.0, 0.0, 0.0}, Stg::Velocity(cruisesSpeed, 0, 0, turnSpeed));
+//
+//  robot->set_planner(planner);
 
   // Looking for fiducial sensors in the model.
   // This required for sharing map among robots using consensus
@@ -245,6 +257,7 @@ extern "C" int Init(Model *mod, CtrlArgs *args) {
   if(control_verbose){
     printf("found one");
   }
+
   robot->fiducial_sensor = fiducial_sensor;
   robot->fiducial_sensor->AddCallback(Model::CB_UPDATE, model_callback_t(newFiducialUpdate), robot);
   robot->fiducial_sensor->Subscribe(); // starts the fiducial sensor update
@@ -252,6 +265,9 @@ extern "C" int Init(Model *mod, CtrlArgs *args) {
   if (control_verbose){
     printf("\n*************************Process completed**************************");
   }
+
+
+
   return 0;
 }
 
@@ -272,11 +288,19 @@ int8_t newLaserUpdate(Model *, myRobot::robot *robot) {
     std::cerr << a << std::endl;
   }
 
-  if (robot->world->Paused() || record_maps) {
+  if ((robot->world->Paused() || record_maps)) {
     //printf("\n Paused");
     //printf("\n Writing the map");
-    if (robot->get_robot_id() == 1 || robot->get_robot_id() == 3)
+    if (robot->get_robot_id() == 1 || robot->get_robot_id() == 3) {
+      //std::cout<<" \nData from robot "<<robot->get_robot_id()<<std::endl;
       robot->write_map();
+//      std::cout << "\n The map percentage coverage is : " << robot->occ_grid_map->compute_map_coverage();
+//      std::cout << "\n The entropy of the map is : " << robot->occ_grid_map->compute_map_entropy();
+//      std::string path{"./robot"};
+//      robot->write_map_entropy(path + std::to_string(robot->get_robot_id()) + "/");
+//      robot->write_map_coverage(path + std::to_string(robot->get_robot_id()) + "/");
+//      std::cout << std::endl;
+    }
   }
 
   if (std::fabs(robot->world->SimTimeNow()/ 1000000.0 - quit_time) < robot->world->sim_interval/ 1000000.0 ){
@@ -380,7 +404,6 @@ int8_t newLaserUpdate(Model *, myRobot::robot *robot) {
     }
 
   }
-
   return 0;
 }
 
@@ -390,7 +413,7 @@ int8_t newFiducialUpdate(Model *, myRobot::robot *robot) {
   if (robot->verbose) { // displaying the output of fiducial sensor for debugging
     const auto &fiducials = robot->fiducial_sensor->GetFiducials();
     std::cout << "\n The number of robots detected is : " << fiducials.size() << std::endl;
-    if (fiducials.size()) {
+    if (!fiducials.empty()) {
       std::cout << "\nThe data of the fiducial sensor of " << robot->get_robot_name();
       std::cout << "\nThe field of view of the fiducial sensor is : " << robot->fiducial_sensor->fov << std::endl;
       std::cout << "\nThe heading of the fiducial sensor is : " << robot->fiducial_sensor->heading << std::endl;
@@ -403,38 +426,4 @@ int8_t newFiducialUpdate(Model *, myRobot::robot *robot) {
   robot->merge_map();
 
   return 0;
-}
-
-//double generateGaussianNoise(double variance) {
-//  static bool haveSpare = false;
-//  static double rand1, rand2;
-//
-//  if (haveSpare) {
-//    haveSpare = false;
-//    return sqrt(variance * rand1) * sin(rand2);
-//  }
-//
-//  haveSpare = true;
-//
-//  rand1 = rand() / ((double) RAND_MAX);
-//  if (rand1 < 1e-100)
-//    rand1 = 1e-100;
-//  rand1 = -2 * log(rand1);
-//  rand2 = (rand() / ((double) RAND_MAX)) * M_PI * 2;
-//
-//  return sqrt(variance * rand1) * cos(rand2);
-//}
-
-int PositionUpdate(Model *, myRobot::robot *robot) {
-
-  //Pose pre_pose = robot->previous_pose;
-  //printf("Pre Pose: [%.2f %.2f %.2f %.2f]\n", \
-    //pre_pose.x, pre_pose.y, pre_pose.z, pre_pose.a);
-//    Pose pose = robot->position->GetPose();
-//
-//    printf("Pose: [%.2f %.2f %.2f %.2f]\n", pose.x, pose.y, pose.z, pose.a);
-//    robot->previous_pose.x = pose.x;
-//    robot->previous_pose.y = pose.y;
-//    robot->previous_pose.a = pose.a;
-  return 0; // run again
 }

@@ -31,9 +31,11 @@ void robot::swarm_update(myRobot::robot* member)
   if (member->get_robot_id() == 1) {
     myRobot::robot::swarm[0] = member;
   } else {
-    myRobot::robot::swarm.push_back(member);
+    if (myRobot::robot::swarm.size() < member->get_robot_id()){
+      myRobot::robot::swarm.resize(static_cast<long unsigned>(member->get_robot_id()));
+    }
+    myRobot::robot::swarm[member->get_robot_id()-1] = member;
   }
-
 }
 
 void robot::move() {
@@ -166,7 +168,11 @@ void robot::move() {
       }
       if (planner->get_path()->front().computed_desPose) {
         // Move until the stage robot has reached the desired orientation up to a tolerance
-        if (std::fabs(planner->get_path()->front().des_pose.a - position->GetPose().a) < rad_tol) {
+        if ((std::fabs(planner->get_path()->front().des_pose.a - position->GetPose().a) < rad_tol &&
+            planner->get_path()->front().modes==MOTION_MODES::ROTATION_Z) ||
+            (std::fabs(planner->get_path()->front().des_pose.x - position->GetPose().x) +
+                std::fabs(planner->get_path()->front().des_pose.y - position->GetPose().y) < 2*rad_tol &&
+                planner->get_path()->front().modes==MOTION_MODES::TRANSLATION_X)) {
           planner->get_path()->pop();
         }
       } else {
@@ -175,7 +181,7 @@ void robot::move() {
           std::cout << "\n Motion end time is : " << planner->get_path()->front().motion_end_time << std::endl;
           std::cout << "\n Sim time is : " << world->SimTimeNow() / 1000000.0 << std::endl;
         }
-        if (std::fabs(planner->get_path()->front().motion_end_time - world->SimTimeNow() / 1000000.0) < time_tol) {
+        if (std::fabs(planner->get_path()->front().motion_end_time < (world->SimTimeNow() / 1000000.0))) {
           planner->get_path()->pop();
         }
       }
@@ -185,7 +191,13 @@ void robot::move() {
       planner->set_startPose(position->GetPose());
       try {
         // try to generate a new path
-        planner->generate_path(world->SimTimeNow() / 1000000.0);
+        if (planner->is_using_map()){ // call methods based if the planner uses map or not
+          planner->generate_path(world->SimTimeNow() / 1000000.0, occ_grid_map);
+        } else{
+          planner->generate_path(world->SimTimeNow() / 1000000.0);
+          //std::cout<<"\nnot using map\n";
+          }
+
       }
       catch (const char *error) {
         std::cerr << error << std::endl;
@@ -215,7 +227,8 @@ void robot::build_map() {
   //printf("\n The measurement at a new pose \n");
   //base_pose.Print("base pose ");
   //std::cout<<std::endl;
-  const int ray_incre = 5; // interval in choosing the laser rays
+  const int no_of_rays = 10;
+  const int ray_incre = laserSensor.sample_count/no_of_rays; // interval in choosing the laser rays
   // Iterate through each ray in the interval ray_incre
   for (int i = 0; i < laserSensor.sample_count; i += ray_incre) {
 
@@ -224,7 +237,7 @@ void robot::build_map() {
     occ_grid_map->ray_trace_all(laserSensor.pose.x + base_pose.x, laserSensor.pose.y + base_pose.y,
                                 laserSensor.bearings[i] + base_pose.a, laserSensor.ranges[i],
                                 passed_grids_ranges);
-    if (verbose) {
+    if (verbose&&0) {
       for (auto it = passed_grids_ranges.begin(); it != passed_grids_ranges.end(); ++it) {
         if (i == 0) { // for debugging
           printf("\n (%d,%d) is at a distance of %f from the first point", it->second[0], it->second[1], it->first);
@@ -249,9 +262,20 @@ void robot::build_map() {
 
     for (auto it = occ_probability.begin(); it != occ_probability.end(); ++it) {
       // In the case of combining probability values for occupancyGrid2D objects
-      double v =
-          static_cast<double>(occ_grid_map->get(it->first[0], it->first[1])) / occupancyGrid2D<double, int>::OCCUPIED;
+      double v = static_cast<double>(occ_grid_map->get(it->first[0], it->first[1])) /
+                  static_cast<double>(occupancyGrid2D<double, int>::OCCUPIED);
       //occ_grid_map->set(it->first[0], it->first[1], static_cast<uint8_t>(occ_grid_map->OCCUPIED*(0.5*(it->second))+0.5*v));
+      // TODO delete the line below after debugging
+//      if (static_cast<uint8_t>(occupancyGrid2D<double, int>::OCCUPIED * ((it->second) * v))>0){
+//        std::cout<<"the value of it->second is : "<<(it->second)<<std::endl;
+//        std::cout<<"the value of v is : "<<v<<std::endl;
+//        std::cout<<"the value of OCCUPIED is : "<<static_cast<double>(occupancyGrid2D<double, int>::OCCUPIED)<<std::endl;
+//        std::cout<<"the value of the point is : "<<static_cast<double>(occ_grid_map->get(it->first[0], it->first[1]))<<std::endl;
+//        std::cout<<"the value computed is non zero which is : "<<(it->second * v)<<std::endl;
+//      } else{
+//        std::cout<<"the value when computed to be zero is "<<static_cast<uint8_t>(occupancyGrid2D<double, int>::OCCUPIED * ((it->second) * v))<<std::endl;
+//      }
+
       occ_grid_map->set(it->first[0],
                         it->first[1],
                         static_cast<uint8_t>(occupancyGrid2D<double, int>::OCCUPIED * ((it->second) * v)));
@@ -298,7 +322,7 @@ void robot::merge_map(const std::vector<myRobot::robot *> &swarm)
 
 {
   // Check if robot found any other robot on its fiducial sensor
-  if (fiducial_sensor->GetFiducials().size() > 0) {
+  if (!fiducial_sensor->GetFiducials().empty()) {
     const auto &fiducials = fiducial_sensor->GetFiducials(); // create a const reference to the sensor output vector
     // iterate through each fiducial in fiducials for merging the map with the robot found in the fidicual sensor
     for (auto fid : fiducials) {
@@ -328,7 +352,7 @@ void robot::merge_map()
 
 {
   // Check if robot found any other robot on its fiducial sensor
-  if (fiducial_sensor->GetFiducials().size() > 0) {
+  if (!fiducial_sensor->GetFiducials().empty()) {
     const auto &fiducials = fiducial_sensor->GetFiducials(); // create a const reference to the sensor output vector
     // iterate through each fiducial in fiducials for merging the map with the robot found in the fidicual sensor
     for (auto fid : fiducials) {
@@ -353,21 +377,148 @@ void robot::merge_map()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void robot::write_map()
+void robot::write_map(std::string path, std::string prefix)
 /**
- *
+ * write the map stored in the robot as an image
  */
 {
   std::string count = std::to_string(image_count);
   count = std::string(9 - count.length(), '0') + count;
-  std::string filename = img_path + robot_name + "_" + count + img_type;
+  std::string filename;
+  if (path.length() == 0){
+     filename = img_path + prefix + "_" +robot_name + "_" + count + img_type;
+  } else{
+     filename = path + prefix + "_" +robot_name + "_" + count + img_type;
+  }
+
   //std::cout<<"\n writing map as "<<filename<<std::endl;
   try {
+    //auto start = clock();
     occ_grid_map->map_write(filename, myRobot::robot::gen_id);
+    //auto stop = clock();
+    //std::cout<<"\n the time for image writing is : "<<(stop-start)/double(CLOCKS_PER_SEC)*1000 <<std::endl;
+
     image_count++;
   } catch (std::runtime_error &ex) {
     fprintf(stderr, "Exception converting image to PNG format: %s\n", ex.what());
 
   }
 
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void robot::write_map_txt(std::string path, std::string prefix)
+/**
+ * write the map stored in the robot to a text file
+ */
+{
+  static unsigned long image_txt_count = 0;
+  std::string count = std::to_string(image_txt_count);
+  count = std::string(9 - count.length(), '0') + count;
+  std::string filename;
+  if (path.length() == 0){
+    filename = img_path + prefix + "_" +robot_name + "_" + count + ".txt";
+  } else{
+    filename = path + prefix + "_" +robot_name + "_" + count + ".txt";
+  }
+
+
+  // Writing as an image is at least 20 times faster than writing to an text file
+  occ_grid_map->map_txt_write(filename,myRobot::robot::gen_id, true);
+  image_txt_count++;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void robot::add_map_entropy()
+/**
+ * the method add the entropy of the map at each instant to a list
+ */
+{
+  double time = world->SimTimeNow()/1000000.0;
+  map_entropy.emplace_back(std::pair<double, double>{time, occ_grid_map->compute_map_entropy()});
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void robot::add_map_coverage()
+/**
+ * method to add the percentage of map covered at each instant to a list
+ */
+{
+  double time = world->SimTimeNow()/1000000.0;
+  map_coverage.emplace_back(std::pair<double, double>{time, occ_grid_map->compute_map_coverage()});
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+void robot::write_map_entropy(std::string path, std::string prefix)
+/**
+ * write entropy list stored in map_entropy to a text file with file name prefix+robot_{id}_entropy.txt
+ * @param path : Path to store the text file ending with a /
+ * @param prefix : any prefix to be added to the file name
+ */
+{
+  if (map_entropy.empty()){
+    std::cout<<"\nEntropy is not computed\n";
+    return;
+  }
+  std::string filename{path + prefix + "robot_" + std::to_string(robot_id) + "_entropy.txt"};
+  if(verbose){
+    std::cout<<"\n Writing to : "<<filename<<std::endl;
+  }
+
+  // write the list to a text file
+
+  std::ofstream f_out(filename);
+
+  if(!f_out) {
+    std::cout<<"File not opened \n";
+    return;
+  }
+
+  for(const auto& it : map_entropy){
+    f_out<<it.first<<" "<<it.second<<std::endl;
+  }
+  // closing the file stream
+  f_out.close();
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+void robot::write_map_coverage(std::string path, std::string prefix)
+/**
+ * write data stored in the list map_coverage to a text file with file name prefix+robot_{id}_coverage.txt
+ * @param path : Path to store the text file ending with a /
+ * @param prefix : any prefix to be added to the file name
+ */
+{
+  if (map_coverage.empty()){
+    std::cout<<"\nCoverage is not computed\n";
+    return;
+  }
+  std::string filename{path + prefix + "robot_" + std::to_string(robot_id) + "_coverage.txt"};
+  if(verbose){
+    std::cout<<"\n Writing to : "<<filename<<std::endl;
+  }
+
+
+  // write the list to a text file
+
+  std::ofstream f_out(filename);
+
+  if(!f_out) {
+    std::cout<<"File not opened \n";
+    return;
+  }
+
+  for(const auto& it : map_coverage){
+    f_out<<it.first<<" "<<it.second<<std::endl;
+  }
+  // closing the file stream
+  f_out.close();
 }

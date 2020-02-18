@@ -34,31 +34,61 @@ inline int signum(T val) {
   return ((T(0) < val) - (val < T(0)));
 }
 
+/**
+ * a class for performin ray tracing operation
+ * @tparam real_t : real template data type
+ * @tparam int_t : integer template data type
+ */
 template<typename real_t, typename int_t>
 class ray_trace_iterator : public boost::iterator_facade<ray_trace_iterator<real_t, int_t>, std::pair<int_t, int_t>,
                                                          boost::forward_traversal_tag, std::pair<int_t, int_t>> {
 
  private:
 
+  /// a typedef type to handle the elements of the iterator
   typedef typename boost::iterator_facade<ray_trace_iterator<real_t, int_t>, std::pair<int_t, int_t>,
                                           boost::forward_traversal_tag, std::pair<int_t, int_t>> super_t;
   // Input arguments
-  real_t px_, py_, dx_, dy_, origin_x, origin_y, cell_size_x, cell_size_y;
+  /// x coordinate of the start point
+  real_t px_;
+  /// y coordinate of the start point
+  real_t py_;
+  /// differential along x
+  real_t dx_;
+  /// differential along y
+  real_t dy_;
+  /// origin x
+  real_t origin_x;
+  /// origin y
+  real_t origin_y;
+  /// cell size along x
+  real_t cell_size_x;
+  /// cell size along y
+  real_t cell_size_y;
 
   // Intermediate variables for faster computation
 
-  /// integral steps (direction) (-1, 0, 1) in both x and y
-  int_t dir_x, dir_y;
-  /// distance to the nearest grid line
-  real_t ex_, ey_;
-  /// Maximum time to collision (from one grid line to next)
-  real_t Tx_, Ty_;
-
+  /// integral steps (direction) (-1, 0, 1) in x
+  int_t dir_x;
+  /// integral steps (direction) (-1, 0, 1) in y
+  int_t dir_y;
+  /// distance to the nearest grid line in x
+  real_t ex_;
+  /// distance to the nearest grid line in y
+  real_t ey_;
+  /// Maximum time to collision (from one grid line to next) in x
+  real_t Tx_;
+  /// Maximum time to collision (from one grid line to next) in y
+  real_t Ty_;
   // State of iterator
-  /// Grid index
-  int_t i_, j_;
-  /// time to collision to next grid line
-  real_t tx_, ty_;
+  /// Grid index row
+  int_t i_;
+  /// Grid index column
+  int_t j_;
+  /// time to collision to next grid line along x
+  real_t tx_;
+  /// time to collision to next grid line along x
+  real_t ty_;
 
  public:
 
@@ -127,22 +157,38 @@ class ray_trace_iterator : public boost::iterator_facade<ray_trace_iterator<real
 
   }
 
-  typename super_t::reference dereference() const {
+  typename super_t::reference dereference() const
+  /**
+    * @return : a pair of coordinates
+    */
+  {
     return std::make_pair(i_, j_);
   }
 
-  bool equal(ray_trace_iterator it) const {
-    /// function to check if the objects are equal
+  bool equal(ray_trace_iterator it) const
+  /**
+   * function to check if the objects are equal
+   * @param it : object to check equality with
+   * @return : bool of the equality state
+   */
+  {
     return ((it.i_ == i_) && (it.j_ == j_) &&
         (it.tx_ == tx_) && (it.ty_ == ty_) &&
         (it.Tx_ == Tx_) && (it.Ty_ == Ty_) &&
         (it.dir_x == dir_x) && (it.dir_y == dir_y));
   }
 
-  /// overload the == operator
+  // overload the == operator
 //      friend bool operator== (const ray_trace_iterator<real_t, int_t>& it1,
 //                              const ray_trace_iterator<real_t, int_t>& it2);
-  friend bool operator==(const ray_trace_iterator<real_t, int_t> &it1, const ray_trace_iterator<real_t, int_t> &it2) {
+  friend bool operator==(const ray_trace_iterator<real_t, int_t> &it1, const ray_trace_iterator<real_t, int_t> &it2)
+  /**
+   * friend == operator
+   * @param it1 : first element
+   * @param it2 : second element
+   * @return : whether it1 == it2
+   */
+  {
     return ((it1.i_ == it2.i_) && (it1.j_ == it2.j_) &&
         (it1.tx_ == it2.tx_) && (it1.ty_ == it2.ty_) &&
         (it1.Tx_ == it2.Tx_) && (it1.Ty_ == it2.Ty_) &&
@@ -156,7 +202,13 @@ class ray_trace_iterator : public boost::iterator_facade<ray_trace_iterator<real
 };
 
 template<typename real_t, typename int_t>
-void ray_trace_iterator<real_t, int_t>::increment() {
+void ray_trace_iterator<real_t, int_t>::increment()
+/**
+ * finds the next element along the ray
+ * @tparam real_t : real template data type
+ * @tparam int_t : integer template data type
+ */
+{
   if (tx_ < ty_) {
     i_ += dir_x;
     ty_ = ty_ - tx_;
@@ -169,7 +221,14 @@ void ray_trace_iterator<real_t, int_t>::increment() {
 }
 
 template<typename real_t, typename int_t>
-std::pair<real_t, real_t> ray_trace_iterator<real_t, int_t>::real_position() const {
+std::pair<real_t, real_t> ray_trace_iterator<real_t, int_t>::real_position() const
+/**
+ * finds the coordinates of the next grid position (x,y)
+ * @tparam real_t : real template data type
+ * @tparam int_t : integer template data type
+ * @return : returns coordinates as a pair
+ */
+{
 
   // whether the grid line we are going to hit is floor() or ceil()
   // depends on the direction ray is moving

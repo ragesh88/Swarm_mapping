@@ -8,7 +8,7 @@ include "mySick.inc"
 
 # time to pause (in GUI mode) or quit (in headless mode (-g)) the simulation
 #quit_time 3600 # 3600 seconds of simulated time
-quit_time 900 # 900 seconds of simulated time
+quit_time 900 # 1080 seconds of simulated time
 #quit_time 0.1 # 900 seconds of simulated time
 
 # threads may speed things up here depending on available CPU cores & workload  
@@ -97,7 +97,7 @@ pioneer2dx
   #) 
   # demonstrate a plugin controller, implemented in examples/ctrl/wander.cc
   # you probably should comment this out when using simple.cfg with Player
-  ctrl "mylevyWalker"
+  ctrl "myMILevywalker"
 
   # report error-free position in world coordinates
   localization "gps"
@@ -132,7 +132,7 @@ pioneer2dx
   ) 
   # demonstrate a plugin controller, implemented in examples/ctrl/wander.cc
   # you probably should comment this out when using simple.cfg with Player
-  ctrl "mylevyWalker"
+  ctrl "myMILevywalker"
 
   # report error-free position in world coordinates
   localization "gps"
@@ -168,7 +168,7 @@ pioneer2dx
   ) 
   # demonstrate a plugin controller, implemented in examples/ctrl/wander.cc
   # you probably should comment this out when using simple.cfg with Player
-  ctrl "mylevyWalker"
+  ctrl "myMILevywalker"
 
   # report error-free position in world coordinates
   localization "gps"
@@ -203,7 +203,7 @@ pioneer2dx
   ) 
   # demonstrate a plugin controller, implemented in examples/ctrl/wander.cc
   # you probably should comment this out when using simple.cfg with Player
-  ctrl "mylevyWalker"
+  ctrl "myMILevywalker"
 
   # report error-free position in world coordinates
   localization "gps"
@@ -213,3 +213,37 @@ pioneer2dx
     
 )
 
+pioneer2dx
+(		  
+  # can refer to the robot by this name
+  name "pio5"
+  # for identification using fiducial sensor
+  fiducial_return 5
+  pose [ 0.00 -1.50 0 0.000 ] 
+  #pose [ -4.946 -5.947 0 10.000 ] 
+
+  # pioneer2dx's sonars	will be ranger:0 and the laser will be ranger:1
+  sicklaser( 
+		pose [ 0.000 0.000 0.000 0.000 ] 
+		#noise [ 0.01 0.02 0.03 ]
+		#ctrl "lasernoise"
+		alwayson 1 # don't wait for a subscriber
+	) 
+  fiducial
+  (
+    pose [ 0 0 0 0 ]
+    range_max 2
+    range_max_id 2
+    fov 360
+  ) 
+  # demonstrate a plugin controller, implemented in examples/ctrl/wander.cc
+  # you probably should comment this out when using simple.cfg with Player
+  ctrl "myMILevywalker"
+
+  # report error-free position in world coordinates
+  localization "gps"
+  localization_origin [ 0 0 0 0 ]
+
+  #trail_length 400
+    
+)
