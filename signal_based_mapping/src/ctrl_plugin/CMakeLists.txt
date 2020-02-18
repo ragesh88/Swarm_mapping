@@ -4,6 +4,7 @@ SET( PLUGINS
   mylevyWalker
   myMILevywalker
   MILevywalker_alpha
+  MILevywalker_Alberto_merger
 )
 
 
