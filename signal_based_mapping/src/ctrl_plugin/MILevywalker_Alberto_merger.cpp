@@ -18,7 +18,7 @@
  of unknown environments"
 **/
 
-// TODO: start working on this
+
 
 #include "robot/robot.h"
 #include <boost/algorithm/string.hpp>
@@ -436,7 +436,8 @@ int8_t newFiducialUpdate(Model *, myRobot::robot *robot) {
 
     // merge the map
     //robot->merge_map(robots_pointer);
-    robot->merge_map();
+    // robot->merge_map();
+    robot->alberto_merge_map();
 
     return 0;
 }

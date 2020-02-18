@@ -364,6 +364,8 @@ class robot {
 
   void merge_map();
 
+  void alberto_merge_map();
+
   void add_map_entropy();
 
   void add_map_coverage();

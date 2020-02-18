@@ -314,6 +314,178 @@ void merger(cv::Mat &map1, const cv::Mat &map2)
 
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void alberto_merger(cv:: Mat &img1, const cv::Mat &img2)
+/**
+ * This function merges the maps map1 and map2 according to
+ * strategy developed by Alberto in "A real-time map merging
+ * strategy for robust collaborative reconstruction of unknown environments"
+ * @param map1 : occupancy grid map of robot 1
+ * @param map2 : occupancy grid map of robot 2
+ */
+{
+    bool pub_merged_images = true;
+    double tx = 0.0;
+    double ty = 0.0;
+    double angT_Q = 0.0;// + (3.5*M_PI)/180;
+    double sang = sin(angT_Q);
+    double cang = cos(angT_Q);
+//    std::cout << "       -> Transformed: (" << tx << "," << ty << "," << angT_Q << ") " << std::endl;
+
+    int row_min=0, row_max=0, col_min=0, col_max=0;
+    int row1=(int)img1.rows, row2=(int)img2.rows, col1=(int)img1.cols, col2=(int)img2.cols;
+    int height = row2;
+    int width = col2;
+    int height_min = 0;
+    int width_min  = 0;
+    int height_max = row2;
+    int width_max  = col2;
+
+    int i,j;
+    int x,y;
+    for(i=0; i<row1; i++ ){
+        for(j=0; j<col1; j++ ){
+            x = j*cang - i*sang + tx;
+            y = j*sang + i*cang + ty;
+            //std::cout << "i " << i << " y j " << j << " x " << x << " y y " << y << std::endl;
+            if(x < col_min){
+                col_min = x;
+            }else if(x > col_max){
+                col_max = x;
+            }
+            if(y < row_min){
+                row_min = y;
+            }else if(y > row_max){
+                row_max = y;
+            }
+        }
+    }
+
+    //int x = 106*cos(angT_Q) - 205*sin(angT_Q) + tx;
+    //int y = 106*sin(angT_Q) + 205*cos(angT_Q) + ty;
+    //std::cout << "EXTREMES " << x << " y " << y << std::endl;
+    std::cout << "       -> Lims: " << row_min << "," << row_max << " y " << col_min << "," << col_max << std::endl;
+
+
+    if(row_min<0){	height_min = std::abs(row_min);	height+= height_min;	}
+    if(row_max>row2){	height_max = (row_max-row2)+1;	height+= height_max;	};
+    if(col_min<0){	width_min  = std::abs(col_min);	width+=  width_min;	};
+    if(col_max>col2){	width_max  = (col_max-col2)+1;	width+=  width_max;	};
+
+    std::cout << "       -> Height: " << height_min << " y " << height_max <<  " -> Width: " <<
+    width_min << " y " << width_max << std::endl;
+    std::cout << "       -> Height: " << height << " H_min " << height_min <<  " -> Width: " <<
+    width << " W_min " << width_min << std::endl;
+
+    cv::Mat img;
+    if(pub_merged_images){	img = cv::Mat( height, width, CV_8U,
+            cv::Scalar(occupancy_grid::occupancyGrid2D<double, int>::OCCUPIED) );
+    }
+    int8_t map_[height+1][width+1];
+    std::fill(map_[0], map_[0] + (height+1)*(1+width), -1);
+    int img_dat = 127;
+    int img12_dat = 127;
+
+//    wi_he.push_back(width_min);
+//    wi_he.push_back(height_min);
+//putting image 1 in img_merged
+
+    std::cout << "       -> Img1: " << img1.cols << "," << img1.rows << std::endl;
+    std::cout << "       -> Img2: " << img2.cols << "," << img2.rows << std::endl;
+    std::cout << "       -> Img: " <<  img.cols <<  "," << img.rows << std::endl;
+
+    int rs =  sizeof map_ / sizeof map_[0]; // 2 rows
+    int cs = sizeof map_[0] / sizeof(int8_t); // 5 cols
+
+    std::vector<int8_t> data(height*width);
+    std::fill (data.begin(),data.begin()+height*width,-1);
+    std::cout << "       -> putting image 1 in img_merged " << rs << " " << cs << std::endl;
+    for(i=0; i<row1; i++ ){
+        for(j=0; j<col1; j++ ){
+            x = j*cang - i*sang + tx + width_min;
+            y = j*sang + i*cang + ty + height_min;
+            //std::cout << "       -> img1 (" << j << "," << i << ")" << " (" << x << "," << y << "): " << img1.at<uchar>(i,j)  << " " << x+y*width << std::endl;
+            if(y>=height || x>=width) continue;
+
+            img_dat = img1.at<uchar>(i,j);
+            data.at(x+y*width) = (img_dat<10) ? 100: (img_dat>250) ? 0:-1;
+            //map_[y][x] =  (img_dat<10) ? 100: (img_dat>250) ? 0:-1;
+            if(pub_merged_images){	img.at<uchar>(y,x) = img_dat;	};
+        }
+    }
+
+//Putting Image 2 in img_merged
+
+    std::cout << "       -> Putting Image 2 in img_merged "<< std::endl;
+    for(i=0; i<row2; i++ ){
+        for(j=0; j<col2; j++ ){
+            x = j + width_min;
+            y = i + height_min;
+            img12_dat = img2.at<uchar>(i,j);
+            img_dat = (img12_dat<10) ? 100: (img12_dat>250) ? 0:-1 ;
+
+            switch ( img_dat ) {
+                case 0:
+                    if( /*map_[y][x]*/data.at(x+y*width) ==-1 ){
+                        //map_[y][x] = img_dat;
+                        data.at(x+y*width) = img_dat;
+                        if(pub_merged_images){	img.at<uchar>(y,x) = img12_dat;	};
+                    }
+                    break;
+                case 100:
+                    if( /*map_[y][x]*/data.at(x+y*width) ==-1 ){
+                        //map_[y][x] = img_dat;
+                        data.at(x+y*width) = img_dat;
+                        if(pub_merged_images){	img.at<uchar>(y,x) = img12_dat;	};
+                    }else if( /*map_[y][x]*/data.at(x+y*width) ==0 ){
+                        //map_[y][x] = img_dat;
+                        data.at(x+y*width) = img_dat;
+                        if(pub_merged_images){	img.at<uchar>(y,x) = img12_dat;	};
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    std::cout << "       -> Building OccupancyGrid Object "<< std::endl;
+
+    // copy the merged map to map1
+    img.copyTo(img1);
+
+    /*for(y=0; y<height; y++){
+        for(x=0; x<width; x++){
+            data.push_back(map_[y][x]);
+        }
+    }*/
+//    map.data  = data;
+//    map.info.width  = width;
+//    map.info.height  = height;
+//    map.info.origin.position.x  = -((map.info.resolution/2.f)+(width/2)*map.info.resolution);
+//    map.info.origin.position.y  = -((map.info.resolution/2.f)+(height/2)*map.info.resolution);
+
+
+//    if(pub_merged_images){
+//        std::stringstream ss;
+//        ss << "/home/ingcavh/Workspace/catkin_ws/src/tesis_pkg/map_merging_pkg/images/merged_images1.jpg";
+//        cv::imwrite( ss.str(), img1 );
+//        ss.str("");
+//        ss << "/home/ingcavh/Workspace/catkin_ws/src/tesis_pkg/map_merging_pkg/images/merged_images2.jpg";
+//        cv::imwrite( ss.str(), img2 );
+//        ss.str("");
+//        ss << "/home/ingcavh/Workspace/catkin_ws/src/tesis_pkg/map_merging_pkg/images/merged_img" << merg << ".jpg";
+//        cv::imwrite( ss.str(), img );
+//        merg++;
+//        std::cout << "       -> Save Merged images: " << merg << std::endl;
+//
+//    }
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void robot::merge_map(const std::vector<myRobot::robot *> &swarm)
 /**
  * The function merge the map between robots
@@ -376,6 +548,35 @@ void robot::merge_map()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+void robot::alberto_merge_map()
+/**
+ * The function merge the map between robots using alberto merger
+ */
+
+{
+    // Check if robot found any other robot on its fiducial sensor
+    if (!fiducial_sensor->GetFiducials().empty()) {
+        const auto &fiducials = fiducial_sensor->GetFiducials(); // create a const reference to the sensor output vector
+        // iterate through each fiducial in fiducials for merging the map with the robot found in the fidicual sensor
+        for (auto fid : fiducials) {
+            // encountering this robot for the first time
+            if (fid.id > last_communication.size()) {
+                last_communication.resize(static_cast<uint>(fid.id), 0.0);
+            }
+            // check if ample time has past since the map merger
+            if (last_communication[fid.id - 1] + comm_delay < world->SimTimeNow() / 1000000.0) {
+                // access the data of the robot in the swarm with fiducial id obtained from robot's fiducial sensor
+                // and the merge map using the merger functions
+                alberto_merger(occ_grid_map->og_, myRobot::robot::swarm[fid.id - 1]->occ_grid_map->og_);
+                last_communication[fid.id - 1] = world->SimTimeNow() / 1000000.0; // update the communication time
+            }
+
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void robot::write_map(std::string path, std::string prefix)
 /**
