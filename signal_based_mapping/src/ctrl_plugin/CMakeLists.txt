@@ -3,6 +3,7 @@
 SET( PLUGINS
   mylevyWalker
   myMILevywalker
+  MILevywalker_alpha
 )
 
 

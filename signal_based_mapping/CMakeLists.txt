@@ -23,6 +23,9 @@ link_directories(~/stg/lib)
 # add the generated libraries
 #link_directories(GENERATED_LIB)
 
+# set the Open CV directories
+SET(OpenCV_DIR /opt/ros/kinetic/share/OpenCV-3.3.1-dev)
+
 # Find the Open CV package
 find_package( OpenCV REQUIRED core imgproc highgui)
 
@@ -38,6 +41,10 @@ find_package( Boost COMPONENTS date_time filesystem system program_options REQUI
 
 # include the header files directory
 include_directories(${CMAKE_SOURCE_DIR}/include)
+
+# include the opencv header files directory
+include_directories(/opt/ros/kinetic/include/opencv-3.3.1-dev)
+
 
 #include the stage library header files
 include_directories(~/stg/include)
