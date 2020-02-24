@@ -365,7 +365,7 @@ void alberto_merger(cv:: Mat &img1, const cv::Mat &img2)
     //int x = 106*cos(angT_Q) - 205*sin(angT_Q) + tx;
     //int y = 106*sin(angT_Q) + 205*cos(angT_Q) + ty;
     //std::cout << "EXTREMES " << x << " y " << y << std::endl;
-    std::cout << "       -> Lims: " << row_min << "," << row_max << " y " << col_min << "," << col_max << std::endl;
+//    std::cout << "       -> Lims: " << row_min << "," << row_max << " y " << col_min << "," << col_max << std::endl;
 
 
     if(row_min<0){	height_min = std::abs(row_min);	height+= height_min;	}
@@ -373,10 +373,10 @@ void alberto_merger(cv:: Mat &img1, const cv::Mat &img2)
     if(col_min<0){	width_min  = std::abs(col_min);	width+=  width_min;	};
     if(col_max>col2){	width_max  = (col_max-col2)+1;	width+=  width_max;	};
 
-    std::cout << "       -> Height: " << height_min << " y " << height_max <<  " -> Width: " <<
-    width_min << " y " << width_max << std::endl;
-    std::cout << "       -> Height: " << height << " H_min " << height_min <<  " -> Width: " <<
-    width << " W_min " << width_min << std::endl;
+//    std::cout << "       -> Height: " << height_min << " y " << height_max <<  " -> Width: " <<
+//    width_min << " y " << width_max << std::endl;
+//    std::cout << "       -> Height: " << height << " H_min " << height_min <<  " -> Width: " <<
+//    width << " W_min " << width_min << std::endl;
 
     cv::Mat img;
     if(pub_merged_images){	img = cv::Mat( height, width, CV_8U,
@@ -391,16 +391,16 @@ void alberto_merger(cv:: Mat &img1, const cv::Mat &img2)
 //    wi_he.push_back(height_min);
 //putting image 1 in img_merged
 
-    std::cout << "       -> Img1: " << img1.cols << "," << img1.rows << std::endl;
-    std::cout << "       -> Img2: " << img2.cols << "," << img2.rows << std::endl;
-    std::cout << "       -> Img: " <<  img.cols <<  "," << img.rows << std::endl;
+//    std::cout << "       -> Img1: " << img1.cols << "," << img1.rows << std::endl;
+//    std::cout << "       -> Img2: " << img2.cols << "," << img2.rows << std::endl;
+//    std::cout << "       -> Img: " <<  img.cols <<  "," << img.rows << std::endl;
 
     int rs =  sizeof map_ / sizeof map_[0]; // 2 rows
     int cs = sizeof map_[0] / sizeof(int8_t); // 5 cols
 
     std::vector<int8_t> data(height*width);
     std::fill (data.begin(),data.begin()+height*width,-1);
-    std::cout << "       -> putting image 1 in img_merged " << rs << " " << cs << std::endl;
+//    std::cout << "       -> putting image 1 in img_merged " << rs << " " << cs << std::endl;
     for(i=0; i<row1; i++ ){
         for(j=0; j<col1; j++ ){
             x = j*cang - i*sang + tx + width_min;
@@ -417,7 +417,7 @@ void alberto_merger(cv:: Mat &img1, const cv::Mat &img2)
 
 //Putting Image 2 in img_merged
 
-    std::cout << "       -> Putting Image 2 in img_merged "<< std::endl;
+//    std::cout << "       -> Putting Image 2 in img_merged "<< std::endl;
     for(i=0; i<row2; i++ ){
         for(j=0; j<col2; j++ ){
             x = j + width_min;
@@ -450,7 +450,7 @@ void alberto_merger(cv:: Mat &img1, const cv::Mat &img2)
         }
     }
 
-    std::cout << "       -> Building OccupancyGrid Object "<< std::endl;
+//    std::cout << "       -> Building OccupancyGrid Object "<< std::endl;
 
     // copy the merged map to map1
     img.copyTo(img1);
