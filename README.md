@@ -1,4 +1,4 @@
-# stage_simulation
+# TRO 2020 paper simulation on STAGE
 
 The repository contain files for the simulation performed in Stage simulator. 
 
